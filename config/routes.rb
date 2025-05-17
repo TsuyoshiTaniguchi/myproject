@@ -1,6 +1,8 @@
 Rails.application.routes.draw do
+  devise_for :admins
   devise_for :users
-
+  
+  get "users/mypage", to: "users#mypage"
   root 'homes#top'
   resources :posts
   
