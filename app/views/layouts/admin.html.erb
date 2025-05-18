@@ -1,0 +1,10 @@
+<nav>
+  <ul>
+    <li><%= link_to "ダッシュボード", admin_root_path %></li>
+    <li><%= link_to "ユーザー管理", admin_users_path %></li>
+    <li><%= link_to "投稿管理", admin_posts_path %></li>
+    <li><%= link_to "ログアウト", destroy_admin_session_path, method: :delete, data: { confirm: "ログアウトしますか？" } %></li>
+  </ul>
+</nav>
+
+<%= yield %> <!-- ここにページのコンテンツが表示される -->

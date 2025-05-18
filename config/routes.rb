@@ -27,8 +27,9 @@ Rails.application.routes.draw do
   namespace :admin do
     resources :users, only: [:index, :destroy]
     resources :posts, only: [:index, :destroy]
-    root "dashboard#index"
+    root to: "dashboard#index" # 例: 管理者トップページ用コントローラ
   end
+
 
   # トップページ
   root 'homes#top'
