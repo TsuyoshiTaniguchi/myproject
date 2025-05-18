@@ -1,0 +1,4 @@
+<h2>退会する</h2>
+<p>本当に退会しますか？</p>
+
+<%= button_to "退会する", withdraw_public_user_path(current_user), method: :patch, data: { confirm: "退会すると元に戻せません。よろしいですか？" } %>

@@ -8,16 +8,18 @@ Rails.application.routes.draw do
     sessions: "admin/sessions"
   }
 
-  # ユーザー関連
-  resources :users, only: [:show]
-
-  # 投稿関連
+  # 一般ユーザー関連
   namespace :public do
-    resources :posts
-  end
-  resources :posts do
-    resources :comments, only: [:create, :destroy]
-    resources :likes, only: [:create, :destroy]
+    resources :users, only: [:show, :edit, :update, :destroy] do
+      member do
+        patch :withdraw
+      end
+    end
+
+    resources :posts do
+      resources :comments, only: [:create, :destroy]
+      resources :likes, only: [:create, :destroy]
+    end
   end
 
   # 管理者専用ページ
@@ -29,6 +31,4 @@ Rails.application.routes.draw do
 
   # トップページ
   root 'homes#top'
-
-  # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 end
