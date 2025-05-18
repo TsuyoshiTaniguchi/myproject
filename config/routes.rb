@@ -1,12 +1,13 @@
 Rails.application.routes.draw do
   # 認証関連
-  devise_for :users, skip: [:passwords], controllers: {
+  devise_for :users, controllers: {
     registrations: "public/registrations",
-    sessions: 'public/sessions'
-  }
-  devise_for :admins, skip: [:registrations, :passwords], controllers: {
+    sessions: "public/sessions"
+  }, path: "users"
+
+  devise_for :admins, controllers: {
     sessions: "admin/sessions"
-  }
+  }, path: "admin"
 
   # 一般ユーザー関連
   namespace :public do
@@ -31,4 +32,6 @@ Rails.application.routes.draw do
 
   # トップページ
   root 'homes#top'
+  get 'about', to: 'homes#about' 
+
 end

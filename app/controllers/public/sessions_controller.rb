@@ -21,7 +21,38 @@ class Public::SessionsController < Devise::SessionsController
   # protected
 
   # If you have extra params to permit, append them to the sanitizer.
+
+  def after_sign_in_path_for(resource) #会員のログイン後の遷移先
+    root_path
+  end
+
+  def after_sign_out_path_for(resource) #会員のログアウト後の遷移先
+    root_path
+  end
+
   # def configure_sign_in_params
   #   devise_parameter_sanitizer.permit(:sign_in, keys: [:attribute])
   # end
+
+  private
+# アクティブであるかを判断するメソッド
+  def customer_state
+  # 【処理内容1】 入力されたemailからアカウントを1件取得
+  user = User.find_by(email: params[:user][:email])
+  # 処理内容2
+  # customer.nil?ではないことに注意, ここではcustomerが存在する場合に後続の処理を実行したいため
+      if user
+    # 処理内容3
+    # unlessではないことに注意, ここではパスワードが正しい場合に後続の処理を実行したいため
+      if user.valid_password?(params[:user][:password])
+      #処理内容４
+        flash[:notice] = "退会済みです。再度ご登録をしてご利用ください"
+        redirect_to new_user_registration_path
+      else
+        flash[:notice] = "項目を入力してください"
+      end
+      else
+      flash[:notice] = "該当するユーザーが見つかりません"
+      end
+  end
 end
