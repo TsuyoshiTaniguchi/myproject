@@ -1,0 +1,4 @@
+<% @posts.each do |post| %>
+  <p><%= post.title %></p>
+  <%= link_to "削除", post_path(post), method: :delete, data: { confirm: "本当に削除しますか？" } %>
+<% end %>
