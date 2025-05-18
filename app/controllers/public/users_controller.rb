@@ -18,7 +18,13 @@ class Public::UsersController < ApplicationController
       render :edit
     end
   end
-
+  
+  # 退会確認
+  def confirm_withdraw
+    # ログインしているユーザー本人のデータ
+    @user = current_user
+  end
+  
   def withdraw
     current_user.update(status: "withdrawn")
     reset_session
