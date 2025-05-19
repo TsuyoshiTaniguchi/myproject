@@ -26,9 +26,9 @@ class Public::UsersController < ApplicationController
   end
   
   def withdraw
-    current_user.update(status: "withdrawn")
-    reset_session
-    redirect_to root_path, notice: "退会処理が完了しました"
+    @user = current_user
+    @user.destroy
+    redirect_to new_user_registration_path, notice: "退会が完了しました"
   end
 
   private

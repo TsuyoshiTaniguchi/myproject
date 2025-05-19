@@ -11,20 +11,35 @@
   </head>
 
   <body>
-    <header>
+  <header>
+    <ul>
       <% if user_signed_in? %>
-        <li>
-          <%= link_to "ログアウト", destroy_user_session_path, method: :delete %>
-        </li>
+        <li><%= link_to "ログアウト", destroy_user_session_path, method: :delete %></li>
       <% else %>
-        <li>
-          <%= link_to "新規登録", new_user_registration_path %>
-        </li>
-        <li>
-          <%= link_to "ログイン", new_user_session_path %>
-        </li>
+        <li><%= link_to "新規登録", new_user_registration_path %></li>
+        <li><%= link_to "ログイン", new_user_session_path %></li>
       <% end %>
-    </header>
-    <%= yield %>
-  </body>
-</html>
+    </ul>
+  </header>
+
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+      <%= link_to "ホーム", root_path, class: "navbar-brand" %>
+      
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav ml-auto">
+          <% if user_signed_in? %>
+            <li class="nav-item"><%= link_to "マイページ", public_user_path(current_user), class: "nav-link" %></li>
+            <li class="nav-item"><%= link_to "投稿一覧", public_posts_path, class: "nav-link" %></li>
+            <li class="nav-item"><%= link_to "ログアウト", destroy_user_session_path, method: :delete, class: "nav-link", data: { confirm: "ログアウトしますか？" } %></li>
+          <% else %>
+            <li class="nav-item"><%= link_to "ログイン", new_user_session_path, class: "nav-link" %></li>
+            <li class="nav-item"><%= link_to "新規登録", new_user_registration_path, class: "nav-link" %></li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <%= yield %>
+</body>

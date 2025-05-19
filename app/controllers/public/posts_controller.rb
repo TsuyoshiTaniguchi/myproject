@@ -1,6 +1,14 @@
 class Public::PostsController < ApplicationController
+  before_action :authenticate_user!
+  before_action :correct_user, only: [:edit, :update, :destroy]
 
   def index
+    @posts = Post.all
+    @posts = Post.active_users_posts
+  end
+
+  def show
+    @post = Post.find(params[:id])
   end
 
   def new
@@ -8,11 +16,11 @@ class Public::PostsController < ApplicationController
   end
 
   def create
-    @post = current_user.posts.build(post_params)  #ログインユーザーの投稿として保存
+    @post = current_user.posts.build(post_params)
     if @post.save
-      redirect_to posts_path, notice: "投稿が完了しました"
+      redirect_to public_post_path(@post), notice: "投稿が作成されました"
     else
-      render :new, status: :unprocessable_entity
+      render :new
     end
   end
 
@@ -21,28 +29,29 @@ class Public::PostsController < ApplicationController
   end
 
   def update
-    @post = current_user.posts.find(params[:id])  #ログインユーザー以外の投稿を操作できないように制限
+    @post = current_user.posts.find(params[:id])
     if @post.update(post_params)
-      redirect_to posts_path, notice: "投稿を更新しました"
+      redirect_to public_post_path(@post), notice: "投稿が更新されました"
     else
-      render :edit, status: :unprocessable_entity
+      render :edit
     end
   end
 
   def destroy
     @post = current_user.posts.find(params[:id])
     @post.destroy
-    redirect_to posts_path, notice: "投稿を削除しました"
+    redirect_to public_posts_path, notice: "投稿が削除されました"
   end
-
-end
-
-
 
   private
 
   def post_params
     params.require(:post).permit(:title, :content)
+  end
+
+  def correct_user
+    @post = current_user.posts.find_by(id: params[:id])
+    redirect_to public_posts_path, alert: "権限がありません" if @post.nil?
   end
   
 end

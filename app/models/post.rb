@@ -1,10 +1,10 @@
 class Post < ApplicationRecord
   belongs_to :user
 
+  scope :active_users_posts, -> { joins(:user).where(users: { status: "active" }) }
 
   validates :title, presence: true
-  validates :content, presence: true
+  validates :content, presence: true, length: { minimum: 10 }
+  
 end
 
-
-<%= link_to "削除", post_path(@post), method: :delete, data: { confirm: "本当に削除しますか？" } %>

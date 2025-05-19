@@ -2,7 +2,8 @@ class Admin::UsersController < ApplicationController
   before_action :authenticate_admin!
 
   def index
-    @users = User.all
+    @active_users = User.where(status: "active")
+    @inactive_users = User.where(status: "inactive")
   end
 
   def destroy

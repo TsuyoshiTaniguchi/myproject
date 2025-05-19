@@ -1,4 +1,10 @@
 <% @posts.each do |post| %>
-  <p><%= post.title %></p>
-  <%= link_to "削除", post_path(post), method: :delete, data: { confirm: "本当に削除しますか？" } %>
+  <div>
+    <h2><%= link_to post.title, public_post_path(post) %></h2>
+    <p><%= post.content.truncate(100) %></p>
+    <% if post.user == current_user %>
+      <%= link_to "編集", edit_public_post_path(post) %>
+      <%= link_to "削除", public_post_path(post), method: :delete, data: { confirm: "本当に削除しますか？" } %>
+    <% end %>
+  </div>
 <% end %>

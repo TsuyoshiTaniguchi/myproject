@@ -1,18 +1,26 @@
 <h1>ユーザー管理</h1>
-<table>
-  <tr>
-    <th>名前</th>
-    <th>メールアドレス</th>
-    <th>アクション</th>
-  </tr>
-  <% @users.each do |user| %>
+<table class="table table-striped">
+  <thead>
     <tr>
-      <td><%= user.name %></td>
-      <td><%= user.email %></td>
-      <td>
-        <%= link_to "詳細", admin_user_path(user) %>
-        <%= link_to "削除", admin_user_path(user), method: :delete, data: { confirm: "本当に削除しますか？" } %>
-      </td>
+      <th>名前</th>
+      <th>メールアドレス</th>
+      <th>ステータス</th>
+      <th>アクション</th>
     </tr>
-  <% end %>
+  </thead>
+  <tbody>
+    <% @users.each do |user| %>
+      <tr>
+        <td><%= user.name %></td>
+        <td><%= user.email %></td>
+        <td><%= user.status == "active" ? "アクティブ" : "退会済み" %></td>
+        <td>
+          <%= link_to "詳細", admin_user_path(user), class: "btn btn-primary" %>
+          <% if user.status == "active" %>
+            <%= link_to "削除", admin_user_path(user), method: :delete, class: "btn btn-danger", data: { confirm: "本当に削除しますか？" } %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
 </table>
