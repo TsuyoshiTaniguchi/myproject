@@ -1,0 +1,11 @@
+<h1>管理者ページ</h1>
+
+<h1>Welcome to My App</h1>
+<p>このアプリは、ユーザーが情報を投稿・共有できるプラットフォームです。</p>
+
+<%= link_to "ダッシュボード", admin_root_path %>
+<%= link_to "ユーザー管理", admin_users_path %>
+<%= link_to "投稿管理", admin_posts_path %>
+<%= link_to "ログアウト", destroy_admin_session_path, method: :delete, data: { turbo: false, confirm: "ログアウトしますか？" } %>
+
+

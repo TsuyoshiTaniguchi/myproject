@@ -2,6 +2,7 @@ class ApplicationController < ActionController::Base
   before_action :authenticate_user!, unless: -> { admin_signed_in? || action_name == "top" }
   before_action :configure_permitted_parameters, if: :devise_controller?
 
+
   include Devise::Controllers::Helpers
 
   helper_method :admin_signed_in?
@@ -44,3 +45,4 @@ class ApplicationController < ActionController::Base
   end
 
 end
+
