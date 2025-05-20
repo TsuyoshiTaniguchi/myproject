@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Admin Dashboard</title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <!-- 管理者用のCSSやJSを読み込みたい場合はここに記述 -->
+    <%= stylesheet_link_tag 'admin', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_pack_tag 'admin', 'data-turbolinks-track': 'reload' %>
+  </head>
+  <body>
+    <header>
+      <!-- 管理者用ナビゲーションやヘッダーの内容 -->
+    <%= render 'layouts/header' %>
+      <h1>管理者用ダッシュボード</h1>
+    </header>
+
+    <main>
+      <%= yield %>
+    </main>
+
+    <!--フッター部分-->
+  <%= render "layouts/footer" %>
+  </body>
+</html>

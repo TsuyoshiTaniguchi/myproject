@@ -10,29 +10,43 @@
     <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
   </head>
 
-  <body>
-  <header>
-  
-  </header>
+  <body class="d-flex flex-column vh-100" style="background-color : #F0F0F0">
 
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container">
-      <%= link_to "ホーム", root_path, class: "navbar-brand" %>
-      
-      <div class="collapse navbar-collapse">
-      <ul class="navbar-nav ms-auto">
-      <% if user_signed_in? %>
-        <li class="nav-item"><%= link_to "マイページ", public_user_path(current_user), class: "nav-link" %></li>
-        <li class="nav-item"><%= link_to "投稿一覧", public_posts_path, class: "nav-link" %></li>
-        <li class="nav-item"><%= link_to "ログアウト", destroy_user_session_path, method: :delete, class: "nav-link", data: { confirm: "ログアウトしますか？" } %></li>
-      <% else %>
-        <li class="nav-item"><%= link_to "ログイン", new_user_session_path, class: "nav-link" %></li>
-        <li class="nav-item"><%= link_to "新規登録", new_user_registration_path, class: "nav-link" %></li>
-      <% end %>
-      </ul>
-      </div>
-    </div>
-  </nav>
+  <!--ヘッダー部分-->
+  <%= render 'layouts/header' %>
 
-  <%= yield %>
-</body>
+  <!--メイン部分-->
+  <main class="mb-auto">
+    <p class='text-success'><%= flash[:notice] %></p>
+    <p class='text-danger'><%= flash[:alert] %></p>
+
+    <%= yield %>
+  </main>
+
+  <!--フッター部分-->
+  <%= render "layouts/footer" %>
+
+  </body>
+</html>
+
+
+
+
+<body class="d-flex flex-column vh-100" style="background-color : #FFEDFA">
+
+  <!--ヘッダー部分-->
+  <%= render 'layouts/header' %>
+
+  <!--メイン部分-->
+  <main class="mb-auto">
+    <p class='text-success'><%= flash[:notice] %></p>
+    <p class='text-danger'><%= flash[:alert] %></p>
+
+    <%= yield %>
+  </main>
+
+  <!--フッター部分-->
+  <%= render "layouts/footer" %>
+
+  </body>
+</html>

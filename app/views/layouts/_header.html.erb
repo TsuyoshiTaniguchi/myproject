@@ -1,0 +1,39 @@
+<header style="background-color: #FFFFFF; border-bottom: 2px solid #E0E0E0;">
+  <nav class="container" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 20px;">
+    <!-- ロゴリンク：トップページへ -->
+    <div class="logo">
+      <%= link_to image_tag("logo.png", alt: "MVP Portfolio Logo", style: "height: 40px;"), root_path %>
+    </div>
+    <ul class="nav-menu" style="display: flex; gap: 20px; list-style: none; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif;">
+      <% if user_signed_in? %>
+        <li style="color: #333;">ようこそ、<%= current_user.last_name + current_user.first_name %>さん！</li>
+        <li>
+          <%= link_to "マイページ", users_mypage_path, class: "nav-link", style: "color: #1ABC9C; text-decoration: none;" %>
+        </li>
+        <li>
+          <%= link_to "ログアウト", destroy_user_session_path, method: :delete, class: "nav-link", style: "color: #E74C3C; text-decoration: none;" %>
+        </li>
+      <% elsif admin_signed_in? %>
+        <li>
+          <%= link_to "ダッシュボード", admin_dashboard_path, class: "nav-link", style: "color: #1ABC9C; text-decoration: none;" %>
+        </li>
+        <li>
+          <%= link_to "会員一覧", admin_users_path, class: "nav-link", style: "color: #1ABC9C; text-decoration: none;" %>
+        </li>
+        <li>
+          <%= link_to "ログアウト", destroy_admin_session_path, method: :delete, class: "nav-link", style: "color: #E74C3C; text-decoration: none;" %>
+        </li>
+      <% else %>
+        <li>
+          <%= link_to "新規登録", new_user_registration_path, class: "nav-link", style: "color: #1ABC9C; text-decoration: none;" %>
+        </li>
+        <li>
+          <%= link_to "About", about_path, class: "nav-link", style: "color: #1ABC9C; text-decoration: none;" %>
+        </li>
+        <li>
+          <%= link_to "ログイン", new_user_session_path, class: "nav-link", style: "color: #1ABC9C; text-decoration: none;" %>
+        </li>
+      <% end %>
+    </ul>
+  </nav>
+</header>

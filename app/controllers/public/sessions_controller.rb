@@ -34,21 +34,17 @@ class Public::SessionsController < Devise::SessionsController
   # 退会済みのユーザーがログインできないようにする（退会処理とは別）
   def reject_user
     @user = User.find_by(email: params[:user][:email])
-    # 存在しているかどうか分岐
     if @user
-      # 退会フラグが退会済みか有効化判断
-      if @user.valid_password?(params[:user][:password]) && (@user.status == true)
-        flash[:notice] = "退会済みです。再度ご登録をしてご利用ください"
-        redirect_to new_user_registration_path
-      else
-        flash[:notice] = "項目を入力してください"
+      # もしパスワードが正しい場合で、なおかつ status が false (退会済み) の場合にリダイレクト
+      if @user.valid_password?(params[:user][:password]) && @user.status == false
+        flash[:alert] = "退会済みです。再度ご登録をしてご利用ください"
+        redirect_to new_user_registration_path and return
       end
     else
-      # そもそも存在していなかった場合
-      flash[:notice] = "該当するユーザーが見つかりません"
+      flash[:alert] = "該当するユーザーが見つかりません"
+      redirect_to new_user_session_path and return
     end
   end
-
   # If you have extra params to permit, append them to the sanitizer.
 
 
