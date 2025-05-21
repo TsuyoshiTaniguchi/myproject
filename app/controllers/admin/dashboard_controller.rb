@@ -1,7 +1,9 @@
 class Admin::DashboardController < Admin::ApplicationController
+  before_action :authenticate_admin!
 
   def index
-    # 管理者用のダッシュボード処理（今は空でもOK）
+    @recent_posts = Post.order(created_at: :desc).limit(5)
+    @recent_users = User.order(created_at: :desc).limit(5)
+    @recent_comments = ::Comment.order(created_at: :desc).limit(5)
   end
-  
 end

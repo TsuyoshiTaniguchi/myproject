@@ -2,7 +2,8 @@ class Admin::UsersController < ApplicationController
   before_action :authenticate_admin!
 
   def index
-    @users = User.group_by(&:status) # ユーザーをステータスごとに分類
+    @users_by_status = User.all.group_by(&:status) # ステータスごとに分類
+    @users = User.all
   end
 
   def show
@@ -14,21 +15,26 @@ class Admin::UsersController < ApplicationController
   end
 
   def update
-    user = User.find(params[:id])
-    if user.update(user_params)
-      redirect_to admin_user_path(user), notice: "ユーザー情報を更新しました"
+    @user = User.find(params[:id])
+  
+    if params[:cancel]
+      return redirect_to admin_user_path(@user) # 戻るボタンが押された場合は詳細へ戻る
+    end
+  
+    if @user.update(user_params)
+      redirect_to admin_user_path(@user), notice: "ユーザー情報を更新しました"
     else
-      render :edit, alert: "更新に失敗しました"
+      flash[:alert] = @user.errors.full_messages.join(", ")
+      render :edit
     end
   end
+  
+  
 
   def destroy
-    user = User.find(params[:id])
-    if user.destroy
-      redirect_to admin_users_path, notice: "ユーザーを削除しました"
-    else
-      redirect_to admin_users_path, alert: "ユーザー削除に失敗しました"
-    end
+    @user = User.find(params[:id])
+    @user.destroy
+    redirect_to admin_users_path, notice: "ユーザーを削除しました"
   end
 
   private
@@ -36,5 +42,4 @@ class Admin::UsersController < ApplicationController
   def user_params
     params.require(:user).permit(:name, :email, :status, :role)
   end
-  
 end

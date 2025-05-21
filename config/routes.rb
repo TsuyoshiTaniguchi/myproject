@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  namespace :admin do
+    get 'comments/index'
+    get 'comments/destroy'
+  end
   devise_for :users, controllers: {
     registrations: "public/registrations",
     sessions: "public/sessions"
@@ -33,10 +37,10 @@ Rails.application.routes.draw do
 
   # 管理者専用ページ
   namespace :admin do
-    
 
     resources :users, only: [:index, :show, :edit, :update, :destroy, :create]
     resources :posts, only: [:index, :destroy]
+    resources :comments, only: [:index, :destroy]
     get 'dashboard', to: 'dashboard#index', as: 'dashboard'  # 追加
     root to: "dashboard#index"  # 管理者topページ
     get '/' => 'homes#top'

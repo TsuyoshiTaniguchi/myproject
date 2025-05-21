@@ -1,5 +1,21 @@
-<h1>Welcome to My App</h1>
-<p>このアプリは、ユーザーが情報を投稿・共有できるプラットフォームです。</p>
-<%= link_to "About", about_path %>
-<%= link_to "サインイン", new_user_session_path %>
-<%= link_to "新規登録", new_user_registration_path %>
+<h1>ようこそ、WAI to WAI へ</h1>
+
+<p>
+  **Who Am I to Who Am I — 「私は誰なのか？」から「私は何者なのか？」へ。** <br>
+  自分の過去・現在・未来を記録し、「私」を進化させるためのコミュニティサイト。
+</p>
+
+<section class="features">
+  <h2>✨ 何ができるのか？ ✨</h2>
+  <ul>
+    <li> ライフログを活用した **ストーリー型** の自己PR</li>
+    <li> **GitHub連携** でプロジェクト・コミット履歴を可視化</li>
+    <li> **行動履歴** を記録し、「どこで何を学んだか」を整理</li>
+    <li> **コメント機能** でスキルや価値観を共有</li>
+  </ul>
+</section>
+
+<div class="actions">
+  <%= link_to "もっと知る", about_path, class: "btn btn-outline-info" %>
+  <%= link_to "さっそく始める", new_user_registration_path, class: "btn btn-success" %>
+</div>

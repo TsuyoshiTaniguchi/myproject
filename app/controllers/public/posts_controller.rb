@@ -20,21 +20,24 @@ class Public::PostsController < ApplicationController
     if @post.save
       redirect_to public_post_path(@post), notice: "投稿が作成されました"
     else
+      flash[:alert] = @post.errors.full_messages.join(", ")
       render :new
     end
   end
-
-  def edit
-    @post = current_user.posts.find(params[:id])
-  end
-
+  
   def update
     @post = current_user.posts.find(params[:id])
     if @post.update(post_params)
       redirect_to public_post_path(@post), notice: "投稿が更新されました"
     else
+      flash[:alert] = @post.errors.full_messages.join(", ")
       render :edit
     end
+  end
+
+
+  def edit
+    @post = current_user.posts.find(params[:id])
   end
 
   def destroy

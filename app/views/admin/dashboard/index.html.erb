@@ -1,2 +1,79 @@
 <h1>管理者ダッシュボード</h1>
-<p>ようこそ、管理者ページへ！</p>
+
+<section>
+  <h2>最新の投稿</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>タイトル</th>
+        <th>投稿者</th>
+        <th>投稿日</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @recent_posts.each do |post| %>
+        <tr>
+          <td><%= link_to post.title, admin_post_path(post) %></td>
+          <td><%= post.user.name %></td>
+          <td><%= post.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+          <td>
+            <%= link_to "削除", admin_post_path(post), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>最新のユーザー</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>名前</th>
+        <th>メールアドレス</th>
+        <th>登録日</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @recent_users.each do |user| %>
+        <tr>
+          <td><%= link_to user.name, admin_user_path(user) %></td>
+          <td><%= user.email %></td>
+          <td><%= user.created_at.strftime("%Y-%m-%d") %></td>
+          <td>
+            <%= link_to "削除", admin_user_path(user), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>最新のコメント</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>投稿タイトル</th>
+        <th>コメント内容</th>
+        <th>コメント者</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @recent_comments.each do |comment| %>
+        <tr>
+          <td><%= link_to comment.post.title, admin_post_path(comment.post) %></td>
+          <td><%= comment.content.truncate(50) %></td>
+          <td><%= comment.user.name %></td>
+          <td>
+            <%= link_to "削除", admin_comment_path(comment), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</section>

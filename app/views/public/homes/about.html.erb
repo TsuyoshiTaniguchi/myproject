@@ -1,4 +1,30 @@
-<h1>About This App</h1>
-<p>このアプリは、ユーザー同士が簡単に情報を共有できる場を提供します。</p>
-<%= image_tag "wc-logo.png", alt: "アプリのロゴ" %>
-<%= link_to "トップページへ戻る", root_path %>
+<h1>WAI to WAI とは？</h1>
+
+<p>
+  「私は誰なのか？」から「私は何者なのか？」へ。<br>
+  ただの履歴ではなく、自分の成長と変化を伝えるため。<br>
+  個人の経験や成長を記録を可視化し、自己PRやコミュニティ形成を支援するコミュニティサイト
+</p>
+
+<section class="core-values">
+  <h2> 何が変わるのか？</h2>
+  <ul>
+    <li> **「肩書き」ではなく「行動・スキル・価値観」で自己表現**</li>
+    <li> **履歴書やLinkedInでは伝えきれない「ストーリー」を記録**</li>
+    <li> **GitHub API & Vision AI API でデータ活用し、実績を可視化**</li>
+  </ul>
+</section>
+
+<section class="roadmap">
+  <h2>これからの進化</h2>
+  <ul>
+    <li>**地図表示 & 行動履歴の可視化**</li>
+    <li>**推薦・共感コメントでスキルを証明**</li>
+    <li>**コラボ募集機能で新しい出会いを**</li>
+  </ul>
+</section>
+
+<div class="actions">
+  <%= link_to "トップへ戻る", root_path, class: "btn btn-secondary" %>
+  <%= link_to "登録する", new_user_registration_path, class: "btn btn-success" %>
+</div>

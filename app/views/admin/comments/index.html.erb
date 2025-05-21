@@ -1,0 +1,23 @@
+<h1>コメント管理</h1>
+<table>
+  <thead>
+    <tr>
+      <th>投稿タイトル</th>
+      <th>コメント者</th>
+      <th>内容</th>
+      <th>操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @comments.each do |comment| %>
+      <tr>
+        <td><%= link_to comment.post.title, admin_post_path(comment.post) %></td>
+        <td><%= comment.user.name %></td>
+        <td><%= comment.content.truncate(50) %></td>
+        <td>
+          <%= link_to "削除", admin_comment_path(comment), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger" %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

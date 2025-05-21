@@ -9,11 +9,18 @@
     </tr>
   </thead>
   <tbody>
+  <% if @users.present? %>
     <% @users.each do |user| %>
       <tr>
         <td><%= user.name %></td>
         <td><%= user.email %></td>
-        <td><%= user.status == "active" ? "アクティブ" : "退会済み" %></td>
+        <td>
+        <% if user.status_before_type_cast == 0 %>
+          アクティブ
+        <% else %>
+          利用停止中
+        <% end %>
+        </td>
         <td>
           <%= link_to "詳細", admin_user_path(user), class: "btn btn-primary" %>
           <% if user.status == "active" %>
@@ -22,5 +29,11 @@
         </td>
       </tr>
     <% end %>
-  </tbody>
+  <% else %>
+    <tr>
+      <td colspan="4">ユーザーが存在しません</td>
+    </tr>
+  <% end %>
+</tbody>
+
 </table>
