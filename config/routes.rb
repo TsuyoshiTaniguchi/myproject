@@ -10,7 +10,7 @@ Rails.application.routes.draw do
     sessions: "admin/sessions",
     passwords: "admin/passwords"
   },
-  skip: [:registrations]
+  skip: [:registrations, :sign_out]
 
   root to: "public/homes#top"
   get '/about' => 'public/homes#about', as: 'about'
@@ -31,9 +31,16 @@ Rails.application.routes.draw do
 
   # 管理者専用ページ
   namespace :admin do
+    
+
     resources :users, only: [:index, :show, :edit, :update, :destroy, :create]
     resources :posts, only: [:index, :destroy]
+    get 'dashboard', to: 'dashboard#index', as: 'dashboard'  # 追加
     root to: "dashboard#index"  # 管理者topページ
     get '/' => 'homes#top'
   end
+  
 end
+
+
+

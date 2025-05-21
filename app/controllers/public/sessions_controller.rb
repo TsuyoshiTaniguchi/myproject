@@ -24,7 +24,7 @@ class Public::SessionsController < Devise::SessionsController
   protected
 
   def after_sign_in_path_for(resource) #会員のログイン後の遷移先
-    root_path
+    users_mypage_path
   end
 
   def after_sign_out_path_for(resource) #会員のログアウト後の遷移先
@@ -34,9 +34,8 @@ class Public::SessionsController < Devise::SessionsController
   # 退会済みのユーザーがログインできないようにする（退会処理とは別）
   def reject_user
     @user = User.find_by(email: params[:user][:email])
-    if @user
-      # もしパスワードが正しい場合で、なおかつ status が false (退会済み) の場合にリダイレクト
-      if @user.valid_password?(params[:user][:password]) && @user.status == false
+    if @user && @user.valid_password?(params[:user][:password])
+      if @user.status == false # `nil` も含めたくないなら、`@user.status.nil? || @user.status == false`
         flash[:alert] = "退会済みです。再度ご登録をしてご利用ください"
         redirect_to new_user_registration_path and return
       end

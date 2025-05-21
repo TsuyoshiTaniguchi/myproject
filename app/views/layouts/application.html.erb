@@ -28,25 +28,3 @@
 
   </body>
 </html>
-
-
-
-
-<body class="d-flex flex-column vh-100" style="background-color : #FFEDFA">
-
-  <!--ヘッダー部分-->
-  <%= render 'layouts/header' %>
-
-  <!--メイン部分-->
-  <main class="mb-auto">
-    <p class='text-success'><%= flash[:notice] %></p>
-    <p class='text-danger'><%= flash[:alert] %></p>
-
-    <%= yield %>
-  </main>
-
-  <!--フッター部分-->
-  <%= render "layouts/footer" %>
-
-  </body>
-</html>
