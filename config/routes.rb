@@ -10,7 +10,9 @@ Rails.application.routes.draw do
     sessions: "admin/sessions",
     passwords: "admin/passwords"
   },
-  skip: [:registrations, :sign_out]
+  skip: [:registrations]
+
+
 
   root to: "public/homes#top"
   get '/about' => 'public/homes#about', as: 'about'
@@ -20,7 +22,7 @@ Rails.application.routes.draw do
     get '/users/mypage' => 'users#show', as: 'users_mypage'
     get '/users/information/edit' => 'users#edit'
     patch '/users/information' => 'users#update'
-    get '/users/unsubscribe' => 'users#unsubscribe'
+    get '/users/unsubscribe' => 'users#unsubscribe', as: 'users_unsubscribe'
     patch '/users/withdraw' => 'users#withdraw'
 
     resources :users, only: [:show, :edit, :update, :destroy] do

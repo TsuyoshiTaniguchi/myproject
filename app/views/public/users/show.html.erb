@@ -1,7 +1,8 @@
 <h2>マイページ</h2>
 
 <%= link_to "プロフィール編集", edit_user_registration_path, class: "btn btn-primary" %>
-<%= link_to "退会する", withdraw_public_user_path(current_user), method: :patch, class: "btn btn-danger", data: { confirm: "本当に退会しますか？" } %>
+<%= link_to "退会する", users_withdraw_path, method: :patch, class: "btn btn-danger", data: { confirm: "本当に退会しますか？" } %>
+
 
 <h3><%= current_user.name %> さんの投稿一覧</h3>
 
