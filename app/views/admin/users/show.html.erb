@@ -4,7 +4,7 @@
   <h2>基本情報</h2>
   <p><strong>名前：</strong> <%= @user.name %></p>
   <p><strong>メール：</strong> <%= @user.email %></p>
-  <p><strong>ステータス：</strong> <%= @user.status %></p>
+  <p><strong>ステータス：</strong> <%= @user.display_status %></p>
   <p><strong>登録日時：</strong> <%= @user.created_at.strftime("%Y-%m-%d %H:%M") %></p>
 </div>
 

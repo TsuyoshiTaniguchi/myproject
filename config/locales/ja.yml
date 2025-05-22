@@ -10,20 +10,35 @@ ja:
       models:
         user:
           attributes:
-            location:
+            location: 
               blank: "所在地を入力してください"
+            email: 
+              taken: "このメールアドレスはすでに使用されています"
+            password: 
+              blank: "パスワードを入力してください"
+            password_confirmation: 
+              confirmation: "パスワードが一致しません"
+
+  errors:
+    messages:
+      taken: "すでに使用されています"
+      blank: "入力してください"
+      confirmation: "一致しません"
 
   devise:
     failure:
       inactive: "アカウントが有効ではありません。"
+      already_authenticated: "すでにログインしています。"
+      unauthenticated: "ログインが必要です。"
 
     registrations:
+      signed_up: "ユーザー登録が完了しました。"
       signed_up_but_inactive: "ユーザー登録が完了しましたが、アカウントが有効ではありません。"
 
     sessions:
+      signed_in: "ログインしました"
+      signed_out: "ログアウトしました"
       user:
         signed_in: "ログインしました"
       admin:
         signed_out: "管理者がログアウトしました"
-      signed_in: "ログインしました"
-      signed_out: "ログアウトしました"

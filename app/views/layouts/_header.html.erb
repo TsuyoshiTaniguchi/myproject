@@ -23,6 +23,7 @@
         </li>
         <li>
          <%= link_to "ログアウト", destroy_admin_session_path, method: :delete, class: "nav-link logout-link", style: "color: red !important;" %>
+        </li>
       <% else %>
         <li>
           <%= link_to "新規登録", new_user_registration_path, class: "nav-link", style: "color: #1ABC9C; text-decoration: none;" %>

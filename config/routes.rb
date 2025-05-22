@@ -34,6 +34,9 @@ Rails.application.routes.draw do
     patch '/users/withdraw' => 'users#withdraw'
 
     resources :users, only: [:show, :edit, :update, :destroy] do
+      member do
+        patch :withdraw # 退会処理用
+      end
       resources :comments, only: [:create, :destroy]
       resources :likes, only: [:create, :destroy]
     end

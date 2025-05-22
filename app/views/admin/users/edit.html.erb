@@ -16,8 +16,8 @@
    <%= f.select :status, User.statuses.keys.map { |key| [I18n.t("enums.user.status.#{key}"), key] }, class: "form-control" %>
   </div>
 
-  <div class="button-group d-flex justify-content-between">
+  <div class="button-group d-inline-flex gap-3">
   <%= f.submit "更新", class: "btn btn-primary" %>
   <%= f.submit "戻る", class: "btn btn-secondary", name: "cancel" %>
-  </div>
+</div>
 <% end %>

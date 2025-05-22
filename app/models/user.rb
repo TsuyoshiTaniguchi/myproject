@@ -22,16 +22,22 @@ class User < ApplicationRecord
 
   # validates :location, presence: true ← 拡張機能時に追加
 
-  before_create :set_default_status
+  before_validation :set_default_status, on: :create
 
   # ユーザー認証の有効/無効チェック
   def active_for_authentication?
-    super && status_before_type_cast == 0
+    super && status == "active"
   end
+
+  def display_status
+    status == "active" ? "アクティブ" : "退会済み"
+  end
+  
 
   # ユーザーの退会処理
   def withdraw!
-    update(is_active: false)
+    update(status: "withdrawn")
+    reload # データを即反映
   end
 
 
