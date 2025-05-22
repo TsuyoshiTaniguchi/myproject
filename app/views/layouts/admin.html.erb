@@ -5,23 +5,25 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <!-- 管理者用のCSSやJSを読み込みたい場合はここに記述 -->
-    <%= stylesheet_link_tag 'admin', media: 'all', 'data-turbolinks-track': 'reload' %>
-    <%= javascript_pack_tag 'admin', 'data-turbolinks-track': 'reload' %>
-
-
+    <script src="https://kit.fontawesome.com/e1acaa1ac8.js" crossorigin="anonymous"></script>
+    <%= stylesheet_pack_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
   </head>
-  <body>
-    <header>
-      <!-- 管理者用ナビゲーションやヘッダーの内容 -->
-    <%= render 'layouts/header' %>
-     
-    </header>
+  <body class="d-flex flex-column vh-100" style="background-color : #F0F0F0">
 
-    <main>
-      <%= yield %>
-    </main>
+  <!--ヘッダー部分-->
+  <%= render 'layouts/header' %>
 
-    <!--フッター部分-->
+  <!--メイン部分-->
+  <main class="mb-auto">
+    <p class='text-success'><%= flash[:notice] %></p>
+    <p class='text-danger'><%= flash[:alert] %></p>
+
+    <%= yield %>
+  </main>
+
+  <!--フッター部分-->
   <%= render "layouts/footer" %>
+
   </body>
 </html>

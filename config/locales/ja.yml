@@ -17,23 +17,13 @@ ja:
     failure:
       inactive: "アカウントが有効ではありません。"
 
-
-  devise:
     registrations:
       signed_up_but_inactive: "ユーザー登録が完了しましたが、アカウントが有効ではありません。"
 
-  devise:
     sessions:
-      signed_in: "ログインしました。"
-
-  devise:
-    sessions:
-      signed_out: "ログアウトしました。"
-
-  devise:
-    sessions:
+      user:
+        signed_in: "ログインしました"
+      admin:
+        signed_out: "管理者がログアウトしました"
       signed_in: "ログインしました"
-  
-  devise:
-    sessions:
       signed_out: "ログアウトしました"

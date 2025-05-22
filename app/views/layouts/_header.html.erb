@@ -2,7 +2,7 @@
   <nav class="container" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 20px;">
     <!-- ロゴリンク：トップページへ -->
     <div class="logo">
-      <%= link_to image_tag("logo.png", alt: "MVP Portfolio Logo", style: "height: 40px;"), root_path %>
+      <%= link_to image_tag("main.png", alt: "MVP Portfolio Logo"), root_path, class: "logo" %>
     </div>
     <ul class="nav-menu" style="display: flex; gap: 20px; list-style: none; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif;">
       <% if user_signed_in? %>
@@ -12,7 +12,7 @@
           <%= link_to "マイページ", users_mypage_path, class: "nav-link", style: "color: #1ABC9C; text-decoration: none;" %>
         </li>
         <li>
-          <%= link_to "ログアウト", destroy_user_session_path, method: :delete, class: "nav-link", style: "color: #E74C3C; text-decoration: none;" %>
+          <%= link_to "ログアウト", destroy_user_session_path, method: :delete, id: "logout-link", class: "nav-link", style: "color: red !important;" %>
         </li>
       <% elsif admin_signed_in? %>
         <li>
@@ -22,11 +22,7 @@
           <%= link_to "会員一覧", admin_users_path, class: "nav-link", style: "color: #1ABC9C; text-decoration: none;" %>
         </li>
         <li>
-        <%= form_tag destroy_admin_session_path, method: :delete do %>
-          <button type="submit" class="nav-link" style="color: #E74C3C;">ログアウト</button>
-        <% end %>
-        
-        </li>
+         <%= link_to "ログアウト", destroy_admin_session_path, method: :delete, class: "nav-link logout-link", style: "color: red !important;" %>
       <% else %>
         <li>
           <%= link_to "新規登録", new_user_registration_path, class: "nav-link", style: "color: #1ABC9C; text-decoration: none;" %>

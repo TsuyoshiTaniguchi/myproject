@@ -7,7 +7,7 @@ class Admin < ApplicationRecord
 
   has_many :admin_logs, dependent: :destroy
 
-  # バリデーション
+
   validates :email, presence: true, uniqueness: true
 
   

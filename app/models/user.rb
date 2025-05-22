@@ -19,19 +19,31 @@ class User < ApplicationRecord
 
   validates :email, presence: true, uniqueness: true
   validates :personal_statement, length: { maximum: 500 } # プロフィールの制限
+
   # validates :location, presence: true ← 拡張機能時に追加
 
+  before_create :set_default_status
 
   # ユーザー認証の有効/無効チェック
   def active_for_authentication?
     super && status_before_type_cast == 0
   end
-  
-  
-  
 
   # ユーザーの退会処理
   def withdraw!
-    update(status: "withdrawn")
+    update(is_active: false)
+  end
+
+
+ private
+
+  def set_default_status
+    self.status ||= "active"
   end
 end
+
+
+
+
+
+

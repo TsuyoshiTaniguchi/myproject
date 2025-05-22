@@ -1,9 +1,8 @@
 class AdminLog < ApplicationRecord
-  # アソシエーション
+
   belongs_to :admin
   belongs_to :target, polymorphic: true # ポリモーフィック関連を追加
 
-  # バリデーション
   validates :action, presence: true
   validates :target_type, presence: true
   validates :target_id, presence: true

@@ -26,3 +26,20 @@ th, td {
 .btn {
   margin: 5px;
 }
+
+.nav-menu {
+  display: flex;
+  gap: 20px;
+  list-style: none;
+  padding: 0;
+  align-items: center;
+}
+
+.nav-link {
+  color: #1ABC9C;
+  text-decoration: none;
+}
+
+.logo img {
+  height: 100px;
+}
