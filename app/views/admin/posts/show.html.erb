@@ -1,0 +1,28 @@
+<h1>投稿詳細（管理者画面）</h1>
+
+<div class="post-card">
+  <h2><%= @post.title %></h2>
+  <p><%= sanitize(@post.content) %></p>
+  <small>投稿者: <%= @post.user.name || "匿名ユーザー" %></small>
+  <small>投稿日: <%= @post.created_at.strftime("%Y/%m/%d %H:%M") %></small>
+
+  <% if @post.reported? %>
+    <div class="alert alert-danger mt-2">
+      ⚠️ この投稿は通報されています
+    </div>
+  <% else %>
+    <div class="alert alert-success mt-2">
+      ✅ 正常な投稿
+    </div>
+  <% end %>
+
+  <div class="d-flex gap-2 mt-3">
+    <%= link_to "編集", edit_admin_post_path(@post), class: "btn btn-warning btn-sm" %>
+    <%= link_to "削除", admin_post_path(@post), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
+    <% if @post.reported? %>
+      <%= link_to "通報解除", unreport_admin_post_path(@post), method: :patch, class: "btn btn-secondary btn-sm" %>
+    <% end %>
+  </div>
+
+  <%= link_to "投稿一覧に戻る", admin_posts_path, class: "btn btn-secondary mt-3" %>
+</div>

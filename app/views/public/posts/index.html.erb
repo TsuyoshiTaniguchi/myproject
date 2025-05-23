@@ -1,10 +1,30 @@
-<% @posts.each do |post| %>
-  <div>
-    <h2><%= link_to post.title, public_post_path(post) %></h2>
-    <p><%= post.content.truncate(100) %></p>
-    <% if post.user == current_user %>
-      <%= link_to "編集", edit_public_post_path(post) %>
-      <%= link_to "削除", public_post_path(post), method: :delete, data: { confirm: "本当に削除しますか？" } %>
-    <% end %>
+<h1>投稿一覧</h1>
+
+<% if @posts.any? %>
+  <% @posts.each do |post| %>
+    <div class="card p-3 mb-3"> <!-- Bootstrap の `card` を適用 -->
+      <h2><%= link_to post.title, post_path(post), class: "text-decoration-none" %></h2>
+      <p><%= sanitize(truncate(post.content, length: 100)) %></p>
+      <small class="text-muted">投稿者: <%= post.user.name || "匿名ユーザー" %></small>
+
+      <% if post.user == current_user %>
+        <div class="d-flex gap-2 mt-2">
+          <%= link_to "編集", edit_post_path(post), class: "btn btn-warning btn-sm" %>
+          <%= link_to "削除", post_path(post), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+<% else %>
+  <div class="alert alert-info">
+    <p>まだ投稿がありません。</p>
+    <p>最初の投稿をしてみませんか？</p>
+    <%= link_to "新規投稿する", new_post_path, class: "btn btn-primary" %>
   </div>
 <% end %>
+
+<div class="d-flex justify-content-center gap-2 mb-3">
+  <%= link_to "マイページ", users_mypage_path, class: "btn btn-outline-secondary btn-lg" %>
+  <%= link_to "新規投稿", new_post_path, class: "btn btn-primary btn-lg" %>
+</div>
+

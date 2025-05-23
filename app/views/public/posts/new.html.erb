@@ -1,15 +1,40 @@
-<%= form_with model: @post, local: true do |f| %>
-  <div>
-    <%= f.label :title %>
-    <%= f.text_field :title %>
-  </div>
+<%= form_with model: @post do |f| %>
+  <% if @post.errors.any? %>
+    <div class="alert alert-danger">
+      <% @post.errors.full_messages.each do |message| %>
+        <p><%= message %></p>
+      <% end %>
+    </div>
+  <% end %>
 
+<% if Group.exists? %>
   <div>
-    <%= f.label :content %>
-    <%= f.text_area :content %>
-  </div>
-
-  <div>
-    <%= f.submit "投稿する" %>
+    <%= f.label :group_id, "グループを選択" %>
+    <%= f.collection_select :group_id, Group.all, :id, :name, prompt: "グループを選択" %>
   </div>
 <% end %>
+
+  <div>
+    <%= f.label :title, "タイトル" %>
+    <%= f.text_field :title, class: "form-control", placeholder: "ここにタイトルを入力" %>
+  </div>
+
+
+  <div>
+    <%= f.label :content, "内容" %>
+    <%= f.text_area :content, class: "form-control", placeholder: "ここに内容を入力", rows: 5 %>
+  </div>
+
+  <div>
+    <%= f.submit "投稿する", class: "btn btn-primary" %>
+  </div>
+  
+  <div>
+  <%= link_to "戻る", request.referer || posts_path, class: "btn btn-secondary" %>
+  </div>
+
+  <div>
+  <%= link_to "投稿一覧へ", posts_path, class: "btn btn-outline-primary" %>
+  </div>
+  
+  <% end %>

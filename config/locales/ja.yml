@@ -10,20 +10,31 @@ ja:
       models:
         user:
           attributes:
-            location: 
+            location:
               blank: "所在地を入力してください"
-            email: 
+            email:
               taken: "このメールアドレスはすでに使用されています"
-            password: 
+            password:
               blank: "パスワードを入力してください"
-            password_confirmation: 
+            password_confirmation:
               confirmation: "パスワードが一致しません"
+
+        post:
+          attributes:
+            group:
+              required: "グループを選択してください"
+            group_id:
+              blank: "グループを選択してください"
+            content:
+              too_short: "内容が短すぎます"
 
   errors:
     messages:
       taken: "すでに使用されています"
       blank: "入力してください"
       confirmation: "一致しません"
+      required: "入力してください"
+      too_short: "短すぎます"
 
   devise:
     failure:

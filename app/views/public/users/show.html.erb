@@ -1,10 +1,16 @@
 <h2>マイページ</h2>
 
-<%= link_to "プロフィール編集", edit_user_registration_path, class: "btn btn-primary" %>
-<%= link_to "退会する", users_withdraw_path, method: :patch, class: "btn btn-danger", data: { confirm: "本当に退会しますか？" } %>
+<div class="card p-3">
+  <h3><%= current_user.name %> さんのプロフィール</h3>
+  <p>メールアドレス: <%= current_user.email %></p>
+  <p>登録日: <%= current_user.created_at.strftime("%Y年%m月%d日") %></p>
 
+  <%= link_to "プロフィール編集", edit_user_registration_path, class: "btn btn-primary" %>
+  <%= link_to "退会する", users_withdraw_path, method: :patch, class: "btn btn-danger", data: { confirm: "本当に退会しますか？" } %>
+</div>
 
-<h3><%= current_user.name %> さんの投稿一覧</h3>
+<h3>投稿一覧</h3>
+<%= link_to "新規投稿", new_post_path, class: "btn btn-success mb-3" %>
 
 <% if current_user.posts.present? %>
   <table class="table table-striped">
@@ -18,16 +24,36 @@
     <tbody>
       <% current_user.posts.each do |post| %>
         <tr>
-          <td><%= link_to post.title, public_post_path(post) %></td>
-          <td><%= post.content.truncate(50) %></td>
-          <td>
-            <%= link_to "編集", edit_public_post_path(post), class: "btn btn-warning" %>
-            <%= link_to "削除", public_post_path(post), method: :delete, class: "btn btn-danger", data: { confirm: "本当に削除しますか？" } %>
-          </td>
+          <td><%= link_to post.title, post_path(post) %></td>
+          <td><%= post.content.truncate(50) %> <%= link_to "続きを読む", post_path(post), class: "text-primary" %></td>
+          <td><%= link_to "編集画面へ", edit_post_path(post), class: "btn btn-outline-secondary btn-sm" %></td>
         </tr>
       <% end %>
     </tbody>
   </table>
 <% else %>
   <p>投稿がありません。</p>
+<% end %>
+
+<!-- 削除確認モーダル -->
+<% if current_user.posts.any? %> 
+  <% current_user.posts.each do |post| %>
+    <div class="modal fade" id="deleteModal<%= post.id %>" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">投稿の削除</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+          </div>
+          <div class="modal-body">
+            <p>「<%= post.title %>」を本当に削除しますか？</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+            <%= link_to "削除する", post_path(post), method: :delete, class: "btn btn-danger" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
 <% end %>

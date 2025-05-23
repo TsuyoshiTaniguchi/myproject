@@ -32,6 +32,13 @@ Rails.application.routes.draw do
     patch '/users/information' => 'users#update'
     get '/users/unsubscribe' => 'users#unsubscribe', as: 'users_unsubscribe'
     patch '/users/withdraw' => 'users#withdraw'
+    
+
+    resources :posts do
+      member do
+        patch :report  # ← 通報機能のルートを定義
+      end
+    end
 
     resources :users, only: [:show, :edit, :update, :destroy] do
       member do
@@ -48,7 +55,12 @@ Rails.application.routes.draw do
   namespace :admin do
 
     resources :users, only: [:index, :show, :edit, :update, :destroy, :create]
-    resources :posts, only: [:index, :destroy]
+    resources :posts, only: [:index, :show, :edit, :update, :destroy] do
+      member do
+        patch :unreport  # ← 通報解除のルート
+      end
+    end
+
     resources :comments, only: [:index, :destroy]
     get 'dashboard', to: 'dashboard#index', as: 'dashboard'  # 追加
     root to: "dashboard#index"  # 管理者topページ

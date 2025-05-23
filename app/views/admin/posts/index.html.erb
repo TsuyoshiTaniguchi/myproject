@@ -1,0 +1,44 @@
+<h1>投稿管理（Admin）</h1>
+
+<%= form_with url: admin_posts_path, method: :get, local: true do |f| %>
+  <div class="d-flex gap-2">
+    <%= f.text_field :search, placeholder: "投稿を検索...", class: "form-control" %>
+    <%= f.submit "検索", class: "btn btn-primary" %>
+  </div>
+<% end %>
+
+<table class="table table-striped mt-3">
+  <thead>
+    <tr>
+      <th>タイトル</th>
+      <th>投稿者</th>
+      <th>投稿日</th>
+      <th>ステータス</th>
+      <th>アクション</th>
+    </tr>
+  </thead>
+    <tbody>
+    <% @posts.each do |post| %>
+      <% if post.persisted? %>  # `post` が存在する場合のみ表示
+        <tr>
+          <td><%= link_to post.title, admin_post_path(post) %></td>
+          <td><%= post.user.name || "匿名ユーザー" %></td>
+          <td><%= post.created_at.strftime("%Y/%m/%d %H:%M") %></td>
+          <td>
+            <% if post.reported? %>
+              <span class="badge bg-danger">通報済み</span>
+            <% else %>
+              <span class="badge bg-success">正常</span>
+            <% end %>
+          </td>
+          <td>
+            <%= link_to "詳細", admin_post_path(post), class: "btn btn-info btn-sm" %>
+            <%= link_to "削除", admin_post_path(post), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
+          </td>
+        </tr>
+      <% end %>
+    <% end %>
+  </tbody>
+</table>
+
+<%= link_to "ダッシュボードへ戻る", admin_dashboard_path, class: "btn btn-secondary mt-3" %>

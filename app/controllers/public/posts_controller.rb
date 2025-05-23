@@ -3,12 +3,15 @@ class Public::PostsController < ApplicationController
   before_action :correct_user, only: [:edit, :update, :destroy]
 
   def index
-    @posts = Post.all
     @posts = Post.active_users_posts
   end
 
   def show
-    @post = Post.find(params[:id])
+    @post = Post.find_by(id: params[:id])
+  
+    if @post.nil?
+      redirect_to posts_path, alert: "指定された投稿は存在しません"
+    end
   end
 
   def new
@@ -17,8 +20,10 @@ class Public::PostsController < ApplicationController
 
   def create
     @post = current_user.posts.build(post_params)
+    @post.group_id ||= Group.find_or_create_by(name: "Default").id # デフォルトグループを設定
+  
     if @post.save
-      redirect_to public_post_path(@post), notice: "投稿が作成されました"
+      redirect_to post_path(@post), notice: "投稿が作成されました"
     else
       flash[:alert] = @post.errors.full_messages.join(", ")
       render :new
@@ -27,8 +32,9 @@ class Public::PostsController < ApplicationController
   
   def update
     @post = current_user.posts.find(params[:id])
+  
     if @post.update(post_params)
-      redirect_to public_post_path(@post), notice: "投稿が更新されました"
+      redirect_to post_path(@post), notice: "投稿が更新されました"
     else
       flash[:alert] = @post.errors.full_messages.join(", ")
       render :edit
@@ -42,14 +48,29 @@ class Public::PostsController < ApplicationController
 
   def destroy
     @post = current_user.posts.find(params[:id])
-    @post.destroy
-    redirect_to public_posts_path, notice: "投稿が削除されました"
+  
+    if @post.destroy
+      redirect_to request.referer, notice: "投稿が削除されました"
+    else
+      flash[:alert] = "投稿の削除に失敗しました"
+      redirect_to post_path(@post)
+    end
+  end
+
+  def report
+    @post = Post.find_by(id: params[:id])
+    if @post&.normal?
+      @post.update(status: :reported)
+      redirect_to post_path(@post), notice: "投稿を通報しました"
+    else
+      redirect_to post_path(@post), alert: "この投稿はすでに通報されています"
+    end
   end
 
   private
 
   def post_params
-    params.require(:post).permit(:title, :content)
+    params.require(:post).permit(:title, :content, :group_id)
   end
 
   def correct_user
