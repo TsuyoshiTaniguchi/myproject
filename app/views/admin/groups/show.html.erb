@@ -1,5 +1,9 @@
-<h2>グループメンバー管理</h2>
+<h1><%= @group.name %></h1>
+<p><%= @group.description %></p>
+<p><strong>作成日:</strong> <%= @group.created_at.strftime("%Y-%m-%d") %></p>
+<p><strong>メンバー数:</strong> <%= @group.users.count %> 人</p>
 
+<h2>メンバー管理</h2>
 <table class="table">
   <thead>
     <tr>
@@ -23,15 +27,11 @@
   </tbody>
 </table>
 
-<h3>メンバーを追加</h3>
+<h3>新規メンバーを追加</h3>
 <%= form_with url: admin_group_memberships_path(@group), method: :post do |f| %>
   <div class="mb-3">
     <%= f.label :user_id, "ユーザー選択" %>
     <%= f.collection_select :user_id, User.all, :id, :name, prompt: "ユーザーを選択" %>
-  </div>
-  <div class="mb-3">
-    <%= f.label :role, "役割" %>
-    <%= f.select :role, Membership.roles.keys, prompt: "役割を選択" %>
   </div>
   <%= f.submit "追加", class: "btn btn-primary" %>
 <% end %>

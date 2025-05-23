@@ -43,7 +43,7 @@ Rails.application.routes.draw do
       collection do
         get :search  # ← 検索機能
       end
-      resources :groups, only: [:index, :show] do
+      resources :groups, only: [:index, :show, :new, :create] do
         resources :memberships, only: [:create, :destroy]  #  ユーザーの参加・脱退を管理
       end
     end
@@ -62,7 +62,7 @@ Rails.application.routes.draw do
         patch :report  # ← 通報機能
       end
       collection do
-        get :search  # ← 検索機能
+        get :search
       end
     end
   end
@@ -78,7 +78,7 @@ Rails.application.routes.draw do
       collection do
         get :search  # ← 検索機能（管理者用）
       end
-      resources :groups, only: [:index, :show, :edit, :update, :destroy] do
+      resources :groups, only: [:index, :show, :new, :create, :edit, :update, :destroy] do
         resources :memberships, only: [:create, :destroy]  # 管理者がメンバーを追加・削除
       end
     end

@@ -15,12 +15,15 @@ class Admin::GroupsController < ApplicationController
 
   def create
     @group = Group.new(group_params)
+    @group.type = "official"  # 公式グループとして登録
+
     if @group.save
-      redirect_to admin_groups_path, notice: "グループを作成しました！"
+      redirect_to admin_group_path(@group), notice: "グループを作成しました！"
     else
       render :new
     end
   end
+
 
   def edit
     @group = Group.find(params[:id])

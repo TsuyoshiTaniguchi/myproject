@@ -1,13 +1,13 @@
-<h1><%= @user.name %> さんの所属グループ</h1>
+<h1>グループ一覧</h1>
 
-<% if @groups.any? %>
-  <ul>
-    <% @groups.each do |group| %>
-      <li><%= link_to group.name, user_group_path(@user, group) %></li>
-    <% end %>
-  </ul>
-<% else %>
-  <p>このユーザーはまだグループに参加していません。</p>
+<h2>公式プロジェクト</h2>
+<% Group.official.each do |group| %>
+  <p><%= link_to group.name, group_path(group) %></p>
 <% end %>
 
-<%= link_to "ユーザー一覧へ戻る", users_path, class: "btn btn-outline-secondary mt-3" %>
+<h2>ユーザー作成グループ</h2>
+<% Group.user_created.each do |group| %>
+  <p><%= link_to group.name, group_path(group) %></p>
+<% end %>
+
+<%= link_to "新規グループ作成", new_group_path, class: "btn btn-primary mt-3" %>

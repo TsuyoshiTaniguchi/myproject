@@ -7,6 +7,7 @@ class Group < ApplicationRecord
   has_many :users, through: :memberships
 
 
+  enum type: { official: "official", user_created: "user_created" }  # 公式グループ or ユーザー作成グループ
 
   validates :name, presence: true, uniqueness: true
   validates :description, length: { maximum: 500 } # 説明文の長さを制限

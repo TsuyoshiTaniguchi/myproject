@@ -1,5 +1,13 @@
-<h2>所属メンバー一覧</h2>
+<h1><%= @group.name %></h1>
+<p><%= @group.description %></p>
 
+<% if @group.official? %>
+  <p class="badge bg-warning text-dark">公式プロジェクト</p>
+<% else %>
+  <p class="badge bg-info text-white">ユーザー作成グループ</p>
+<% end %>
+
+<h3>メンバー一覧</h3>
 <% if @group.users.any? %>
   <ul>
     <% @group.users.each do |user| %>
@@ -7,11 +15,11 @@
     <% end %>
   </ul>
 <% else %>
-  <p>このグループにはまだメンバーがいません。</p>
+  <p>まだメンバーがいません。</p>
 <% end %>
 
 <% if @group.users.include?(current_user) %>
-  <%= button_to "グループを脱退する", group_membership_path(@group, @membership), method: :delete, class: "btn btn-danger" %>
+  <%= button_to "グループを脱退", group_membership_path(@group, @membership), method: :delete, class: "btn btn-danger mt-3" %>
 <% else %>
-  <%= button_to "このグループに参加する", group_memberships_path(@group), method: :post, class: "btn btn-primary" %>
+  <%= button_to "このグループに参加する", group_memberships_path(@group), method: :post, class: "btn btn-primary mt-3" %>
 <% end %>

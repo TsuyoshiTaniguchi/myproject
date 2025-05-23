@@ -1,11 +1,13 @@
 <h1>グループ管理</h1>
-<%= link_to "新規グループ作成", new_admin_group_path, class: "btn btn-success mb-3" %>
 
-<table class="table table-striped">
+<%= link_to "新しいグループを作成", new_admin_group_path, class: "btn btn-primary" %>
+
+<table class="table">
   <thead>
     <tr>
       <th>グループ名</th>
-      <th>説明</th>
+      <th>メンバー数</th>
+      <th>作成日</th>
       <th>アクション</th>
     </tr>
   </thead>
@@ -13,7 +15,8 @@
     <% @groups.each do |group| %>
       <tr>
         <td><%= link_to group.name, admin_group_path(group) %></td>
-        <td><%= group.description %></td>
+        <td><%= group.users.count %> 人</td>
+        <td><%= group.created_at.strftime("%Y-%m-%d") %></td>
         <td>
           <%= link_to "編集", edit_admin_group_path(group), class: "btn btn-warning btn-sm" %>
           <%= link_to "削除", admin_group_path(group), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
