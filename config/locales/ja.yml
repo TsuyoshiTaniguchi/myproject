@@ -41,6 +41,7 @@ ja:
       inactive: "アカウントが有効ではありません。"
       already_authenticated: "すでにログインしています。"
       unauthenticated: "ログインが必要です。"
+      not_found_in_database: "認証情報が見つかりません。"
 
     registrations:
       signed_up: "ユーザー登録が完了しました。"
@@ -53,3 +54,4 @@ ja:
         signed_in: "ログインしました"
       admin:
         signed_out: "管理者がログアウトしました"
+        not_found_in_database: "管理者の認証情報が見つかりません。"

@@ -1,0 +1,9 @@
+<h1>マイページ</h1>
+
+<%= render partial: "public/users/profile", locals: { user: current_user, show_actions: true } %>
+
+<%= render partial: "public/posts/post_list", locals: { user: current_user, show_create_button: true, show_edit_button: true } %>
+
+<%= render partial: "public/posts/delete_modal", locals: { user: current_user } %>
+
+<%= link_to "ユーザー一覧", users_path, class: "btn btn-outline-secondary mt-3" %>

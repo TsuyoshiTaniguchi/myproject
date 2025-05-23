@@ -1,3 +1,9 @@
+
+<form action="<%= search_posts_path %>" method="get" class="d-flex mb-3">
+  <input type="text" name="query" class="form-control" placeholder="キーワードで検索">
+  <button type="submit" class="btn btn-primary ms-2">検索</button>
+</form>
+
 <h2><%= @post.title %></h2>
 <p><%= sanitize(@post.content) %></p>
 <small>投稿者: <%= @post.user.name || "匿名ユーザー" %></small>

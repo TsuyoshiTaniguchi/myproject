@@ -10,6 +10,9 @@ class User < ApplicationRecord
   has_many :comments, dependent: :destroy
   has_many :likes, dependent: :destroy
   has_many :notifications, dependent: :destroy
+  has_many :memberships
+  has_many :groups, through: :memberships
+
   
 
   enum status: { active: 0, withdrawn: 1 }

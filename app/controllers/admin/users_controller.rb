@@ -30,14 +30,18 @@ class Admin::UsersController < ApplicationController
       render :edit
     end
   end
-  
 
-  
 
   def destroy
     @user = User.find(params[:id])
     @user.destroy
     redirect_to admin_users_path, notice: "ユーザーを削除しました"
+  end
+
+  def search
+    @query = params[:query]
+    @users = User.where("name LIKE ?", "%#{@query}%")
+    render :index
   end
 
   private

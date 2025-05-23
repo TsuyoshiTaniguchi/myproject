@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_05_23_053847) do
+ActiveRecord::Schema.define(version: 2025_05_23_114813) do
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -103,6 +103,16 @@ ActiveRecord::Schema.define(version: 2025_05_23_053847) do
     t.index ["user_id"], name: "index_likes_on_user_id"
   end
 
+  create_table "memberships", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "group_id", null: false
+    t.string "role"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["group_id"], name: "index_memberships_on_group_id"
+    t.index ["user_id"], name: "index_memberships_on_user_id"
+  end
+
   create_table "notifications", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "notification_type"
@@ -153,6 +163,8 @@ ActiveRecord::Schema.define(version: 2025_05_23_053847) do
   add_foreign_key "connections", "users", column: "follower_id"
   add_foreign_key "likes", "posts"
   add_foreign_key "likes", "users"
+  add_foreign_key "memberships", "groups"
+  add_foreign_key "memberships", "users"
   add_foreign_key "notifications", "users"
   add_foreign_key "posts", "groups"
   add_foreign_key "posts", "users"

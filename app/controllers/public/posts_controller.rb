@@ -67,6 +67,12 @@ class Public::PostsController < ApplicationController
     end
   end
 
+  def search
+    @query = params[:query]
+    @posts = Post.where("title LIKE ? OR content LIKE ?", "%#{@query}%", "%#{@query}%")
+    render :index
+  end
+
   private
 
   def post_params

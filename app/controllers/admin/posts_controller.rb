@@ -53,6 +53,12 @@ class Admin::PostsController < ApplicationController
     redirect_to root_path, alert: "権限がありません" unless current_admin.super_admin?
   end
 
+  def search
+    @query = params[:query]
+    @posts = Post.where("title LIKE ? OR content LIKE ?", "%#{@query}%", "%#{@query}%")
+    render :index
+  end
+
   private
 
   def post_params

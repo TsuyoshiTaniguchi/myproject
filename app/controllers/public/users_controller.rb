@@ -1,9 +1,17 @@
 class Public::UsersController < ApplicationController
   before_action :authenticate_user!
 
+  def mypage
+    @user = current_user  # `mypage` はログイン中のユーザー情報を取得する！
+    @posts = @user.posts
+  end
+
+  def index
+    @users = User.all
+  end
+
   def show
-    @user = User.find(current_user.id)
-    @user = current_user
+    @user = User.find(params[:id])  # 他のユーザーのプロフィールを見る
     @posts = @user.posts
   end
 
@@ -38,6 +46,12 @@ class Public::UsersController < ApplicationController
     @user.withdraw!
     reset_session # ここでセッションリセット
     redirect_to root_path, notice: "退会しました"
+  end
+
+  def search
+    @query = params[:query]
+    @users = User.where("name LIKE ?", "%#{@query}%")
+    render :index
   end
 
   private

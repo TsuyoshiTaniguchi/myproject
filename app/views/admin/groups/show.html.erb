@@ -1,0 +1,37 @@
+<h2>グループメンバー管理</h2>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>名前</th>
+      <th>役割</th>
+      <th>アクション</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @group.memberships.each do |membership| %>
+      <tr>
+        <td><%= membership.user.name %></td>
+        <td><%= membership.role %></td>
+        <td>
+          <% if membership.role != "admin" %>
+            <%= button_to "削除", admin_group_membership_path(@group, membership), method: :delete, class: "btn btn-danger btn-sm" %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<h3>メンバーを追加</h3>
+<%= form_with url: admin_group_memberships_path(@group), method: :post do |f| %>
+  <div class="mb-3">
+    <%= f.label :user_id, "ユーザー選択" %>
+    <%= f.collection_select :user_id, User.all, :id, :name, prompt: "ユーザーを選択" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :role, "役割" %>
+    <%= f.select :role, Membership.roles.keys, prompt: "役割を選択" %>
+  </div>
+  <%= f.submit "追加", class: "btn btn-primary" %>
+<% end %>

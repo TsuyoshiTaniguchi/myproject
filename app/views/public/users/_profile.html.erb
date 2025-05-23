@@ -1,0 +1,22 @@
+<div class="card p-3">
+  <h3><%= user.name %> さんのプロフィール</h3>
+  <p>メールアドレス: <%= user.email %></p>
+  <p>登録日: <%= user.created_at.strftime("%Y年%m月%d日") %></p>
+
+  <h3>所属グループ</h3>
+
+<% if user.groups.any? %>
+<ul>
+  <% user.groups.each do |group| %>
+    <li><%= link_to group.name, user_group_path(user, group) %></li>
+  <% end %>
+</ul>
+  <% else %>
+    <p>まだグループに参加していません。</p>
+  <% end %>
+
+  <% if show_actions %>
+    <%= link_to "プロフィール編集", edit_user_registration_path, class: "btn btn-primary" %>
+    <%= link_to "退会する", users_withdraw_path, method: :patch, class: "btn btn-danger", data: { confirm: "本当に退会しますか？" } %>
+  <% end %>
+</div>

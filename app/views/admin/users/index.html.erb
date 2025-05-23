@@ -1,4 +1,10 @@
 <h1>ユーザー管理</h1>
+
+<form action="<%= search_admin_users_path %>" method="get" class="d-flex mb-3">
+  <input type="text" name="query" class="form-control" placeholder="ユーザー名で検索">
+  <button type="submit" class="btn btn-primary ms-2">検索</button>
+</form>
+
 <table class="table table-striped">
   <thead>
     <tr>
@@ -35,5 +41,14 @@
     </tr>
   <% end %>
 </tbody>
-
 </table>
+
+<div class="actions mt-3">
+  <%= link_to "ダッシュボードへ戻る", admin_dashboard_path, class: "btn btn-outline-secondary" %>
+</div>
+
+<div class="sorting-options mb-3">
+  <%= link_to "新しい順", admin_users_path(sort: "newest"), class: "btn btn-outline-primary" %>
+  <%= link_to "古い順", admin_users_path(sort: "oldest"), class: "btn btn-outline-primary" %>
+  <%= link_to "アクティブユーザーのみ", admin_users_path(filter: "active"), class: "btn btn-outline-success" %>
+</div>
