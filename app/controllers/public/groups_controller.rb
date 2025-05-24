@@ -3,7 +3,7 @@ class Public::GroupsController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    @groups = Group.user_created  # ✅ 一般ユーザーが作成したグループのみ表示
+    @groups = Group.all
   end
 
   def show
@@ -16,9 +16,9 @@ class Public::GroupsController < ApplicationController
 
   def create
     @group = Group.new(group_params)
-    @group.type = "user_created"  # ✅ ユーザー作成グループとして登録
+    @group.category = "user_created"  # ✅ `type` → `category` に変更！
     @group.owner = current_user  # ✅ 所有者を設定
-
+  
     if @group.save
       redirect_to group_path(@group), notice: "グループを作成しました！"
     else

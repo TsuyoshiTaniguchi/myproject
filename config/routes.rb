@@ -34,20 +34,22 @@ Rails.application.routes.draw do
 
   # 一般ユーザー関連
   scope module: :public do
-    get '/users/mypage' => 'users#mypage', as: 'users_mypage'  # `show` ではなく `mypage` 用のアクション
+    get '/users/mypage' => 'users#mypage', as: 'users_mypage'
+  
     resources :users, only: [:index, :show, :edit, :update, :destroy] do
-      resources :posts, only: [:index] 
+      resources :posts, only: [:index]
+      resources :groups, only: [:index, :show, :new, :create] do
+        resources :memberships, only: [:create, :destroy]
+      end
       member do
-        patch :withdraw # 退会処理用
+        patch :withdraw
       end
       collection do
-        get :search  # ← 検索機能
-      end
-      resources :groups, only: [:index, :show, :new, :create] do
-        resources :memberships, only: [:create, :destroy]  #  ユーザーの参加・脱退を管理
+        get :search
       end
     end
-
+  
+    resources :groups, only: [:index, :show]  # 🔥 Public 全体のグループ一覧を追加
   
     resources :comments, only: [:create, :destroy]
     resources :likes, only: [:create, :destroy]
@@ -56,17 +58,16 @@ Rails.application.routes.draw do
     patch '/users/information' => 'users#update'
     get '/users/unsubscribe' => 'users#unsubscribe', as: 'users_unsubscribe'
     patch '/users/withdraw' => 'users#withdraw'
-    
+  
     resources :posts do
       member do
-        patch :report  # ← 通報機能
+        patch :report
       end
       collection do
         get :search
       end
     end
   end
-    
 
 
 
@@ -78,10 +79,12 @@ Rails.application.routes.draw do
       collection do
         get :search  # ← 検索機能（管理者用）
       end
-      resources :groups, only: [:index, :show, :new, :create, :edit, :update, :destroy] do
-        resources :memberships, only: [:create, :destroy]  # 管理者がメンバーを追加・削除
-      end
     end
+
+    resources :groups, only: [:index, :show, :new, :create, :edit, :update, :destroy] do
+      resources :memberships, only: [:create, :destroy]  # 管理者がメンバーを追加・削除
+    end
+  
 
     resources :posts, only: [:index, :show, :edit, :update, :destroy] do
       member do

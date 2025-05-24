@@ -13,7 +13,7 @@
     <% @user.groups.each do |group| %>
       <li><%= link_to group.name, admin_group_path(group) %> （役割: <%= group.memberships.find_by(user: @user).role %>）</li>
     <% end %>
-  </ul>
+      </ul>
     <% else %>
       <p>このユーザーはまだグループに参加していません。</p>
     <% end %>

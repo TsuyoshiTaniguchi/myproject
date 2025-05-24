@@ -12,6 +12,15 @@
           <%= link_to "マイページ", users_mypage_path, class: "nav-link", style: "color: #1ABC9C; text-decoration: none;" %>
         </li>
         <li>
+          <%= link_to "ユーザー一覧", users_path, class: "nav-link", style: "color: #1ABC9C; text-decoration: none;" %> 
+        </li>
+        <li>
+          <%= link_to "グループ一覧", groups_path, class: "nav-link", style: "color: #1ABC9C; text-decoration: none;" %> 
+        </li>
+        <li>
+          <%= link_to "投稿一覧", posts_path, class: "nav-link", style: "color: #1ABC9C; text-decoration: none;" %>
+        </li>
+        <li>
           <%= link_to "ログアウト", destroy_user_session_path, method: :delete, id: "logout-link", class: "nav-link", style: "color: red !important;" %>
         </li>
       <% elsif admin_signed_in? %>
@@ -19,7 +28,16 @@
           <%= link_to "ダッシュボード", admin_dashboard_path, class: "nav-link", style: "color: #1ABC9C; text-decoration: none;" %>
         </li>
         <li>
-          <%= link_to "会員一覧", admin_users_path, class: "nav-link", style: "color: #1ABC9C; text-decoration: none;" %>
+        <%= link_to "ユーザー管理", admin_users_path, class: "nav-link" %>
+        </li>
+        <li>
+          <%= link_to "グループ管理", admin_groups_path, class: "nav-link" %>
+        </li>
+        <li>
+          <%= link_to "投稿管理", admin_posts_path, class: "nav-link" %>
+        </li>
+        <li>
+          <%= link_to "コメント管理", admin_comments_path, class: "nav-link" %>
         </li>
         <li>
          <%= link_to "ログアウト", destroy_admin_session_path, method: :delete, class: "nav-link logout-link", style: "color: red !important;" %>
