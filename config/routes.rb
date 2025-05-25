@@ -37,9 +37,12 @@ Rails.application.routes.draw do
     get '/users/mypage' => 'users#mypage', as: 'users_mypage'
   
     resources :users, only: [:index, :show, :edit, :update, :destroy] do
-      resources :posts, only: [:index]
-      resources :groups, only: [:index, :show, :new, :create] do
+      resources :posts, only: [:index, :show, :create, :edit, :update, :destroy] 
+        # ユーザーに紐づいたグループ管理
+      resources :groups, only: [:index, :show, :new, :create, :edit, :update, :destroy] do
         resources :memberships, only: [:create, :destroy]
+        resources :posts, only: [:index, :show, :create, :edit, :update, :destroy] # 🔹 `groups` 内に `posts` をネスト！
+        post 'request_join', on: :member  # 参加リクエスト用のルート
       end
       member do
         patch :withdraw
@@ -49,17 +52,10 @@ Rails.application.routes.draw do
       end
     end
   
-    resources :groups, only: [:index, :show]  # 🔥 Public 全体のグループ一覧を追加
-  
-    resources :comments, only: [:create, :destroy]
-    resources :likes, only: [:create, :destroy]
-  
-    get '/users/information/edit' => 'users#edit'
-    patch '/users/information' => 'users#update'
-    get '/users/unsubscribe' => 'users#unsubscribe', as: 'users_unsubscribe'
-    patch '/users/withdraw' => 'users#withdraw'
-  
     resources :posts do
+      resources :comments, only: [:create, :destroy]
+      resources :likes, only: [:create, :destroy]
+    
       member do
         patch :report
       end
@@ -68,6 +64,11 @@ Rails.application.routes.draw do
       end
     end
   end
+
+  get '/users/information/edit' => 'users#edit'
+  patch '/users/information' => 'users#update'
+  get '/users/unsubscribe' => 'users#unsubscribe', as: 'users_unsubscribe'
+  patch '/users/withdraw' => 'users#withdraw'
 
 
 

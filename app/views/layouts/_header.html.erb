@@ -15,7 +15,7 @@
           <%= link_to "ユーザー一覧", users_path, class: "nav-link", style: "color: #1ABC9C; text-decoration: none;" %> 
         </li>
         <li>
-          <%= link_to "グループ一覧", groups_path, class: "nav-link", style: "color: #1ABC9C; text-decoration: none;" %> 
+          <%= link_to "グループ一覧", user_groups_path(current_user), class: "nav-link", style: "color: #1ABC9C; text-decoration: none;" %> 
         </li>
         <li>
           <%= link_to "投稿一覧", posts_path, class: "nav-link", style: "color: #1ABC9C; text-decoration: none;" %>

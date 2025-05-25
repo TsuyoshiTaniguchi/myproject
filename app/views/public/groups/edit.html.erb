@@ -1,0 +1,20 @@
+<h1>グループを編集</h1>
+
+<%= form_with(model: @group, url: user_group_path(current_user, @group), method: :patch) do |f| %>
+  <div>
+    <%= f.label :name, "グループ名" %>
+    <%= f.text_field :name %>
+  </div>
+
+  <div>
+  <%= f.label :category, "カテゴリー" %>
+  <%= f.select :category, Group.categories.keys.map { |key| [I18n.t("enums.group.category.#{key}"), key] } %>
+</div>
+
+<div>
+  <%= f.label :privacy, "プライバシー設定" %>
+  <%= f.select :privacy, Group.privacies.keys.map { |key| [I18n.t("enums.group.privacy.#{key}"), key] } %>
+</div>
+
+  <%= f.submit "更新する", class: "btn btn-primary mt-3" %>
+<% end %>

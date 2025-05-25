@@ -1,0 +1,15 @@
+<h1>新規グループ作成</h1>
+
+<%= form_with model: @group, url: user_groups_path(current_user), local: true do |f| %>
+  <div>
+    <%= f.label :name, "グループ名" %>
+    <%= f.text_field :name %>
+  </div>
+
+  <div>
+    <%= f.submit "作成", class: "btn btn-primary" %>
+  </div>
+<% end %>
+
+<%= link_to "グループ一覧へ戻る", user_groups_path(current_user), class: "btn btn-secondary mt-3" %>
+<%= link_to "キャンセル", user_groups_path(current_user), class: "btn btn-light mt-3" %>

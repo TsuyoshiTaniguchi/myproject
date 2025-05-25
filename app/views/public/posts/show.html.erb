@@ -22,5 +22,26 @@
   <% end %>
 </div>
 
+<h2>コメントを追加</h2>
+<%= form_with(model: [@post, Comment.new], local: true) do |form| %>
+  <div class="mb-3">
+    <%= form.label :content, "コメント" %>
+    <%= form.text_area :content, class: "form-control" %>
+  </div>
+
+  <%= form.submit "送信", class: "btn btn-primary btn-sm" %>
+<% end %>
+
+<h3>コメント一覧</h3>
+<% @post.comments.each do |comment| %>
+  <div class="border p-2 mb-2">
+    <strong><%= comment.user.name %></strong> - <%= time_ago_in_words(comment.created_at) %>前
+    <p><%= sanitize(comment.content) %></p>
+    <% if comment.user == current_user %>
+      <%= link_to "削除", post_comment_path(@post, comment), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
+    <% end %>
+  </div>
+<% end %>
+
 
 <%= link_to "戻る", posts_path, class: "btn btn-secondary mt-3" %>

@@ -6,10 +6,33 @@
 
 <% if @posts.any? %>
   <% @posts.each do |post| %>
-    <div class="card p-3 mb-3"> <!-- Bootstrap の `card` を適用 -->
+    <div class="card p-3 mb-3">
+      <div class="d-flex align-items-center">
+        <% if post.user.profile_image.attached? %>
+          <%= image_tag post.user.profile_image, class: "rounded-circle me-2", width: 50, height: 50 %>
+        <% end %>
+        <div>
+          <h5 class="mb-0"><%= link_to post.user.name, user_path(post.user), class: "text-decoration-none" %></h5>
+          <small class="text-muted"><%= time_ago_in_words(post.created_at) %></small>
+        </div>
+      </div>
+
       <h2><%= link_to post.title, post_path(post), class: "text-decoration-none" %></h2>
-      <p><%= sanitize(truncate(post.content, length: 100)) %></p>
-      <small class="text-muted">投稿者: <%= post.user.name || "匿名ユーザー" %></small>
+      <p><%= sanitize(truncate(post.content, length: 200)) %></p>
+
+      <% if post.image.attached? %>
+        <%= image_tag post.image, class: "img-fluid rounded mt-2" %>
+      <% end %>
+
+      <% if post.code_snippet.present? %>
+        <pre class="code-block"><%= sanitize(post.code_snippet) %></pre>
+      <% end %>
+
+      <div class="d-flex gap-2 mt-3">
+        <%= button_to "👍 いいね", post_likes_path(post), method: :post, class: "btn btn-outline-primary btn-sm" %>
+        <% comment_count = post.comments.count %>
+        <%= link_to "💬 コメント (#{comment_count})", post_path(post), class: "btn btn-outline-secondary btn-sm" %>
+      </div>
 
       <% if post.user == current_user %>
         <div class="d-flex gap-2 mt-2">
@@ -32,4 +55,3 @@
   <%= link_to "新規投稿", new_post_path, class: "btn btn-primary btn-lg" %>
   <%= link_to "投稿一覧へ戻る", posts_path, class: "btn btn-secondary mt-3" %>
 </div>
-

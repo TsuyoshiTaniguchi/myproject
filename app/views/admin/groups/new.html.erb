@@ -2,7 +2,18 @@
 <p>ここでは、新しい公式グループを作成できます。必要な情報を入力してください。</p>
 
 <%= form_with model: @group, url: admin_groups_path, method: :post do |f| %>
-  
+
+  <% if @group.errors.any? %>
+    <div class="alert alert-danger">
+      <h4>入力エラーがあります：</h4>
+      <ul>
+        <% @group.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
   <!-- 🔹 グループ基本情報 -->
   <h2>グループ情報</h2>
   <div class="mb-3">
@@ -19,12 +30,20 @@
   <h2>参加ルール</h2>
   <div class="mb-3">
     <%= f.label :privacy, "公開範囲" %>
-    <%= f.select :privacy, [["公開（誰でも参加可能）", "public"], ["承認制（管理者の許可が必要）", "approval"], ["非公開（招待制）", "private"]], prompt: "選択してください", class: "form-control" %>
+    <%= f.select :privacy, [
+      ["公開（誰でも参加可能）", "public_visibility"], 
+      ["非公開（招待制）", "private_visibility"], 
+      ["限定公開（管理者の許可が必要）", "restricted_visibility"]
+    ], prompt: "選択してください", class: "form-control" %>
   </div>
 
   <div class="mb-3">
     <%= f.label :join_policy, "参加ルール" %>
-    <%= f.select :join_policy, [["誰でも参加可能", "open"], ["管理者のみ参加可能", "admin_only"], ["招待制", "invite_only"]], prompt: "選択してください", class: "form-control" %>
+    <%= f.select :join_policy, [
+      ["誰でも参加可能", "open"], 
+      ["管理者のみ参加可能", "admin_only"], 
+      ["招待制", "invite_only"]
+    ], prompt: "選択してください", class: "form-control" %>
   </div>
 
   <div class="mb-3">
@@ -35,8 +54,12 @@
   <!-- 🔹 グループのカテゴリ -->
   <h2>グループの種類</h2>
   <div class="mb-3">
-  <%= f.label :category, "グループの種類" %>
-  <%= f.select :category, [["公式プロジェクト", "official"], ["一般コミュニティ", "community"], ["イベントグループ", "event"]], prompt: "選択してください", class: "form-control" %>
+    <%= f.label :category, "グループの種類" %>
+    <%= f.select :category, [
+    ["公式プロジェクト", "official_label"], 
+    ["一般コミュニティ", "community_label"], 
+    ["ユーザー作成グループ", "user_created_label"]
+  ], prompt: "選択してください", class: "form-control" %>
   </div>
 
   <%= f.submit "グループを作成", class: "btn btn-success mt-3" %>

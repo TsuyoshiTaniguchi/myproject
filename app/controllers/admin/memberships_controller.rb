@@ -2,14 +2,26 @@ class Admin::MembershipsController < ApplicationController
   before_action :authenticate_admin!
 
   def create
-    @group = Group.find(params[:group_id])
-    @user = User.find(params[:user_id])
-    @membership = Membership.new(user: @user, group: @group, role: params[:role] || "member")
-    
-    if @membership.save
-      redirect_to admin_group_path(@group), notice: "#{@user.name} をグループに追加しました！"
-    else
-      redirect_to admin_group_path(@group), alert: "追加できませんでした。"
+    begin
+      @group = Group.find(params[:group_id])
+      @user = User.find(params[:user_id])
+  
+      # すでにメンバーかチェック
+      if @group.memberships.exists?(user: @user)
+        redirect_to admin_group_path(@group, anchor: "members"), alert: "#{@user.name} はすでにメンバーです！"
+        return
+      end
+  
+      @membership = @group.memberships.create(user: @user, role: params[:role] || "member")
+  
+      if @membership.persisted?
+        redirect_to admin_group_path(@group, anchor: "members"), notice: "#{@user.name} をグループに追加しました！"
+      else
+        redirect_to admin_group_path(@group, anchor: "members"), alert: "追加できませんでした。"
+      end
+  
+    rescue ActiveRecord::RecordNotFound
+      redirect_to admin_groups_path, alert: "対象のグループまたはユーザーが見つかりませんでした。"
     end
   end
 

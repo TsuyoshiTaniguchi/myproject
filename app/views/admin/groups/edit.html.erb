@@ -1,2 +1,37 @@
-<h1>Admin::Groups#edit</h1>
-<p>Find me in app/views/admin/groups/edit.html.erb</p>
+<h1>グループ編集</h1>
+
+<%= form_with model: @group, url: admin_group_path(@group), local: true do |f| %>
+  <div class="form-group">
+    <%= f.label :name, "グループ名" %>
+    <%= f.text_field :name, class: "form-control", placeholder: "グループ名を入力してください" %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :category, "カテゴリー" %>
+    <%= f.select :category, Group.categories.keys.map { |key| [I18n.t("enums.group.category.#{key}"), key] }, {}, class: "form-control" %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :privacy, "プライバシー設定" %>
+    <%= f.select :privacy, Group.privacies.keys.map { |key| [I18n.t("enums.group.privacy.#{key}"), key] }, {}, class: "form-control" %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :description, "説明" %>
+    <%= f.text_area :description, class: "form-control", rows: 4, placeholder: "グループの説明を入力してください" %>
+  </div>
+
+  <%= f.submit "更新する", class: "btn btn-primary mt-3" %>
+  <%= link_to "キャンセル", admin_groups_path, class: "btn btn-secondary mt-3" %>
+<% end %>
+
+<% if @group.errors.any? %>
+  <div class="alert alert-danger mt-3">
+    <h4>入力エラーがあります：</h4>
+    <ul>
+      <% @group.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

@@ -1,13 +1,67 @@
 <h1>グループ一覧</h1>
 
-<h2>公式プロジェクト</h2>
-<% Group.official.each do |group| %>
-  <p><%= link_to group.name, group_path(group) %></p>
-<% end %>
 
-<h2>ユーザー作成グループ</h2>
-<% Group.user_created.each do |group| %>
-  <p><%= link_to group.name, group_path(group) %></p>
-<% end %>
+<% if @user.present? %>
+  <h2>公式プロジェクト</h2>
+  <div class="row">
+      <% @user.groups.where(category: "official_label").each do |group| %>
+        <div class="col-md-4">
+          <div class="card p-3 mb-3">
+            <h4><%= link_to group.name, user_group_path(@user, group) %></h4>
+            <p>👥 メンバー数: <%= group.memberships.count %>人</p>
+            <%= link_to "詳細を見る", user_group_path(@user, group), class: "btn btn-outline-info btn-sm" %>
+          </div>
+        </div>
+      <% end %> <!-- @user.groups.present? の閉じタグ -->
+  </div>
+<% end %> <!-- @user.present? の閉じタグ -->
 
-<%= link_to "新規グループ作成", new_group_path, class: "btn btn-primary mt-3" %>
+<h2>個人作成グループ</h2>
+<div class="row">
+  <% @user.groups.user_created_label.each do |group| %>
+    <div class="col-md-4">
+      <div class="card p-3 mb-3">
+        <h4><%= link_to group.name, user_group_path(@user, group) %></h4>
+        <p>📌 カテゴリ: <%= group.category.humanize %></p>
+        <%= link_to "詳細を見る", user_group_path(@user, group), class: "btn btn-outline-info btn-sm" %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<h2>おすすめのグループ</h2>
+<div class="row">
+  <% Group.public_visibility.order("RANDOM()").limit(3).each do |group| %>
+    <div class="col-md-4">
+      <div class="card p-3 mb-3">
+        <h4><%= link_to group.name, user_group_path(current_user, group) %></h4>
+        <p>👥 メンバー数: <%= group.memberships.count %>人</p> 
+        <%= button_to "🔒 参加リクエストを送る", request_join_user_group_path(current_user, group), method: :post, class: "btn btn-primary btn-sm" %>
+        <%= link_to "詳細を見る", user_group_path(current_user, group), class: "btn btn-outline-info btn-sm" %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<h2>参加中のグループ</h2>
+<% if @user.groups.present? %>
+  <% @user.groups.each do |group| %>
+    <div class="card p-3 mb-3">
+      <h4><%= link_to group.name, user_group_path(@user, group) %></h4>
+      <p>📢 <%= group.category.humanize %></p>
+      <p>👥 メンバー数: <%= group.memberships.count %>人</p>
+
+      <% if group.privacy == "restricted_visibility" %>
+        <%= button_to "🔒 参加リクエストを送る", request_join_user_group_path(@user, group), method: :post, class: "btn btn-outline-primary btn-sm" %>
+      <% end %>
+
+      <%= link_to "📄 詳細を見る", user_group_path(@user, group), class: "btn btn-outline-info btn-sm" %>
+    </div>
+  <% end %> <!-- @user.groups.each の閉じタグ -->
+<% end %> <!-- @user.groups.present? の閉じタグ -->
+
+<div class="d-flex justify-content-center gap-2 mb-3">
+  <%= link_to " ホームに戻る", root_path, class: "btn btn-outline-secondary btn-lg" %>
+  <%= link_to " マイグループ", user_groups_path(@user), class: "btn btn-primary btn-lg" %>
+  <%= link_to "新しいグループを作成", new_user_group_path(@user), class: "btn btn-success btn-lg" %>
+</div>

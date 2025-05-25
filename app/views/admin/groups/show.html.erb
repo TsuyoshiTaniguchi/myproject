@@ -18,9 +18,9 @@
         <td><%= membership.user.name %></td>
         <td><%= membership.role %></td>
         <td>
-          <% if membership.role != "admin" %>
-            <%= button_to "削除", admin_group_membership_path(@group, membership), method: :delete, class: "btn btn-danger btn-sm" %>
-          <% end %>
+        <% if membership.role != "admin" %>
+          <%= button_to "削除", admin_group_membership_path(@group, membership), method: :delete, class: "btn btn-danger btn-sm", data: { confirm: "本当に削除しますか？" } %>
+        <% end %>
         </td>
       </tr>
     <% end %>
@@ -31,7 +31,9 @@
 <%= form_with url: admin_group_memberships_path(@group), method: :post do |f| %>
   <div class="mb-3">
     <%= f.label :user_id, "ユーザー選択" %>
-    <%= f.collection_select :user_id, User.all, :id, :name, prompt: "ユーザーを選択" %>
+    <%= f.collection_select :user_id, User.where.not(id: @group.users.pluck(:id)), :id, :name, prompt: "ユーザーを選択" %>
   </div>
   <%= f.submit "追加", class: "btn btn-primary" %>
 <% end %>
+
+<%= link_to "グループ一覧へ戻る", admin_groups_path, class: "btn btn-secondary mt-3" %>

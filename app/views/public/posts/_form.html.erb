@@ -7,3 +7,22 @@
     </ul>
   </div>
 <% end %>
+
+<%= form_with(model: @post, local: true) do |form| %>
+  <div class="mb-3">
+    <%= form.label :title %>
+    <%= form.text_field :title, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :content %>
+    <%= form.text_area :content, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :image, "投稿画像" %>
+    <%= form.file_field :image, class: "form-control" %>
+  </div>
+
+  <%= form.submit "投稿する", class: "btn btn-primary" %>
+<% end %>

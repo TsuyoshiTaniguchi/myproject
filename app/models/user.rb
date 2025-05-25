@@ -13,7 +13,7 @@ class User < ApplicationRecord
   has_many :memberships
   has_many :groups, through: :memberships
 
-  
+  has_one_attached :profile_image # プロフィール画像の添付機能を追加
 
   enum status: { active: 0, withdrawn: 1 }
 

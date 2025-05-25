@@ -1,18 +1,25 @@
 class Group < ApplicationRecord
+  belongs_to :owner, class_name: "User", optional: true # 所有者を管理
 
   has_many :posts, dependent: :destroy
   has_many :user_groups, dependent: :destroy
-  has_many :users, through: :user_groups
-  has_many :memberships
+  has_many :memberships, dependent: :destroy
   has_many :users, through: :memberships
 
 
 
-  enum category: { official: "official", community: "community", user_created: "user_created" } # 公式グループ or ユーザー作成グループ
+  has_one :owner_membership, -> { where(role: "owner") }, class_name: "Membership"
+  has_one :owner, through: :owner_membership, source: :user
+
+  # スコープ（アクティブなグループのみ取得）
+  scope :active_groups, -> { where.not(name: nil) }
+
+
+  enum privacy: { public_visibility: "public", private_visibility: "private", restricted_visibility: "restricted" } 
+  enum category: { official_label: "official", community_label: "community", user_created_label: "user_created" } 
 
   validates :name, presence: true, uniqueness: true
   validates :description, length: { maximum: 500 } # 説明文の長さを制限
 
-  # スコープ（アクティブなグループのみ取得）
-  scope :active_groups, -> { where.not(name: nil) }
+
 end

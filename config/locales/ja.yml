@@ -5,6 +5,17 @@ ja:
         active: "アクティブ"
         withdrawn: "退会済み"
 
+    group: 
+      category:
+        official_label: "公式グループ"
+        community_label: "コミュニティグループ"
+        user_created_label: "ユーザー作成グループ"
+
+      privacy:
+        public_visibility: "公開"
+        private_visibility: "非公開"
+        restricted_visibility: "限定公開"
+
   activerecord:
     errors:
       models:
@@ -55,3 +66,12 @@ ja:
       admin:
         signed_out: "管理者がログアウトしました"
         not_found_in_database: "管理者の認証情報が見つかりません。"
+
+  datetime:
+    distance_in_words:
+      about_x_hours: "%{count}時間前"
+      less_than_x_minutes: "%{count}分未満"
+      x_minutes: "%{count}分前"
+      x_days: "%{count}日前"
+      about_x_months: "%{count}か月前"
+      about_x_years: "%{count}年前"

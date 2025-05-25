@@ -1,10 +1,16 @@
 <h1><%= @group.name %></h1>
 <p><%= @group.description %></p>
 
-<% if @group.official? %>
+<% if @group.official_label? %>
   <p class="badge bg-warning text-dark">公式プロジェクト</p>
 <% else %>
   <p class="badge bg-info text-white">ユーザー作成グループ</p>
+<% end %>
+
+<p>オーナー: <%= @group.owner&.name || "未設定" %></p>
+
+<% if @group.owner == current_user %>
+  <%= link_to "グループを編集", edit_user_group_path(current_user, @group), class: "btn btn-warning" %>
 <% end %>
 
 <h3>メンバー一覧</h3>
@@ -19,7 +25,29 @@
 <% end %>
 
 <% if @group.users.include?(current_user) %>
-  <%= button_to "グループを脱退", group_membership_path(@group, @membership), method: :delete, class: "btn btn-danger mt-3" %>
+  <%= button_to "グループを脱退", user_group_membership_path(current_user, @group, current_user.memberships.find_by(group: @group)), method: :delete, class: "btn btn-danger mt-3" %>
 <% else %>
-  <%= button_to "このグループに参加する", group_memberships_path(@group), method: :post, class: "btn btn-primary mt-3" %>
+  <%= button_to "このグループに参加する", user_group_memberships_path(current_user, @group), method: :post, class: "btn btn-primary mt-3" %>
+<% end %>
+
+<h3>最近のアクティビティ</h3>
+<% recent_posts = @group.posts.order(created_at: :desc).limit(5) %>
+<% new_members = @group.users.order(created_at: :desc).limit(3) %>
+
+<% if recent_posts.any? || new_members.any? %>
+  <% recent_posts.each do |post| %>
+    <p>📝 <%= link_to post.title, user_group_post_path(@user, @group, post) %>（<%= post.created_at.strftime("%Y-%m-%d") %>）</p>
+  <% end %>
+
+  <% new_members.each do |member| %>
+    <p>👤 <%= link_to member.name, user_path(member) %> がメンバーになりました！（<%= member.created_at.strftime("%Y-%m-%d") %>）</p>
+  <% end %>
+<% else %>
+  <p>まだ新しい活動はありません。</p>
+<% end %>
+
+<% if @user.present? %>
+  <%= link_to "グループ一覧へ戻る", user_groups_path(@user), class: "btn btn-secondary" %>
+<% else %>
+  <%= link_to "グループ一覧へ戻る", user_groups_path(current_user), class: "btn btn-secondary" %>
 <% end %>

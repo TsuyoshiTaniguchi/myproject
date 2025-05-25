@@ -1,24 +1,34 @@
 <h1>グループ管理</h1>
 
-<%= link_to "新しいグループを作成", new_admin_group_path, class: "btn btn-primary" %>
+<div class="d-flex justify-content-between mb-3">
+  <%= link_to "新しいグループを作成", new_admin_group_path, class: "btn btn-primary" %>
+  <%= form_tag admin_groups_path, method: :get, class: "d-flex" do %>
+    <%= text_field_tag :search, params[:search], class: "form-control", placeholder: "グループを検索..." %>
+    <%= submit_tag "検索", class: "btn btn-outline-secondary ms-2" %>
+  <% end %>
+</div>
 
-<table class="table">
-  <thead>
+<table class="table table-striped table-hover">
+  <thead class="table-dark">
     <tr>
       <th>グループ名</th>
+      <th>カテゴリー</th>
       <th>メンバー数</th>
       <th>作成日</th>
       <th>アクション</th>
     </tr>
   </thead>
+  <% if @groups.empty? %>
+  <p class="text-warning">該当するグループが見つかりませんでした。</p>
+  <% end %>
   <tbody>
     <% @groups.each do |group| %>
       <tr>
         <td><%= link_to group.name, admin_group_path(group) %></td>
-        <td><%= group.category %></td>
+        <td><%= I18n.t("enums.group.category.#{group.category}") %></td>
         <td><%= group.users.count %> 人</td>
         <td><%= group.created_at.strftime("%Y-%m-%d") %></td>
-        <td>
+        <td class="d-flex gap-2">
           <%= link_to "編集", edit_admin_group_path(group), class: "btn btn-warning btn-sm" %>
           <%= link_to "削除", admin_group_path(group), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
         </td>
@@ -26,3 +36,8 @@
     <% end %>
   </tbody>
 </table>
+
+<div class="d-flex justify-content-between mt-4">
+  <%= link_to "グループ一覧へ戻る", admin_groups_path, class: "btn btn-secondary" %>
+  <%= link_to "管理ダッシュボードへ", admin_dashboard_path, class: "btn btn-outline-primary" %>
+</div>
