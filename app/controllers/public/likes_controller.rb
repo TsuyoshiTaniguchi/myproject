@@ -1,10 +1,21 @@
-def create
-  post = Post.find(params[:post_id])
-  like = post.likes.new(user: current_user)
+class Public::LikesController < ApplicationController
+  before_action :set_post
 
-  if like.save
-    redirect_to posts_path, notice: "いいねしました！"
-  else
-    redirect_to posts_path, alert: "いいねできませんでした。"
+  def create
+    like = current_user.likes.new(post_id: @post.id)
+    like.save
+    redirect_to posts_path
+  end
+
+  def destroy
+    like = current_user.likes.find_by(post_id: @post.id)
+    like.destroy if like
+    redirect_to posts_path
+  end
+
+  private
+
+  def set_post
+    @post = Post.find(params[:post_id])
   end
 end

@@ -4,13 +4,25 @@ class Public::GroupsController < ApplicationController
 
   def index
     @user = User.find(params[:user_id])
-    @groups = @user.groups
+    @query = params[:query] # 検索キーワードを取得
+  
+    if @query.present?
+      normalized_query = @query.tr('ァ-ン', 'ぁ-ん').downcase # カタカナ→ひらがな＋小文字化
+  
+      @groups = Group.where("LOWER(name) LIKE ?", "%#{@query.downcase}%")
+               .or(Group.where("LOWER(name) LIKE ?", "%#{normalized_query}%"))
+               .where(privacy: ["public_visibility", "restricted_visibility"]) # プライバシー設定を考慮
+    else
+      @groups = @user.groups
+    end
   end
 
   def show
     @group = Group.find(params[:id])
-    @user = User.find(params[:user_id]) # ✅ ユーザー情報を取得
-    @membership = current_user.memberships.find_by(group: @group)  
+    @user = User.find(params[:user_id]) # ユーザー情報を取得
+    @membership = current_user.memberships.find_by(group: @group)
+    
+    session[:return_to] = request.original_url # どこから来たか保存
   end
   
   def new
@@ -49,24 +61,40 @@ class Public::GroupsController < ApplicationController
 
   def request_join
     @group = Group.find(params[:id])
-    @user = User.find(params[:user_id]) # ✅ ユーザー情報を取得
+    @user = User.find(params[:user_id]) # ユーザー情報を取得
   
-    # ✅ 承認制グループかチェック
+    # 承認制グループかチェック
     if @group.privacy != "restricted_visibility"
       redirect_to user_group_path(@user, @group), alert: "このグループは参加リクエスト不要です。"
       return
     end
   
-    # ✅ すでにメンバーかチェック
+    # すでにメンバーかチェック
     if @group.users.exists?(id: @user.id)
       redirect_to user_group_path(@user, @group), alert: "すでにメンバーです！"
       return
     end
   
-    # ✅ 参加リクエストを "pending" 状態で保存
+    # 参加リクエストを "pending" 状態で保存
     @group.memberships.create!(user: @user, role: "pending")
   
     redirect_to user_group_path(@user, @group), notice: "参加リクエストを送信しました！"
+  end
+
+  def search
+    @query = params[:query]
+  
+    if @query.present?
+      @groups = Group.where("name LIKE ?", "%#{@query}%")
+      
+      # カテゴリでも検索可能に
+      @groups = @groups.or(Group.where("category LIKE ?", "%#{@query}%"))
+  
+      # 公開グループのみ表示（オプション）
+      @groups = @groups.where(privacy: "public_visibility")
+    else
+      @groups = Group.none # 検索なしの場合、空リストを返す
+    end
   end
   
   private

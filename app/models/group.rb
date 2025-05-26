@@ -1,5 +1,5 @@
 class Group < ApplicationRecord
-  belongs_to :owner, class_name: "User", optional: true # 所有者を管理
+  belongs_to :owner, class_name: "User", foreign_key: "owner_id", optional: true
 
   has_many :posts, dependent: :destroy
   has_many :user_groups, dependent: :destroy

@@ -12,6 +12,10 @@ class User < ApplicationRecord
   has_many :notifications, dependent: :destroy
   has_many :memberships
   has_many :groups, through: :memberships
+  has_many :likes
+  has_many :liked_posts, through: :likes, source: :post
+
+
 
   has_one_attached :profile_image # プロフィール画像の添付機能を追加
 
@@ -41,6 +45,10 @@ class User < ApplicationRecord
   def withdraw!
     update(status: "withdrawn")
     reload # データを即反映
+  end
+
+  def like_for(post)
+    likes.find_by(post: post) || nil # 明示的に `nil` を返すことでエラーを防げる
   end
 
 

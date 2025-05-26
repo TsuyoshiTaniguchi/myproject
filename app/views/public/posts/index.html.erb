@@ -28,8 +28,8 @@
         <pre class="code-block"><%= sanitize(post.code_snippet) %></pre>
       <% end %>
 
+  
       <div class="d-flex gap-2 mt-3">
-        <%= button_to "👍 いいね", post_likes_path(post), method: :post, class: "btn btn-outline-primary btn-sm" %>
         <% comment_count = post.comments.count %>
         <%= link_to "💬 コメント (#{comment_count})", post_path(post), class: "btn btn-outline-secondary btn-sm" %>
       </div>

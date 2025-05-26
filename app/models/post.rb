@@ -26,5 +26,9 @@ class Post < ApplicationRecord
    def reported?
      status == "reported"
    end
+
+   def liked_by?(user)
+    likes.exists?(user_id: user.id)
+  end
  
 end

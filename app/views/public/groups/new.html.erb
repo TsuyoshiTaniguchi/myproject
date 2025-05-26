@@ -7,6 +7,26 @@
   </div>
 
   <div>
+    <%= f.label :privacy, "投稿の閲覧範囲" %>
+    <%= f.select :privacy, [["全体公開", "public_visibility"], ["メンバーのみ", "restricted_visibility"]] %>
+  </div>
+
+  <div>
+    <%= f.label :join_policy, "グループ公開範囲" %>
+    <%= f.select :join_policy, [["誰でも参加可能", "open"], ["招待のみ", "invite_only"]] %>
+  </div>
+
+  <div>
+    <%= f.label :location, "グループの場所" %>
+    <%= f.text_field :location, placeholder: "例: 東京" %>
+  </div>
+
+  <div>
+    <%= f.label :description, "グループのルール" %>
+    <%= f.text_area :description, rows: 5, placeholder: "ルールやグループの趣旨を書いてください" %>
+  </div>
+
+  <div>
     <%= f.submit "作成", class: "btn btn-primary" %>
   </div>
 <% end %>

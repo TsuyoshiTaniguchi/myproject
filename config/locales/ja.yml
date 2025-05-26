@@ -17,6 +17,14 @@ ja:
         restricted_visibility: "限定公開"
 
   activerecord:
+    attributes:
+      user:
+        status: "ステータス"
+
+      group:
+        category: "カテゴリ"
+        privacy: "プライバシー"
+
     errors:
       models:
         user:

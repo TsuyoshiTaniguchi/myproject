@@ -7,23 +7,40 @@ class Public::PostsController < ApplicationController
   end
 
   def show
-    @post = Post.find_by(id: params[:id])
-  
-    if @post.nil?
-      redirect_to posts_path, alert: "指定された投稿は存在しません"
+    @post = Post.find(params[:id])
+    
+    #  意図したページから来た場合のみ `session[:return_to]` をセット
+    if request.referer.present? && !request.referer.include?("/posts/")
+      session[:return_to] = request.referer
     end
   end
 
   def new
-    @post = Post.new
+    if params[:group_id].present?
+      @group = Group.find_by(id: params[:group_id])
+      unless @group
+        flash[:alert] = "グループが見つかりません。"
+        return redirect_to user_groups_path(current_user)
+      end
+      @post = @group.posts.new
+    else
+      @post = current_user.posts.new
+    end
   end
 
   def create
-    @post = current_user.posts.build(post_params)
-    @post.group_id ||= Group.find_or_create_by(name: "Default").id # デフォルトグループを設定
+    @group = params[:group_id].present? ? Group.find_by(id: params[:group_id]) : nil
+  
+    if @group
+      @post = @group.posts.build(post_params)
+    else
+      @post = current_user.posts.build(post_params)
+    end
+  
+    @post.user = current_user
   
     if @post.save
-      redirect_to post_path(@post), notice: "投稿が作成されました"
+      redirect_to @group ? user_group_post_path(current_user, @group, @post) : post_path(@post), notice: "投稿が作成されました"
     else
       flash[:alert] = @post.errors.full_messages.join(", ")
       render :new

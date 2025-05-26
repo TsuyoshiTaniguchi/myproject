@@ -43,5 +43,4 @@
   </div>
 <% end %>
 
-
-<%= link_to "戻る", posts_path, class: "btn btn-secondary mt-3" %>
+<%= link_to "戻る", session[:return_to] || posts_path, class: "btn btn-secondary mt-3" %>
