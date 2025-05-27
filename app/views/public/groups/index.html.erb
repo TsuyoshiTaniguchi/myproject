@@ -19,6 +19,13 @@
       <% @groups.each do |group| %>
         <div class="col-md-4">
           <div class="card p-3 mb-3">
+            <!-- ✅ 追加: グループ画像の表示 -->
+            <% if group.group_image.attached? %>
+              <%= image_tag group.group_image.variant(resize_to_fill: [100, 100]), class: "group-image-preview mb-2" %>
+            <% else %>
+              <%= image_tag asset_path("no_image.jpg"), class: "group-image mb-3" %>
+            <% end %>
+
             <h4><%= link_to group.name, user_group_path(@user, group) %></h4>
             <p>📢 <%= group.category.present? ? t("enums.group.category.#{group.category}") : "未分類" %></p>
             <p>👥 メンバー数: <%= group.memberships.count %>人</p>
@@ -32,22 +39,27 @@
       <p>該当するグループが見つかりませんでした。</p>
     </div>
   <% end %>
-  
+
   <!-- ✅ 検索結果終了を明確に -->
   <hr class="my-4">
   <p class="text-center text-muted">🔍 検索結果の表示はここまでです。</p>
 <% end %>
-
-
 
 <h2>おすすめのグループ</h2>
 <div class="row">
   <% Group.public_visibility.order("RANDOM()").limit(3).each do |group| %>
     <div class="col-md-4">
       <div class="card p-3 mb-3">
+        <!-- ✅ 追加: グループ画像の表示 -->
+        <% if group.group_image.attached? %>
+          <%= image_tag group.group_image.variant(resize_to_fill: [100, 100]), class: "group-image-preview mb-2" %>
+        <% else %>
+          <%= image_tag "no_image.jpg", class: "group-image-preview mb-2", width: 200, height: 200 %>
+        <% end %>
+
         <h4><%= link_to group.name, user_group_path(current_user, group) %></h4>
         <p>📢 <%= group.category.present? ? t("enums.group.category.#{group.category}") : "未分類" %></p>
-        <p>👥 メンバー数: <%= group.memberships.count %>人</p> 
+        <p>👥 メンバー数: <%= group.memberships.count %>人</p>
         <%= button_to "🔒 参加リクエストを送る", request_join_user_group_path(current_user, group), method: :post, class: "btn btn-primary btn-sm" %>
         <%= link_to "詳細を見る", user_group_path(current_user, group), class: "btn btn-outline-info btn-sm" %>
       </div>
@@ -59,6 +71,13 @@
 <% if @user.groups.present? %>
   <% @user.groups.each do |group| %>
     <div class="card p-3 mb-3">
+      <!-- ✅ 追加: グループ画像の表示 -->
+      <% if group.group_image.attached? %>
+        <%= image_tag group.group_image.variant(resize_to_fill: [100, 100]), class: "group-image-preview mb-2" %>
+      <% else %>
+        <%= image_tag "no_image.jpg", class: "group-image-preview mb-2", width: 200, height: 200 %>
+      <% end %>
+
       <h4><%= link_to group.name, user_group_path(@user, group) %></h4>
       <p>📢 <%= group.category.present? ? t("enums.group.category.#{group.category}") : "未分類" %></p>
       <p>👥 メンバー数: <%= group.memberships.count %>人</p>
@@ -69,8 +88,8 @@
 
       <%= link_to "📄 詳細を見る", user_group_path(@user, group), class: "btn btn-outline-info btn-sm" %>
     </div>
-  <% end %> 
-<% end %> 
+  <% end %>
+<% end %>
 
 <div class="d-flex justify-content-center gap-2 mb-3">
   <%= link_to " ホームに戻る", root_path, class: "btn btn-outline-secondary btn-lg" %>

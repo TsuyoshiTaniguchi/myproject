@@ -1,20 +1,35 @@
 <h1>グループを編集</h1>
 
-<%= form_with(model: @group, url: user_group_path(current_user, @group), method: :patch) do |f| %>
+<%= form_with model: @group, url: user_group_path(current_user, @group) do |f| %>
   <div>
     <%= f.label :name, "グループ名" %>
     <%= f.text_field :name %>
   </div>
 
   <div>
-  <%= f.label :category, "カテゴリー" %>
-  <%= f.select :category, Group.categories.keys.map { |key| [I18n.t("enums.group.category.#{key}"), key] } %>
-</div>
+    <%= f.label :category, "カテゴリー" %>
+    <%= f.select :category, Group.categories.except("official_label").keys.map { |key| [I18n.t("enums.group.category.#{key}"), key] } %>
+  </div>
 
-<div>
-  <%= f.label :privacy, "プライバシー設定" %>
-  <%= f.select :privacy, Group.privacies.keys.map { |key| [I18n.t("enums.group.privacy.#{key}"), key] } %>
-</div>
+  <div>
+    <%= f.label :privacy, "プライバシー設定" %>
+    <%= f.select :privacy, Group.privacies.keys.map { |key| [I18n.t("enums.group.privacy.#{key}"), key] } %>
+  </div>
 
-  <%= f.submit "更新する", class: "btn btn-primary mt-3" %>
-<% end %>
+  <%= f.label :description, "説明" %>
+    <%= f.text_area :description, class: "form-control" %>
+
+  <%= f.label :group_image, "グループ画像" %>
+  <%= f.file_field :group_image, class: "form-control", onchange: "previewImage(event)" %>
+
+  <% if @group.group_image.attached? %>
+    <div class="mt-3">
+      <p>現在の画像:</p>
+      <%= image_tag @group.group_image.variant(resize_to_fill: [100, 100]), class: "group-image-preview" %>
+    </div>
+<% end %> 
+
+
+
+<%= f.submit "保存", class: "btn btn-primary mt-3" %>
+<% end %> 

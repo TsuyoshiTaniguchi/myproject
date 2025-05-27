@@ -23,6 +23,12 @@ class Public::CommentsController < ApplicationController
     end
   end
 
+  def report
+    @comment = Comment.find(params[:id])
+    @comment.update(reported: true)
+    redirect_to post_path(@comment.post), notice: "コメントを通報しました"
+  end
+
   private
 
   def comment_params

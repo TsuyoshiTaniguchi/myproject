@@ -58,3 +58,18 @@ th, td {
   object-fit: cover;
   border-radius: 50%;
 }
+
+
+.group-image {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.group-image-preview {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 10px;
+}

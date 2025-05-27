@@ -26,51 +26,55 @@ Rails.application.routes.draw do
   # 一般ユーザー関連
   scope module: :public do
     get '/users/mypage' => 'users#mypage', as: 'users_mypage'
-
-      resources :posts do
-        resources :comments, only: [:create, :destroy]
-        resources :likes, only: [:create, :destroy]
-        
+  
+    resources :posts do
+      resources :comments, only: [:create, :destroy] do
         member do
-          patch :report
+          patch :report  # ✅ コメント通報機能を追加
         end
-        
+      end
+      resources :likes, only: [:create, :destroy]
+  
+      member do
+        patch :report  # ✅ 投稿通報機能は変更なし
+      end
+  
+      collection do
+        get :search
+      end
+    end
+  
+    resources :users, only: [:index, :show, :edit, :update, :destroy] do
+      resources :posts, only: [:index, :show, :new, :create, :edit, :update, :destroy]
+      resources :groups, only: [:index, :show, :new, :create, :edit, :update, :destroy] do
+        resources :memberships, only: [:create, :destroy]
+        resources :posts, only: [:index, :show, :create, :new, :edit, :update, :destroy]
+        post 'request_join', on: :member  
+  
         collection do
           get :search
         end
       end
-    
-      resources :users, only: [:index, :show, :edit, :update, :destroy] do
-        resources :posts, only: [:index, :show, :new, :create, :edit, :update, :destroy]
-        resources :groups, only: [:index, :show, :new, :create, :edit, :update, :destroy] do
-          resources :memberships, only: [:create, :destroy]
-          resources :posts, only: [:index, :show, :create, :new, :edit, :update, :destroy]
-          post 'request_join', on: :member  
-    
-          collection do
-            get :search
-          end
-        end
-        
-        member do
-          patch :withdraw
-        end
-        
-        collection do
-          get :search
-        end
+  
+      member do
+        patch :withdraw
+      end
+  
+      collection do
+        get :search
       end
     end
-    
-    get '/users/information/edit' => 'users#edit'
-    patch '/users/information' => 'users#update'
-    get '/users/unsubscribe' => 'users#unsubscribe', as: 'users_unsubscribe'
-    patch '/users/withdraw' => 'users#withdraw'
-    
-    namespace :public do
-      get 'memberships/create'
-      get 'memberships/destroy'
-    end
+  end
+  
+  get '/users/information/edit' => 'users#edit'
+  patch '/users/information' => 'users#update'
+  get '/users/unsubscribe' => 'users#unsubscribe', as: 'users_unsubscribe'
+  patch '/users/withdraw' => 'users#withdraw'
+  
+  namespace :public do
+    get 'memberships/create'
+    get 'memberships/destroy'
+  end
 
   # 管理者専用ページ
   namespace :admin do

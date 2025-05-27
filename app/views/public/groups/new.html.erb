@@ -5,6 +5,15 @@
     <%= f.label :name, "グループ名" %>
     <%= f.text_field :name %>
   </div>
+  <div>
+    <%= f.label :group_image, "グループ画像" %>
+    <%= f.file_field :group_image, class: "form-control", onchange: "previewImage(event)" %>
+  </div>
+
+  <div class="mt-3">
+    <p>プレビュー:</p>
+    <img id="image-preview" class="group-image-preview" style="max-width: 200px; display: none;">
+  </div>
 
   <div>
     <%= f.label :privacy, "投稿の閲覧範囲" %>

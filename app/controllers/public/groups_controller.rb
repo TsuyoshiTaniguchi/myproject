@@ -100,7 +100,7 @@ class Public::GroupsController < ApplicationController
   private
 
   def group_params
-    params.require(:group).permit(:name, :category, :privacy, :join_policy)
+    params.require(:group).permit(:name, :privacy, :join_policy, :location, :description, :group_image, :category)
   end
-
+  
 end

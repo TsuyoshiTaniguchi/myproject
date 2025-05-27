@@ -8,14 +8,11 @@ class User < ApplicationRecord
 
   has_many :posts, dependent: :destroy
   has_many :comments, dependent: :destroy
-  has_many :likes, dependent: :destroy
-  has_many :notifications, dependent: :destroy
   has_many :memberships
   has_many :groups, through: :memberships
-  has_many :likes
+  has_many :likes, dependent: :destroy
   has_many :liked_posts, through: :likes, source: :post
-
-
+  has_many :notifications, dependent: :destroy
 
   has_one_attached :profile_image # プロフィール画像の添付機能を追加
 
@@ -38,7 +35,6 @@ class User < ApplicationRecord
     status == "active" ? "アクティブ" : "退会済み"
   end
   
-
   # ユーザーの退会処理
   def withdraw!
     update(status: "withdrawn")
@@ -54,9 +50,12 @@ class User < ApplicationRecord
       file_path = Rails.root.join('app/assets/images/sample-author1.jpg')
       profile_image.attach(io: File.open(file_path), filename: 'default-image.jpg', content_type: 'image/jpeg')
     end
-    profile_image.variant(resize_to_limit: [width, height]).processed
+    "no_image.jpg"
   end
 
+  def admin?
+    role.to_s == "admin"
+  end
 
  private
 
