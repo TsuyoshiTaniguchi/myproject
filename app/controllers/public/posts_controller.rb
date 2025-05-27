@@ -3,8 +3,9 @@ class Public::PostsController < ApplicationController
   before_action :correct_user, only: [:edit, :update, :destroy]
 
   def index
-    @posts = Post.active_users_posts
+    @posts = Post.active_users_posts.with_attached_images.includes(:user).where(users: { status: 0 })
   end
+  
 
   def show
     @post = Post.find(params[:id])
@@ -50,6 +51,14 @@ class Public::PostsController < ApplicationController
   def update
     @post = current_user.posts.find(params[:id])
   
+    # 画像を削除する処理
+    if params[:remove_image].present?
+      params[:remove_image].each do |image_id|
+        image = @post.images.find(image_id)
+        image.purge # 画像を削除
+      end
+    end
+  
     if @post.update(post_params)
       redirect_to post_path(@post), notice: "投稿が更新されました"
     else
@@ -93,7 +102,7 @@ class Public::PostsController < ApplicationController
   private
 
   def post_params
-    params.require(:post).permit(:title, :content, :group_id)
+    params.require(:post).permit(:title, :content, :group_id, images: [])
   end
 
   def correct_user

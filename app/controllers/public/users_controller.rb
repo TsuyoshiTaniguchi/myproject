@@ -7,7 +7,7 @@ class Public::UsersController < ApplicationController
   end
 
   def index
-    @users = User.all
+    @users = User.where.not(id: current_user.id)
   end
 
   def show
@@ -16,16 +16,14 @@ class Public::UsersController < ApplicationController
   end
 
   def edit
-    @user = User.find(current_user.id)
     @user = current_user
   end
 
   def update
-    @user = User.find(current_user.id)
+    @user = current_user
     if @user.update(user_params)
-      redirect_to users_mypage_path
-    else 
-      @user = User.find(current_user.id)
+      redirect_to users_mypage_path, notice: "プロフィールを更新しました"
+    else
       render :edit
     end
   end
@@ -42,9 +40,9 @@ class Public::UsersController < ApplicationController
 
 
   def withdraw
-    @user = User.find(params[:id])
+    @user = current_user
     @user.withdraw!
-    reset_session # ここでセッションリセット
+    reset_session # セッションをクリア
     redirect_to root_path, notice: "退会しました"
   end
 
@@ -57,7 +55,7 @@ class Public::UsersController < ApplicationController
   private
 
   def user_params
-    params.require(:user).permit(:name, :email)
+    params.require(:user).permit(:name, :email, :profile_image)
   end
 
 end

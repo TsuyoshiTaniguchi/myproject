@@ -1,7 +1,17 @@
+<div class="card p-3 text-center">
+<% if user.profile_image.attached? %>
+<%= image_tag user.profile_image.variant(resize_to_fill: [200, 200]), class: "profile-image mb-3" %>
+<% else %>
+<%= image_tag "no_image.jpg", class: "profile-image mb-3", width: 200, height: 200 %>
+<% end %>
+</div>
+
 <div class="card p-3">
   <h3><%= user.name %> さんのプロフィール</h3>
   <p>メールアドレス: <%= user.email %></p>
   <p>登録日: <%= user.created_at.strftime("%Y年%m月%d日") %></p>
+
+
 
   <h3>所属グループ</h3>
 
@@ -16,7 +26,7 @@
   <% end %>
 
   <% if show_actions %>
-    <%= link_to "プロフィール編集", edit_user_registration_path, class: "btn btn-primary" %>
+    <%= link_to "プロフィール編集", edit_user_path(@user), class: "btn btn-primary" %>
     <%= link_to "退会する", users_withdraw_path, method: :patch, class: "btn btn-danger", data: { confirm: "本当に退会しますか？" } %>
   <% end %>
 </div>

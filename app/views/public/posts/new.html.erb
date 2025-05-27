@@ -16,6 +16,12 @@
   </div>
 
   <div>
+    <%= f.file_field :images, multiple: true %>
+    <%= f.submit "イメージを追加" %>
+  </div>
+  
+
+  <div>
     <%= f.submit "投稿する", class: "btn btn-primary" %>
   </div>
 <% end %> 

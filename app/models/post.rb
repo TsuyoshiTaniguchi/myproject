@@ -7,7 +7,8 @@ class Post < ApplicationRecord
   has_many :likes, dependent: :destroy
   has_many :notifications, as: :source, dependent: :destroy # ポリモーフィック関連の通知
 
-  has_one_attached :image # 画像アップロード機能を追加
+
+  has_many_attached :images # 複数画像アップロードを可能に！
 
 
   # スコープ（アクティブユーザーのみの投稿）

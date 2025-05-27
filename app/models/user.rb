@@ -21,8 +21,6 @@ class User < ApplicationRecord
 
   enum status: { active: 0, withdrawn: 1 }
 
-  # ActiveStorageを使用する場合（プロフィール画像）
-  has_one_attached :profile_image
 
   validates :email, presence: true, uniqueness: true
   validates :personal_statement, length: { maximum: 500 } # プロフィールの制限
@@ -49,6 +47,14 @@ class User < ApplicationRecord
 
   def like_for(post)
     likes.find_by(post: post) || nil # 明示的に `nil` を返すことでエラーを防げる
+  end
+
+  def get_profile_image(width, height)
+    unless profile_image.attached?
+      file_path = Rails.root.join('app/assets/images/sample-author1.jpg')
+      profile_image.attach(io: File.open(file_path), filename: 'default-image.jpg', content_type: 'image/jpeg')
+    end
+    profile_image.variant(resize_to_limit: [width, height]).processed
   end
 
 

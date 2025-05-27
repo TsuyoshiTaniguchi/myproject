@@ -9,6 +9,16 @@
 <small>投稿者: <%= @post.user.name || "匿名ユーザー" %></small>
 <small>投稿日: <%= @post.created_at.strftime("%Y年%m月%d日 %H:%M") %></small>
 
+<!-- 投稿画像の表示 -->
+<% if @post.images.attached? %>
+  <div class="post-images">
+    <% @post.images.each do |image| %>
+      <%= image_tag image.variant(resize: "800x800"), class: "img-fluid mb-3" %>
+    <% end %>
+  </div>
+<% end %>
+
+
 <div class="d-flex gap-2 mt-3">
   <% if @post.user == current_user %>
     <%= link_to "編集", edit_post_path(@post), class: "btn btn-warning btn-sm" %>
