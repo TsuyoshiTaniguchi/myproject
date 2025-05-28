@@ -1,23 +1,44 @@
-<h1>コメント管理</h1>
-<table>
+<h1>コメント管理（Admin）</h1>
+
+<!-- 検索機能を追加 -->
+<%= form_with url: search_admin_comments_path, method: :get, local: true, class: "d-flex mb-3" do |form| %>
+  <%= form.text_field :query, class: "form-control", placeholder: "コメントのキーワードで検索" %>
+  <%= form.submit "検索", class: "btn btn-primary" %> 
+<% end %>
+
+<table class="table">
   <thead>
     <tr>
       <th>投稿タイトル</th>
       <th>コメント者</th>
       <th>内容</th>
+      <th>投稿日</th>
+      <th>通報状況</th>
       <th>操作</th>
     </tr>
   </thead>
   <tbody>
     <% @comments.each do |comment| %>
-      <tr>
+      <tr class="<%= 'table-warning' if comment.reported? %>"> <!-- 通報済みなら黄色背景 -->
         <td><%= link_to comment.post.title, admin_post_path(comment.post) %></td>
         <td><%= comment.user.name %></td>
         <td><%= comment.content.truncate(50) %></td>
+        <td><%= comment.created_at.strftime("%Y/%m/%d %H:%M") %></td>
         <td>
-          <%= link_to "削除", admin_comment_path(comment), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger" %>
+          <% if comment.reported? %>
+            <span class="badge bg-danger">通報済み</span> <!-- 通報済みなら赤ラベル -->
+          <% else %>
+            <span class="badge bg-success">正常</span>
+          <% end %>
+        </td>
+        <td class="d-flex gap-2"> 
+          <%= link_to "詳細", admin_comment_path(comment), class: "btn btn-info btn-sm flex-fill" %>
+          <%= link_to "削除", admin_comment_path(comment), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm flex-fill" %>
         </td>
       </tr>
     <% end %>
   </tbody>
 </table>
+
+
+<%= link_to "ダッシュボードへ戻る", admin_dashboard_path, class: "btn btn-secondary mt-3" %>

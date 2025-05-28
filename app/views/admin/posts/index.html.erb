@@ -1,9 +1,16 @@
 <h1>投稿管理（Admin）</h1>
 
-<form action="<%= search_admin_posts_path %>" method="get" class="d-flex mb-3">
-  <input type="text" name="query" class="form-control" placeholder="キーワードで検索">
-  <button type="submit" class="btn btn-primary ms-2">検索</button>
-</form>
+<!-- 検索機能 -->
+<!-- 検索＆フィルター -->
+<div class="d-flex justify-content-between mb-3">
+  <%= form_with url: admin_posts_path, method: :get, local: true, class: "input-group" do |form| %>
+    <%= form.text_field :query, class: "form-control", placeholder: "キーワードで検索" %>
+    <%= form.submit "検索", class: "btn btn-primary" %>
+  <% end %>
+
+  <%= link_to "通報された投稿のみ表示", admin_posts_path(reported_only: "true"), class: "btn btn-danger" %>
+  <%= link_to "すべての投稿を表示", admin_posts_path, class: "btn btn-secondary" %>
+</div>
 
 <table class="table table-striped mt-3">
   <thead>
@@ -11,29 +18,29 @@
       <th>タイトル</th>
       <th>投稿者</th>
       <th>投稿日</th>
-      <th>ステータス</th>
-      <th>アクション</th>
+      <th>通報状況</th> <!-- 「ステータス」を「通報状況」に統一 -->
+      <th>操作</th>
     </tr>
   </thead>
-    <tbody>
-    <% @posts.each do |post| %>
-        <tr>
-          <td><%= link_to post.title, admin_post_path(post) %></td>
-          <td><%= post.user.name || "匿名ユーザー" %></td>
-          <td><%= post.created_at.strftime("%Y/%m/%d %H:%M") %></td>
-          <td>
-            <% if post.reported? %>
-              <span class="badge bg-danger">通報済み</span>
-            <% else %>
-              <span class="badge bg-success">正常</span>
-            <% end %>
-          </td>
-          <td>
-            <%= link_to "詳細", admin_post_path(post), class: "btn btn-info btn-sm" %>
-            <%= link_to "削除", admin_post_path(post), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
-          </td>
-        </tr>
-      <% end %>
+  <tbody>
+    <% @posts.reload.each do |post| %>
+      <tr class="<%= 'table-warning' if post.reported? %>"> <!-- 通報済みなら黄色背景 -->
+        <td><%= link_to post.title, admin_post_path(post) %></td>
+        <td><%= post.user.name || "匿名ユーザー" %></td>
+        <td><%= post.created_at.strftime("%Y/%m/%d %H:%M") %></td> <!-- 投稿日を表示 -->
+        <td>
+          <% if post.reported? %>
+            <span class="badge bg-danger">通報済み</span> <!-- 通報済みなら赤ラベル -->
+          <% else %>
+            <span class="badge bg-success">正常</span>
+          <% end %>
+        </td>
+        <td class="d-flex gap-2"> <!-- ボタンサイズ統一 -->
+          <%= link_to "詳細", admin_post_path(post), class: "btn btn-info btn-sm flex-fill" %>
+          <%= link_to "削除", admin_post_path(post), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm flex-fill" %>
+        </td>
+      </tr>
+    <% end %>
   </tbody>
 </table>
 

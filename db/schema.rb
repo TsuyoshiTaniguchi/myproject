@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_05_27_044012) do
+ActiveRecord::Schema.define(version: 2025_05_27_114034) do
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -97,6 +97,7 @@ ActiveRecord::Schema.define(version: 2025_05_27_044012) do
     t.string "join_policy", default: "open"
     t.string "location"
     t.integer "owner_id"
+    t.boolean "reported"
     t.index ["name"], name: "index_groups_on_name"
     t.index ["owner_id"], name: "index_groups_on_owner_id"
   end
@@ -141,6 +142,7 @@ ActiveRecord::Schema.define(version: 2025_05_27_044012) do
     t.integer "group_id"
     t.integer "status", default: 0, null: false
     t.text "code_snippet"
+    t.boolean "reported", default: false
     t.index ["group_id"], name: "index_posts_on_group_id"
     t.index ["user_id"], name: "index_posts_on_user_id"
   end

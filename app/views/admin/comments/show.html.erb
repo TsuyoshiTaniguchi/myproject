@@ -1,0 +1,26 @@
+<h1>コメント詳細</h1>
+
+<div class="post-card">
+<p><strong>投稿タイトル:</strong> <%= link_to @comment.post.title, admin_post_path(@comment.post) %></p>
+<p><strong>コメント者:</strong> <%= @comment.user.name %></p>
+<p><strong>内容:</strong> <%= @comment.content %></p>
+<p><strong>投稿日:</strong> <%= @comment.created_at.strftime("%Y/%m/%d %H:%M") %></p>  
+
+<% if @comment.reported? %>
+  <div class="alert alert-danger mt-2">
+    ⚠️ このコメントは通報されています（通報日時: <%= @comment.updated_at.strftime("%Y/%m/%d %H:%M") %>）
+  </div>
+  <%= link_to "通報解除", unreport_admin_comment_path(@comment), method: :patch, class: "btn btn-secondary" %>  <!-- ✅ 追加 -->
+<% else %>
+  <div class="alert alert-success mt-2">
+      ✅ 正常な投稿
+  </div>
+<% end %>
+
+
+
+<%= link_to "削除", admin_comment_path(@comment), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger" %>
+<%= link_to "コメント一覧へ戻る", admin_comments_path, class: "btn btn-secondary" %>
+
+</div>
+

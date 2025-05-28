@@ -73,3 +73,16 @@ th, td {
   object-fit: cover;
   border-radius: 10px;
 }
+
+.table-warning {
+  background-color: #ffefc3 !important; /* 薄い黄色で強調 */
+}
+
+
+
+.rounded-circle {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 50%;
+}

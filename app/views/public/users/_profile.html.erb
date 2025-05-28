@@ -27,6 +27,6 @@
 
   <% if show_actions %>
     <%= link_to "プロフィール編集", edit_user_path(@user), class: "btn btn-primary" %>
-    <%= link_to "退会する", users_withdraw_path, method: :patch, class: "btn btn-danger", data: { confirm: "本当に退会しますか？" } %>
+    <%= link_to "退会する", withdraw_user_path(@user), method: :patch, class: "btn btn-danger", data: { confirm: "本当に退会しますか？" } %>
   <% end %>
 </div>

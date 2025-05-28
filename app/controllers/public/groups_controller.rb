@@ -19,10 +19,10 @@ class Public::GroupsController < ApplicationController
 
   def show
     @group = Group.find(params[:id])
-    @user = User.find(params[:user_id]) # ユーザー情報を取得
+    @user = User.find(params[:user_id]) if params[:user_id].present? # ✅ `user_id` の存在を確認！
     @membership = current_user.memberships.find_by(group: @group)
-    
-    session[:return_to] = request.original_url # どこから来たか保存
+  
+    session[:return_to] = request.original_url
   end
   
   def new
@@ -61,7 +61,7 @@ class Public::GroupsController < ApplicationController
 
   def request_join
     @group = Group.find(params[:id])
-    @user = User.find(params[:user_id]) # ユーザー情報を取得
+    @user = current_user # ✅ `current_user` から取得することで `user_id` を明示的に渡さなくてもOK！
   
     # 承認制グループかチェック
     if @group.privacy != "restricted_visibility"
@@ -81,6 +81,18 @@ class Public::GroupsController < ApplicationController
     redirect_to user_group_path(@user, @group), notice: "参加リクエストを送信しました！"
   end
 
+  def leave
+    @group = Group.find(params[:id])
+    @membership = current_user.memberships.find_by(group: @group)
+  
+    if @membership
+      @membership.destroy
+      redirect_to user_groups_path(current_user), notice: "グループを退会しました"
+    else
+      redirect_to user_group_path(current_user, @group), alert: "グループに所属していません"
+    end
+  end
+
   def search
     @query = params[:query]
   
@@ -96,7 +108,20 @@ class Public::GroupsController < ApplicationController
       @groups = Group.none # 検索なしの場合、空リストを返す
     end
   end
+
+
+
   
+  def destroy
+    @group = Group.find(params[:id])
+  
+    if @group.destroy
+      redirect_to user_groups_path(current_user), notice: "グループを削除しました"
+    else
+      redirect_to user_group_path(current_user, @group), alert: "グループを削除できませんでした"
+    end
+  end
+
   private
 
   def group_params

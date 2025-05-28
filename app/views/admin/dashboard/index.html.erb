@@ -1,24 +1,39 @@
 <h1>管理者ダッシュボード</h1>
 
 <section>
-  <h2>最新の投稿</h2>
+  <h2> ダッシュボード概要</h2>
+  <ul>
+    <li> 登録ユーザー数: <%= User.count %> 人</li>
+    <li> 投稿総数: <%= Post.count %> 件</li>
+  </ul>
+</section>
+
+<section class="alert alert-warning">
+  <h2> 重要なお知らせ</h2>
+  <p>次回のシステムメンテナンスは 2025/06/05 14:00 〜 16:00 です。</p>
+  <p>新機能「グループチャット」が近日追加予定！</p>
+</section>
+
+
+<section>
+  <h2> 最新の投稿</h2>
   <table class="table">
-    <thead>
+    <thead class="table-dark text-center">
       <tr>
-        <th>タイトル</th>
-        <th>投稿者</th>
-        <th>投稿日</th>
-        <th>操作</th>
+        <th style="width: 40%;">タイトル</th>
+        <th style="width: 20%;">投稿者</th>
+        <th style="width: 20%;">投稿日</th>
+        <th style="width: 20%;">操作</th>
       </tr>
     </thead>
     <tbody>
       <% @recent_posts.each do |post| %>
         <tr>
-          <td><%= link_to post.title, admin_post_path(post) %></td>
-          <td><%= post.user.name %></td>
-          <td><%= post.created_at.strftime("%Y-%m-%d %H:%M") %></td>
-          <td>
-            <%= link_to "削除", admin_post_path(post), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger" %>
+          <td class="text-center align-middle"><%= link_to post.title, admin_post_path(post) %></td>
+          <td class="text-center align-middle"><%= post.user.name %></td>
+          <td class="text-center align-middle"><%= post.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+          <td class="text-center align-middle">
+            <%= link_to "削除", admin_post_path(post), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
           </td>
         </tr>
       <% end %>
@@ -27,24 +42,24 @@
 </section>
 
 <section>
-  <h2>最新のユーザー</h2>
+  <h2> 最新のユーザー</h2>
   <table class="table">
-    <thead>
+    <thead class="table-dark text-center">
       <tr>
-        <th>名前</th>
-        <th>メールアドレス</th>
-        <th>登録日</th>
-        <th>操作</th>
+        <th style="width: 30%;">名前</th>
+        <th style="width: 30%;">メールアドレス</th>
+        <th style="width: 20%;">登録日</th>
+        <th style="width: 20%;">操作</th>
       </tr>
     </thead>
     <tbody>
       <% @recent_users.each do |user| %>
         <tr>
-          <td><%= link_to user.name, admin_user_path(user) %></td>
-          <td><%= user.email %></td>
-          <td><%= user.created_at.strftime("%Y-%m-%d") %></td>
-          <td>
-            <%= link_to "削除", admin_user_path(user), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger" %>
+          <td class="text-center align-middle"><%= link_to user.name, admin_user_path(user) %></td>
+          <td class="text-center align-middle"><%= user.email %></td>
+          <td class="text-center align-middle"><%= user.created_at.strftime("%Y-%m-%d") %></td>
+          <td class="text-center align-middle">
+            <%= link_to "削除", admin_user_path(user), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
           </td>
         </tr>
       <% end %>
@@ -53,24 +68,26 @@
 </section>
 
 <section>
-  <h2>最新のコメント</h2>
+  <h2> 最新のコメント</h2>
   <table class="table">
-    <thead>
+    <thead class="table-dark text-center">
       <tr>
-        <th>投稿タイトル</th>
-        <th>コメント内容</th>
-        <th>コメント者</th>
-        <th>操作</th>
+        <th style="width: 40%;">投稿タイトル</th>
+        <th style="width: 30%;">コメント内容</th>
+        <th style="width: 20%;">コメント者</th>
+        <th style="width: 10%;">操作</th>
       </tr>
     </thead>
     <tbody>
       <% @recent_comments.each do |comment| %>
         <tr>
-          <td><%= link_to comment.post.title, admin_post_path(comment.post) %></td>
-          <td><%= comment.content.truncate(50) %></td>
-          <td><%= comment.user.name %></td>
-          <td>
-            <%= link_to "削除", admin_comment_path(comment), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger" %>
+          <td class="text-center align-middle"><%= link_to comment.post.title, admin_post_path(comment.post) %></td>
+          <td class="text-center align-middle">
+            <span title="<%= comment.content %>"><%= comment.content.truncate(50) %></span>
+          </td>
+          <td class="text-center align-middle"><%= comment.user.name %></td>
+          <td class="text-center align-middle">
+            <%= link_to "削除", admin_comment_path(comment), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
           </td>
         </tr>
       <% end %>
@@ -78,10 +95,9 @@
   </table>
 </section>
 
-
-<h2>管理メニュー</h2>
-<ul>
-  <li><%= link_to "ユーザー管理", admin_users_path, class: "btn btn-outline-secondary" %></li>
-  <li><%= link_to "投稿管理", admin_posts_path, class: "btn btn-outline-secondary" %></li>
-  <li><%= link_to "グループ管理", admin_groups_path, class: "btn btn-primary" %></li>
-</ul>
+<h2> 管理メニュー</h2>
+<div class="d-flex gap-3 justify-content-center mt-4">
+  <%= link_to "ユーザー管理", admin_users_path, class: "btn btn-outline-secondary btn-lg" %>
+  <%= link_to "投稿管理", admin_posts_path, class: "btn btn-outline-secondary btn-lg" %>
+  <%= link_to "グループ管理", admin_groups_path, class: "btn btn-primary btn-lg" %>
+</div>

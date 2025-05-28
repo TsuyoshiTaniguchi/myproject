@@ -60,7 +60,7 @@
         <h4><%= link_to group.name, user_group_path(current_user, group) %></h4>
         <p>📢 <%= group.category.present? ? t("enums.group.category.#{group.category}") : "未分類" %></p>
         <p>👥 メンバー数: <%= group.memberships.count %>人</p>
-        <%= button_to "🔒 参加リクエストを送る", request_join_user_group_path(current_user, group), method: :post, class: "btn btn-primary btn-sm" %>
+        <%= button_to "🔒 参加リクエストを送る", request_join_group_path(group), method: :post, class: "btn btn-primary btn-sm" %>
         <%= link_to "詳細を見る", user_group_path(current_user, group), class: "btn btn-outline-info btn-sm" %>
       </div>
     </div>
@@ -83,7 +83,7 @@
       <p>👥 メンバー数: <%= group.memberships.count %>人</p>
 
       <% if group.privacy == "restricted_visibility" %>
-        <%= button_to "🔒 参加リクエストを送る", request_join_user_group_path(@user, group), method: :post, class: "btn btn-outline-primary btn-sm" %>
+        <%= button_to "🔒 参加リクエストを送る", request_join_group_path(group), method: :post, class: "btn btn-primary btn-sm" %>
       <% end %>
 
       <%= link_to "📄 詳細を見る", user_group_path(@user, group), class: "btn btn-outline-info btn-sm" %>

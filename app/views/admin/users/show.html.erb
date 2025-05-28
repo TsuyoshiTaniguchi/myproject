@@ -2,6 +2,13 @@
 
 <div class="user-info">
   <h2>基本情報</h2>
+  <!-- プロフィール画像を表示 -->
+  <% if @user.profile_image.attached? %>
+    <%= image_tag @user.profile_image.variant(resize_to_limit: [150, 150]), class: "rounded-circle mb-3" %>
+  <% else %>
+    <%= image_tag "no_image.jpg", class: "rounded-circle mb-3", width: 150, height: 150 %>
+  <% end %>
+
   <p><strong>名前：</strong> <%= @user.name %></p>
   <p><strong>メール：</strong> <%= @user.email %></p>
   <p><strong>ステータス：</strong> <%= @user.display_status %></p>

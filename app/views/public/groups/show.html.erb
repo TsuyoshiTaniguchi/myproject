@@ -1,5 +1,5 @@
-<% if @group.group_image.attached? %>
-  <%= image_tag url_for(@group.group_image.variant(resize_to_fill: [200, 200])), class: "group-image mb-3" %>
+<% if @group.group_image&.attached? %>
+  <%= image_tag @group.group_image.variant(resize_to_fill: [200, 200]) if @group.group_image&.attached? %>
 <% else %>
   <%= image_tag "no_image.jpg", class: "group-image mb-3", width: 200, height: 200 %>
 <% end %>
@@ -31,9 +31,9 @@
 <% end %>
 
 <% if @group.users.include?(current_user) %>
-  <%= button_to "グループを脱退", user_group_membership_path(current_user, @group, current_user.memberships.find_by(group: @group)), method: :delete, class: "btn btn-danger mt-3" %>
+  <%= button_to "グループを脱退", leave_group_path(@group), method: :delete, class: "btn btn-danger mt-3" %>
 <% else %>
-  <%= button_to "このグループに参加する", user_group_memberships_path(current_user, @group), method: :post, class: "btn btn-primary mt-3" %>
+  <%= button_to "このグループに参加する", group_memberships_path(@group), method: :post, class: "btn btn-primary mt-3" %>
 <% end %>
 
 <h3>最近のアクティビティ</h3>
@@ -42,23 +42,24 @@
 
 <% if recent_posts.any? || new_members.any? %>
   <% recent_posts.each do |post| %>
-    <p>📝 <%= link_to post.title, user_group_post_path(@user, @group, post) %>（<%= post.created_at.strftime("%Y-%m-%d") %>）</p>
+    <p>📝 <%= link_to post.title, group_post_path(@group, post) %>（<%= post.created_at.strftime("%Y-%m-%d") %>）</p>
   <% end %>
 
   <% new_members.each do |member| %>
     <p>👤 <%= link_to member.name, user_path(member) %> がメンバーになりました！（<%= member.created_at.strftime("%Y-%m-%d") %>）</p>
   <% end %>
-<% else %>
+  
+<% else %>  # ✅ 正しく `if` のブロックの最後に `else` を配置！
   <p>まだ新しい活動はありません。</p>
 <% end %>
+
 
 <h3>このグループの投稿</h3>
 <% if @group.posts.any? %>
   <ul>
     <% @group.posts.order(created_at: :desc).each do |post| %>
       <li>
-        📝 <%= link_to post.title, user_group_post_path(current_user, @group, post) %>
-        （<%= post.created_at.strftime("%Y-%m-%d") %>）
+        📝 <%= link_to post.title, group_post_path(@group, post) %>（<%= post.created_at.strftime("%Y-%m-%d") %>）
       </li>
     <% end %>
   </ul>
@@ -67,7 +68,7 @@
 <% end %>
 
 <% if @group.users.include?(current_user) %>
-  <%= link_to "新規投稿", new_user_group_post_path(current_user, @group), class: "btn btn-primary mt-3" %>
+  <%= link_to "新規投稿", new_group_post_path(@group), class: "btn btn-primary mt-3" %>
 <% end %>
 
 <% if @user.present? %>

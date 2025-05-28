@@ -6,6 +6,7 @@
   <small>投稿者: <%= @post.user.name || "匿名ユーザー" %></small>
   <small>投稿日: <%= @post.created_at.strftime("%Y/%m/%d %H:%M") %></small>
 
+  <% @post.reload %>  <!-- ✅ 最新データを取得 -->
   <% if @post.reported? %>
     <div class="alert alert-danger mt-2">
       ⚠️ この投稿は通報されています
@@ -20,7 +21,7 @@
     <%= link_to "編集", edit_admin_post_path(@post), class: "btn btn-warning btn-sm" %>
     <%= link_to "削除", admin_post_path(@post), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
     <% if @post.reported? %>
-      <%= link_to "通報解除", unreport_admin_post_path(@post), method: :patch, class: "btn btn-secondary btn-sm" %>
+      <%= button_to "通報解除", unreport_admin_post_path(@post), method: :patch, class: "btn btn-secondary btn-sm" %>
     <% end %>
   </div>
 
