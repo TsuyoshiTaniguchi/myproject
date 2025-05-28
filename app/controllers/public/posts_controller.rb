@@ -1,6 +1,7 @@
 class Public::PostsController < ApplicationController
   before_action :authenticate_user!
   before_action :correct_user, only: [:edit, :update, :destroy]
+  before_action :restrict_guest_access, only: [:new, :create, :report]
 
   def index
     @posts = Post.active_users_posts.with_attached_images.includes(:user).where(users: { status: 0 })
@@ -108,6 +109,13 @@ class Public::PostsController < ApplicationController
   def correct_user
     @post = current_user.posts.find_by(id: params[:id])
     redirect_to public_posts_path, alert: "権限がありません" if @post.nil?
+  end
+
+  def restrict_guest_access
+    if current_user.guest?
+      flash[:alert] = "ゲストユーザーは通報できません。"
+      redirect_back(fallback_location: posts_path)
+    end
   end
   
 end

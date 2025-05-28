@@ -40,6 +40,11 @@
           <% if user.status == "active" %>
             <%= link_to "削除", admin_user_path(user), method: :delete, class: "btn btn-danger btn-sm flex-fill", data: { confirm: "本当に削除しますか？" } %>
           <% end %>
+          <%= link_to(user.status == "active" ? "⛔ 無効化" : "✅ 有効化",
+            toggle_status_admin_user_path(user),  # ✅ 正しいルート名に修正！
+            method: :patch,
+            class: user.status == "active" ? "btn btn-warning btn-sm flex-fill" : "btn btn-success btn-sm flex-fill",
+            data: { confirm: "#{user.name} のアカウントを#{user.status == 'active' ? '無効化' : '有効化'}しますか？" }) %>
         </td>
       </tr>
     <% end %>

@@ -26,14 +26,20 @@
 <% end %>
 
 <h3 class="mb-3"> ポートフォリオファイル</h3>
-<% if user.portfolio_files.attached? %>
-  <ul>
+    <% if user.portfolio_files.attached? %>
+      <ul>
     <% user.portfolio_files.each do |file| %>
       <li><%= link_to file.filename, file, class: "btn btn-outline-success" %></li>
     <% end %>
       </ul>
     <% else %>
       <p class="text-muted">ポートフォリオのファイルは未登録です。</p>
+    <% end %>
+
+    <% unless @user.guest_user? %>
+      <div class='row'>
+        <%= link_to '', edit_user_path(@user), class: "btn btn-outline-secondary btn-block fas fa-user-cog edit_user_#{@user.id}" %>
+      </div>
     <% end %>
 
   <h3 class="mb-3"> 所属グループ</h3>

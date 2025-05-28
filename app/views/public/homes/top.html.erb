@@ -18,4 +18,12 @@
 <div class="actions">
   <%= link_to "もっと知る", about_path, class: "btn btn-outline-info" %>
   <%= link_to "さっそく始める", new_user_registration_path, class: "btn btn-success" %>
+
+  
+  <p>ゲストログインすると、サイトの機能を試すことができますが、投稿や編集はできません。</p>
+  
+  <%= link_to users_guest_sign_in_path, method: :post, class: "btn btn-outline-secondary btn-sm" do %>
+    <i class="fas fa-user"></i> ゲストログイン
+  <% end %>
 </div>
+

@@ -1,5 +1,7 @@
 class Public::CommentsController < ApplicationController
   before_action :authenticate_user!
+  before_action :restrict_guest_access, only: [:create, :report]
+
 
   def create
     post = Post.find(params[:post_id])
@@ -34,4 +36,13 @@ class Public::CommentsController < ApplicationController
   def comment_params
     params.require(:comment).permit(:content)
   end
+
+  def restrict_guest_access
+    if current_user.guest?
+      flash[:alert] = "ゲストユーザーは通報できません。"
+      redirect_back(fallback_location: post_path(params[:post_id]))
+    end
+  end
+
+
 end

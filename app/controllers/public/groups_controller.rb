@@ -1,6 +1,6 @@
 class Public::GroupsController < ApplicationController
-
   before_action :authenticate_user!
+  before_action :restrict_guest_access, only: [:create]
 
   def index
     @user = User.find(params[:user_id])

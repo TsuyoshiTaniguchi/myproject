@@ -1,0 +1,6 @@
+<% unless current_user.guest? %>
+  <h3>📩 通知</h3>
+  <% current_user.notifications.each do |notification| %>
+    <p><%= notification.message %></p>
+  <% end %>
+<% end %>

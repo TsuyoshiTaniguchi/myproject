@@ -1,6 +1,7 @@
 class Public::UsersController < ApplicationController
   before_action :authenticate_user!
-
+  before_action :restrict_guest_access, only: [:edit, :update, :destroy]
+  
   def mypage
     @user = current_user  # `mypage` はログイン中のユーザー情報を取得する！
     @posts = @user.posts
@@ -59,6 +60,21 @@ class Public::UsersController < ApplicationController
   def user_params
     params.require(:user).permit(:name, :email, :personal_statement, :portfolio_url, :portfolio_file, :profile_image)
   end
+
+  def ensure_guest_user
+    @user = User.find(params[:id])
+    if @user.guest_user?
+      redirect_to user_path(current_user) , notice: "ゲストユーザーはプロフィール編集画面へ遷移できません。"
+    end
+  end  
+
+  def restrict_guest_access
+    if current_user.guest?
+      flash[:alert] = "ゲストユーザーは退会できません。"
+      redirect_back(fallback_location: users_mypage_path)
+    end
+  end
+
 
 end
 

@@ -23,7 +23,6 @@ class Post < ApplicationRecord
   validates :code_snippet, length: { maximum: 1000 }, allow_blank: true # コードの長さを制限
 
 
-
    def reported?
      status == "reported"
    end
@@ -31,5 +30,5 @@ class Post < ApplicationRecord
    def liked_by?(user)
     likes.exists?(user_id: user.id)
   end
- 
+
 end

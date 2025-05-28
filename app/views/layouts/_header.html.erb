@@ -4,6 +4,7 @@
     <div class="logo">
       <%= link_to image_tag("main.jpg", alt: "MVP Portfolio Logo"), root_path, class: "logo" %>
     </div>
+    <%= render "public/shared/notifications" %>
     <ul class="nav-menu" style="display: flex; gap: 20px; list-style: none; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif;">
       <% if user_signed_in? %>
         <li style="color: #333;">ようこそ、<%= current_user.name %>さん！</li>
@@ -21,7 +22,7 @@
           <%= link_to "投稿一覧", posts_path, class: "nav-link", style: "color: #1ABC9C; text-decoration: none;" %>
         </li>
         <li>
-          <%= link_to "ログアウト", destroy_user_session_path, method: :delete, id: "logout-link", class: "nav-link", style: "color: red !important;" %>
+          <%= link_to "ログアウト", destroy_user_session_path, method: :delete, data: { turbo_method: :delete }, class: "nav-link", style: "color: red !important;" %>
         </li>
       <% elsif admin_signed_in? %>
         <li>

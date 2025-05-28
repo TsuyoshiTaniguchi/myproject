@@ -20,6 +20,25 @@ class Public::SessionsController < Devise::SessionsController
   # def destroy
   #   super
   # end
+  
+  def guest_login
+    user = User.guest
+    sign_in user
+    redirect_to root_path, notice: "ゲストログインしました"
+  end
+
+  def destroy
+    if current_user.guest?
+      sign_out current_user 
+      reset_session
+      redirect_to about_path, notice: "ゲスト利用ありがとうございました！新規登録してみましょう！"
+    else
+      super
+    end
+  end
+
+
+
 
   protected
 
@@ -51,5 +70,16 @@ class Public::SessionsController < Devise::SessionsController
   # def configure_sign_in_params
   #   devise_parameter_sanitizer.permit(:sign_in, keys: [:attribute])
   # end
+
+  private
+
+  def self.guest
+    find_or_create_by!(email: "guest@example.com") do |user|
+      user.password = SecureRandom.urlsafe_base64
+      user.name = "ゲストユーザー"
+      user.role = "guest" # これがないとゲスト判定ができない
+    end
+  end
+
 
 end

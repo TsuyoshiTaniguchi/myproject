@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
 class Public::RegistrationsController < Devise::RegistrationsController
+  before_action :configure_permitted_parameters, if: :devise_controller?
+  before_action :sign_out_guest, only: [:new] 
+
+
+
+
   # before_action :configure_sign_up_params, only: [:create]
   # before_action :configure_account_update_params, only: [:update]
 
@@ -40,7 +46,6 @@ class Public::RegistrationsController < Devise::RegistrationsController
 
   # protected
 
-  before_action :configure_permitted_parameters, if: :devise_controller?
 
   def after_sign_up_path_for(resource)
     users_mypage_path
@@ -64,4 +69,18 @@ class Public::RegistrationsController < Devise::RegistrationsController
   # def after_inactive_sign_up_path_for(resource)
   #   super(resource)
   # end
+  private
+
+
+
+  
+  def sign_out_guest
+    return unless current_user&.guest?
+    
+    Rails.logger.debug "🎯 ゲストユーザーをログアウト"
+    sign_out current_user
+    session.clear  # 🔥 セッションを完全にクリア
+    redirect_to new_user_registration_path
+  end
+
 end

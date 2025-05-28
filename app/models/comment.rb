@@ -1,4 +1,6 @@
 class Comment < ApplicationRecord
+
+
   belongs_to :user
   belongs_to :post
   
@@ -7,5 +9,7 @@ class Comment < ApplicationRecord
   def reported?
     reported
   end
+
+
 
 end

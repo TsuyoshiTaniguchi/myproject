@@ -20,8 +20,14 @@ Rails.application.routes.draw do
     delete 'users/sign_out', to: 'devise/sessions#destroy'
   end
 
+  devise_scope :user do
+    post "users/guest_sign_in", to: "public/sessions#guest_login"
+  end
+
+
   root to: "public/homes#top"
   get '/about' => 'public/homes#about', as: 'about'
+
 
   # 一般ユーザー関連
   scope module: :public do
@@ -30,42 +36,42 @@ Rails.application.routes.draw do
     resources :posts do
       resources :comments, only: [:create, :destroy] do
         member do
-          patch :report  # ✅ コメント通報機能
+          patch :report  #  コメント通報機能
         end
       end
       resources :likes, only: [:create, :destroy]
 
       member do
-        patch :report  # ✅ 投稿通報機能
+        patch :report  #  投稿通報機能
       end
 
       collection do
-        get :search  # ✅ 投稿検索機能
+        get :search  #  投稿検索機能
       end
     end
 
     resources :users, only: [:index, :show, :edit, :update, :destroy] do
       collection do
-        get :search  # ✅ ユーザー検索機能を追加！
+        get :search  #  ユーザー検索機能を追加！
       end
 
       resources :posts, only: [:index, :show, :new, :create, :edit, :update, :destroy]
       resources :groups, only: [:index, :show, :new, :create, :edit, :update, :destroy] do
         member do
-          patch :report  # ✅ グループ通報機能
-          delete :leave  # ✅ グループ退会機能（追加）
+          patch :report  #  グループ通報機能
+          delete :leave  #  グループ退会機能（追加）
         end
       end
 
       member do
         patch :withdraw
-        patch :report  # ✅ ユーザー通報機能
+        patch :report  #  ユーザー通報機能
       end
     end
 
     resources :users, only: [:index, :show, :edit, :update, :destroy] do
       resources :groups, only: [:index, :show, :new, :create, :edit, :update, :destroy] do
-        resources :posts, only: [:index, :show, :new, :create, :edit, :update, :destroy]  # ✅ `posts` を `groups` 内にネスト！
+        resources :posts, only: [:index, :show, :new, :create, :edit, :update, :destroy]  #  `posts` を `groups` 内にネスト！
         member do
           patch :report
           delete :leave
@@ -80,12 +86,12 @@ Rails.application.routes.draw do
       post 'request_join', on: :member  
 
       member do
-        patch :report  # ✅ グループ通報機能
-        delete :leave  # ✅ グループ退会機能（追加）
+        patch :report  #  グループ通報機能
+        delete :leave  #  グループ退会機能（追加）
       end
 
       collection do
-        get :search  # ✅ グループ検索機能
+        get :search  #  グループ検索機能
       end
     end
   end
@@ -95,6 +101,9 @@ Rails.application.routes.draw do
     resources :users, only: [:index, :show, :edit, :update, :destroy, :create] do
       collection do
         get :search  # 検索機能（管理者用）
+      end
+      member do
+        patch :toggle_status  #  ユーザーのステータス変更機能を追加
       end
     end
 

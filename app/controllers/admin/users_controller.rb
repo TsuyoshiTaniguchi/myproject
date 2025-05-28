@@ -3,7 +3,7 @@ class Admin::UsersController < ApplicationController
 
   def index
     @users_by_status = User.all.group_by(&:status)
-    @users = User.where(status: "active")
+    @users = User.where.not(status: nil) 
   end
 
   def show
@@ -37,6 +37,19 @@ class Admin::UsersController < ApplicationController
     @user.destroy
     redirect_to admin_users_path, notice: "ユーザーを削除しました"
   end
+
+  def toggle_status
+    user = User.find(params[:id])
+    if user.active?
+      user.update(status: :withdrawn)
+      flash[:notice] = "#{user.name} のアカウントを退会状態にしました"
+    else
+      user.update(status: :active)
+      flash[:notice] = "#{user.name} のアカウントを有効化しました"
+    end
+    redirect_back(fallback_location: admin_users_path)
+  end
+
 
   def search
     @query = params[:query]
