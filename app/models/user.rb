@@ -14,7 +14,10 @@ class User < ApplicationRecord
   has_many :liked_posts, through: :likes, source: :post
   has_many :notifications, dependent: :destroy
 
+  has_many_attached :portfolio_files
+
   has_one_attached :profile_image # プロフィール画像の添付機能を追加
+
 
   enum status: { active: 0, withdrawn: 1 }
 

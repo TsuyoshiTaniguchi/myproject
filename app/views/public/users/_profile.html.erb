@@ -7,26 +7,50 @@
 </div>
 
 <div class="card p-3">
-  <h3><%= user.name %> さんのプロフィール</h3>
-  <p>メールアドレス: <%= user.email %></p>
-  <p>登録日: <%= user.created_at.strftime("%Y年%m月%d日") %></p>
+  <h3 class="mb-3"><%= user.name %> さんのプロフィール</h3>
+  <p> メールアドレス: <%= user.email %></p>
+  <p> 登録日: <%= user.created_at.strftime("%Y年%m月%d日") %></p>
 
-
-
-  <h3>所属グループ</h3>
-
-<% if user.groups.any? %>
-<ul>
-  <% user.groups.each do |group| %>
-    <li><%= link_to group.name, user_group_path(user, group) %></li>
-  <% end %>
-</ul>
+  <h3 class="mb-3"> 自己紹介</h3>
+  <% if user.personal_statement.present? %>
+    <p><%= user.personal_statement %></p>
   <% else %>
-    <p>まだグループに参加していません。</p>
+    <p class="text-muted">まだ自己紹介がありません。</p>
+  <% end %>
+
+<h3 class="mb-3"> ポートフォリオ</h3>
+<% if user.portfolio_url.present? %>
+  <p><%= link_to user.portfolio_url, user.portfolio_url, target: "_blank", rel: "noopener noreferrer", class: "btn btn-outline-primary" %></p>
+<% else %>
+  <p class="text-muted">ポートフォリオは未登録です。</p>
+<% end %>
+
+<h3 class="mb-3"> ポートフォリオファイル</h3>
+<% if user.portfolio_files.attached? %>
+  <ul>
+    <% user.portfolio_files.each do |file| %>
+      <li><%= link_to file.filename, file, class: "btn btn-outline-success" %></li>
+    <% end %>
+      </ul>
+    <% else %>
+      <p class="text-muted">ポートフォリオのファイルは未登録です。</p>
+    <% end %>
+
+  <h3 class="mb-3"> 所属グループ</h3>
+  <% if user.groups.any? %>
+    <ul>
+      <% user.groups.each do |group| %>
+        <li><%= link_to group.name, user_group_path(user, group) %></li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="text-muted">まだグループに参加していません。</p>
   <% end %>
 
   <% if show_actions %>
-    <%= link_to "プロフィール編集", edit_user_path(@user), class: "btn btn-primary" %>
-    <%= link_to "退会する", withdraw_user_path(@user), method: :patch, class: "btn btn-danger", data: { confirm: "本当に退会しますか？" } %>
+    <div class="mt-4 d-flex flex-wrap gap-3 justify-content-center">
+      <%= link_to "プロフィール編集", edit_user_path(@user), class: "btn btn-primary px-4" %>
+      <%= link_to "退会する", withdraw_user_path(@user), method: :patch, class: "btn btn-danger px-4", data: { confirm: "本当に退会しますか？" } %>
+    </div>
   <% end %>
 </div>

@@ -27,6 +27,8 @@ class Public::UsersController < ApplicationController
       render :edit
     end
   end
+
+  
   
 
   def unsubscribe
@@ -55,7 +57,7 @@ class Public::UsersController < ApplicationController
   private
 
   def user_params
-    params.require(:user).permit(:name, :email, :profile_image)
+    params.require(:user).permit(:name, :email, :personal_statement, :portfolio_url, :portfolio_file, :profile_image)
   end
 
 end
