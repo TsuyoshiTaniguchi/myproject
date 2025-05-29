@@ -13,6 +13,31 @@
   <p><strong>メール：</strong> <%= @user.email %></p>
   <p><strong>ステータス：</strong> <%= @user.display_status %></p>
   <p><strong>登録日時：</strong> <%= @user.created_at.strftime("%Y-%m-%d %H:%M") %></p>
+  <h3 class="mb-3"> 自己紹介</h3>
+  <% if @user.personal_statement.present? %>
+    <p><%= @user.personal_statement %></p>
+  <% else %>
+    <p class="text-muted">まだ自己紹介がありません。</p>
+  <% end %>
+
+<h3 class="mb-3"> ポートフォリオ</h3>
+<% if @user.portfolio_url.present? %>
+  <p><%= link_to @user.portfolio_url, @user.portfolio_url, target: "_blank", rel: "noopener noreferrer", class: "btn btn-outline-primary" %></p>
+<% else %>
+  <p class="text-muted">ポートフォリオは未登録です。</p>
+<% end %>
+
+<h3 class="mb-3"> ポートフォリオファイル</h3>
+<% if @user.portfolio_files.attached? %>
+  <ul>
+    <% @user.portfolio_files.each do |file| %>
+      <li><%= link_to file.filename, file, class: "btn btn-outline-success" %></li>
+    <% end %>
+  </ul>
+<% else %>
+  <p class="text-muted">ポートフォリオのファイルは未登録です。</p>
+<% end %>
+
   <div class="user-groups">
   <h2>所属グループ</h2>
   <% if @user.groups.any? %>
@@ -26,19 +51,28 @@
     <% end %>
 </div>
 
-</div>
+
 
 <div class="user-posts">
   <h2>投稿履歴</h2>
-  <% @user.posts.each do |post| %>
-    <p><%= link_to post.title, admin_post_path(post) %> （<%= post.created_at.strftime("%Y-%m-%d") %>）</p>
+  <% if @user.posts.any? %>
+    <% @user.posts.each do |post| %>
+      <p><%= link_to post.title, admin_post_path(post) %> （<%= post.created_at.strftime("%Y-%m-%d") %>）</p>
+    <% end %>
+  <% else %>
+    <p class="text-muted">このユーザーには投稿履歴がありません。</p>
   <% end %>
 </div>
 
+
 <div class="user-comments">
   <h2>コメント履歴</h2>
-  <% @user.comments.each do |comment| %>
-    <p><%= link_to comment.post.title, admin_post_path(comment.post) %>: <%= comment.content.truncate(50) %></p>
+  <% if @user.comments.any? %>
+    <% @user.comments.each do |comment| %>
+      <p><%= link_to comment.post.title, admin_post_path(comment.post) %>: <%= comment.content.truncate(50) %></p>
+    <% end %>
+  <% else %>
+    <p class="text-muted">このユーザーにはコメント履歴がありません。</p>
   <% end %>
 </div>
 
