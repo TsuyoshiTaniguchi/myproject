@@ -34,7 +34,20 @@ class Admin::UsersController < ApplicationController
 
   def destroy
     @user = User.find(params[:id])
+
+    # 関連するデータを削除
+    @user.posts.destroy_all
+    @user.comments.destroy_all
+    @user.likes.destroy_all
+    @user.notifications.destroy_all
+
+    # ActiveStorageの添付ファイルも削除
+    @user.profile_image.purge if @user.profile_image.attached?
+    @user.portfolio_files.purge if @user.portfolio_files.attached?
+
+    # ユーザー削除
     @user.destroy
+
     redirect_to admin_users_path, notice: "ユーザーを削除しました"
   end
 

@@ -4,7 +4,7 @@ class Post < ApplicationRecord
   belongs_to :group, optional: true # グループ内投稿の関係を追加
 
   has_many :comments, dependent: :destroy
-  has_many :likes, dependent: :destroy
+  has_many :likes, as: :likeable, dependent: :destroy
   has_many :notifications, as: :source, dependent: :destroy # ポリモーフィック関連の通知
 
 

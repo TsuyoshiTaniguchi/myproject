@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_05_28_071220) do
+ActiveRecord::Schema.define(version: 2025_05_29_100221) do
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -97,17 +97,19 @@ ActiveRecord::Schema.define(version: 2025_05_28_071220) do
     t.string "join_policy", default: "open"
     t.string "location"
     t.integer "owner_id"
-    t.boolean "reported"
+    t.boolean "reported", default: false, null: false
     t.index ["name"], name: "index_groups_on_name"
     t.index ["owner_id"], name: "index_groups_on_owner_id"
   end
 
   create_table "likes", force: :cascade do |t|
-    t.integer "user_id", null: false
-    t.integer "post_id", null: false
+    t.integer "user_id", default: 1, null: false
+    t.integer "likeable_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["post_id"], name: "index_likes_on_post_id"
+    t.string "likeable_type", null: false
+    t.index ["likeable_id"], name: "index_likes_on_likeable_id"
+    t.index ["user_id", "likeable_id", "likeable_type"], name: "index_likes_on_user_id_and_likeable_id_and_likeable_type", unique: true
     t.index ["user_id"], name: "index_likes_on_user_id"
   end
 
@@ -184,7 +186,7 @@ ActiveRecord::Schema.define(version: 2025_05_28_071220) do
   add_foreign_key "connections", "users", column: "followed_id"
   add_foreign_key "connections", "users", column: "follower_id"
   add_foreign_key "groups", "users", column: "owner_id"
-  add_foreign_key "likes", "posts"
+  add_foreign_key "likes", "posts", column: "likeable_id"
   add_foreign_key "likes", "users"
   add_foreign_key "memberships", "groups"
   add_foreign_key "memberships", "users"

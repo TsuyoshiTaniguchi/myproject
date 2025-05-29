@@ -23,11 +23,18 @@ class Admin::GroupsController < ApplicationController
   end
 
   def update
-    @group = Group.find(params[:id])
+    @group = Group.find_by(id: params[:id]) # 🔹 `find` → `find_by` に変更して `nil` を防ぐ
+  
+    if @group.nil?
+      flash[:alert] = "グループが見つかりません。"
+      redirect_to admin_groups_path and return
+    end
+  
     if @group.update(group_params)
-      redirect_to admin_groups_path, notice: "グループ情報を更新しました！"
+      redirect_to admin_group_path(@group), notice: "グループ情報を更新しました！"
     else
-      render :edit
+      flash.now[:alert] = "更新に失敗しました。"
+      render :edit, status: :unprocessable_entity
     end
   end
 
@@ -55,13 +62,17 @@ class Admin::GroupsController < ApplicationController
       render :new
     end
   end
+
+  def remove_group_image
+    @group.group_image.purge
+    redirect_to edit_admin_group_path(@group), notice: "画像を削除しました！"
+  end
   
   
   private
   
   def group_params
-    params.require(:group).permit(:name, :description, :privacy, :join_policy, :location, :category)
+    params.require(:group).permit(:name, :description, :privacy, :join_policy, :location, :category, :group_image)
   end
-  
 
 end

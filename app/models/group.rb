@@ -1,6 +1,7 @@
 class Group < ApplicationRecord
   belongs_to :owner, class_name: "User", foreign_key: "owner_id", optional: true
 
+
   has_many :posts, dependent: :destroy
   has_many :user_groups, dependent: :destroy
   has_many :memberships, dependent: :destroy
@@ -8,8 +9,8 @@ class Group < ApplicationRecord
 
   has_one_attached :group_image
 
-  has_one :owner_membership, -> { where(role: "owner") }, class_name: "Membership"
-  has_one :owner, through: :owner_membership, source: :user
+  has_many :owner_memberships, -> { where(role: "owner") }, class_name: "Membership"
+  has_many :owners, through: :owner_memberships, source: :user  # `has_one` → `has_many` に修正！
 
   # スコープ（アクティブなグループのみ取得）
   scope :active_groups, -> { where.not(name: nil) }
@@ -17,10 +18,20 @@ class Group < ApplicationRecord
 
   enum privacy: { public_visibility: "public", private_visibility: "private", restricted_visibility: "restricted" } 
   enum category: { official_label: "official", community_label: "community", user_created_label: "user_created" } 
+  enum join_policy: { open: "open", admin_only: "admin_only", invite_only: "invite_only" }
 
+  before_create :assign_owner
+
+  def assign_owner
+    admin = User.find_by(role: "admin")
+    if admin
+      self.owner = admin
+      self.owner_memberships.build(user: admin, role: "owner", group: self) # `group: self` を追加！
+    end
+  end
+  
+  
   validates :name, presence: true, uniqueness: true
   validates :description, length: { maximum: 500 } # 説明文の長さを制限
-  validates :category, exclusion: { in: ["official_label"], message: "公式グループは作成できません" }, unless: -> { owner&.admin? }
-
-
+  validates :category, exclusion: { in: ["official_label"], message: "公式グループは作成できません" }, unless: -> { owner&.present? && owner.admin? }
 end

@@ -15,10 +15,15 @@
   <% end %>
 
   <!-- 🔹 グループ基本情報 -->
+
   <h2>グループ情報</h2>
+
   <div class="mb-3">
     <%= f.label :name, "グループ名" %>
     <%= f.text_field :name, class: "form-control", required: true %>
+    <% if @group.errors[:name].any? %>
+      <div class="text-danger"><%= @group.errors[:name].first %></div>
+    <% end %>
   </div>
 
   <div class="mb-3">
@@ -26,15 +31,20 @@
     <%= f.text_area :description, class: "form-control" %>
   </div>
 
-  <!-- 🔹 公開範囲と参加ルール -->
-  <h2>参加ルール</h2>
   <div class="mb-3">
-    <%= f.label :privacy, "公開範囲" %>
-    <%= f.select :privacy, [
-      ["公開（誰でも参加可能）", "public_visibility"], 
-      ["非公開（招待制）", "private_visibility"], 
-      ["限定公開（管理者の許可が必要）", "restricted_visibility"]
-    ], prompt: "選択してください", class: "form-control" %>
+  <%= f.label :image, "グループの画像" %>
+  <%= f.file_field :group_image, class: "form-control" %>
+  </div>
+
+  <!-- 🔹 グループのカテゴリ -->
+  <h2>グループの種類</h2>
+  <div class="mb-3">
+    <%= f.label :category, "グループのカテゴリー" %>
+    <%= f.select :category, [
+    ["公式プロジェクト", "official_label"], 
+    ["一般コミュニティ", "community_label"], 
+    ["ユーザー作成グループ", "user_created_label"]
+  ], prompt: "選択してください", class: "form-control" %>
   </div>
 
   <div class="mb-3">
@@ -51,16 +61,17 @@
     <%= f.text_field :location, class: "form-control", placeholder: "例: 東京, 大阪" %>
   </div>
 
-  <!-- 🔹 グループのカテゴリ -->
-  <h2>グループの種類</h2>
+  <!-- 🔹 公開範囲と参加ルール -->
+  <h2>参加ルール</h2>
   <div class="mb-3">
-    <%= f.label :category, "グループの種類" %>
-    <%= f.select :category, [
-    ["公式プロジェクト", "official_label"], 
-    ["一般コミュニティ", "community_label"], 
-    ["ユーザー作成グループ", "user_created_label"]
-  ], prompt: "選択してください", class: "form-control" %>
+    <%= f.label :privacy, "公開範囲" %>
+    <%= f.select :privacy, [
+      ["公開（誰でも参加可能）", "public_visibility"], 
+      ["非公開（招待制）", "private_visibility"], 
+      ["限定公開（管理者の許可が必要）", "restricted_visibility"]
+    ], prompt: "選択してください", class: "form-control" %>
   </div>
+
 
   <%= f.submit "グループを作成", class: "btn btn-success mt-3" %>
 <% end %>

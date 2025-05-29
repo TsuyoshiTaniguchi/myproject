@@ -32,6 +32,10 @@
         <pre class="code-block"><%= sanitize(post.code_snippet) %></pre>
       <% end %>
 
+      <div id="post-likes-<%= post.id %>">
+       <%= render 'public/likes/like_button', post: post %>
+      </div>
+          
       <div class="d-flex gap-2 mt-3">
         <% comment_count = post.comments.count %>
         <%= link_to "💬 コメント (#{comment_count})", post_path(post), class: "btn btn-outline-secondary btn-sm" %>

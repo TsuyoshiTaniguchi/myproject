@@ -1,10 +1,9 @@
-<%= link_to post_likes_path(post), 
-            method: post.liked_by?(current_user) ? :delete : :post, 
-            remote: true, 
-            id: "like-btn-#{post.id}", 
-            class: "like-button" do %>
-  <span class="<%= post.likes.count > 0 ? 'text-success' : 'text-secondary' %>">
-    <%= post.likes.count > 0 ? "👍" : "♡" %> 
-    <span id="like-count-<%= post.id %>"><%= post.likes.count %></span>
-  </span>
+<% if post.liked_by?(current_user) %>
+  <%= link_to post_like_path(post, post.likes.find_by(user_id: current_user.id)), method: :delete do %>
+    👍 <span><%= post.likes.count %></span>
+  <% end %>
+<% else %>
+  <%= link_to post_likes_path(post), method: :post do %>
+    🤍 <span><%= post.likes.count %></span>
+  <% end %>
 <% end %>

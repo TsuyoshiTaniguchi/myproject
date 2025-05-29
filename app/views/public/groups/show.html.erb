@@ -16,7 +16,7 @@
 <p>オーナー: <%= @group.owner&.name || "未設定" %></p>
 
 <% if @group.owner == current_user %>
-  <%= link_to "グループを編集", edit_user_group_path(current_user, @group), class: "btn btn-warning" %>
+  <%= link_to "グループを編集", edit_group_path(@group), class: "btn btn-warning" %>
 <% end %>
 
 <h3>メンバー一覧</h3>
@@ -73,8 +73,8 @@
   <%= link_to "新規投稿", new_group_post_path(@group), class: "btn btn-primary mt-3" %>
 <% end %>
 
-<% if @user.present? %>
-  <%= link_to "グループ一覧へ戻る", user_groups_path(@user), class: "btn btn-secondary" %>
-<% else %>
-  <%= link_to "グループ一覧へ戻る", user_groups_path(current_user), class: "btn btn-secondary" %>
-<% end %>
+
+
+<%= link_to "グループ一覧へ戻る", user_groups_path(current_user), class: "btn btn-secondary" %>
+
+ 

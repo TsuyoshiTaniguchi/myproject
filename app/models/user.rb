@@ -10,8 +10,7 @@ class User < ApplicationRecord
   has_many :comments, dependent: :destroy
   has_many :memberships
   has_many :groups, through: :memberships
-  has_many :likes, dependent: :destroy
-  has_many :liked_posts, through: :likes, source: :post
+  has_many :likes, as: :likeable, dependent: :destroy  # User を対象にする
   has_many :notifications, dependent: :destroy
 
   has_many_attached :portfolio_files

@@ -16,6 +16,11 @@ ja:
         private_visibility: "非公開"
         restricted_visibility: "限定公開"
 
+      join_policy:
+        open: "誰でも参加可能"
+        admin_only: "管理者のみが参加を許可"
+        invite_only: "招待制"
+
   activerecord:
     attributes:
       user:
