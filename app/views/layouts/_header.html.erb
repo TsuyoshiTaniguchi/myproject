@@ -22,7 +22,7 @@
           <%= link_to "投稿一覧", posts_path, class: "nav-link", style: "color: #1ABC9C; text-decoration: none;" %>
         </li>
         <li>
-          <%= link_to "ログアウト", destroy_user_session_path, method: :delete, data: { turbo_method: :delete }, class: "nav-link", style: "color: red !important;" %>
+          <%= button_to "ログアウト", logout_path, method: :post, class: "nav-link logout-link" %>
         </li>
       <% elsif admin_signed_in? %>
         <li>

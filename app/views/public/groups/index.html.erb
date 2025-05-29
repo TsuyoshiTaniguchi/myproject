@@ -1,6 +1,6 @@
 <h1>グループ一覧</h1>
 
-<!-- ✅ 検索フォーム（常に表示） -->
+<!-- 検索フォーム（常に表示） -->
 <div class="mb-3">
   <form action="<%= user_groups_path(@user) %>" method="get" class="d-flex">
     <input type="text" name="query" class="form-control" placeholder="グループ名で検索" value="<%= params[:query] %>">
@@ -8,7 +8,7 @@
   </form>
 </div>
 
-<!-- ✅ 検索結果を分かりやすく表示 -->
+<!-- 検索結果を分かりやすく表示 -->
 <% if @query.present? %>
   <div class="alert alert-info">
     <h2>「<%= @query %>」の検索結果</h2>
@@ -19,7 +19,7 @@
       <% @groups.each do |group| %>
         <div class="col-md-4">
           <div class="card p-3 mb-3">
-            <!-- ✅ 追加: グループ画像の表示 -->
+            <!-- グループ画像の表示 -->
             <% if group.group_image.attached? %>
               <%= image_tag group.group_image.variant(resize_to_fill: [100, 100]), class: "group-image-preview mb-2" %>
             <% else %>
@@ -60,7 +60,11 @@
         <h4><%= link_to group.name, user_group_path(current_user, group) %></h4>
         <p>📢 <%= group.category.present? ? t("enums.group.category.#{group.category}") : "未分類" %></p>
         <p>👥 メンバー数: <%= group.memberships.count %>人</p>
-        <%= button_to "🔒 参加リクエストを送る", request_join_group_path(group), method: :post, class: "btn btn-primary btn-sm" %>
+        <div class="button-wrapper">
+        <% unless group.users.include?(current_user) %>
+          <%= button_to "🔒 参加リクエストを送る", request_join_group_path(group), method: :post, class: "btn btn-primary btn-sm" %>
+        <% end %>
+      </div>
         <%= link_to "詳細を見る", user_group_path(current_user, group), class: "btn btn-outline-info btn-sm" %>
       </div>
     </div>
@@ -82,9 +86,11 @@
       <p>📢 <%= group.category.present? ? t("enums.group.category.#{group.category}") : "未分類" %></p>
       <p>👥 メンバー数: <%= group.memberships.count %>人</p>
 
-      <% if group.privacy == "restricted_visibility" %>
+      <div class="button-wrapper">
+      <% unless group.users.include?(current_user) %>
         <%= button_to "🔒 参加リクエストを送る", request_join_group_path(group), method: :post, class: "btn btn-primary btn-sm" %>
       <% end %>
+    </div>
 
       <%= link_to "📄 詳細を見る", user_group_path(@user, group), class: "btn btn-outline-info btn-sm" %>
     </div>

@@ -15,16 +15,13 @@ Rails.application.routes.draw do
   devise_scope :admin do
     delete 'admin/sign_out', to: 'admin/sessions#destroy'
   end
-  
-  devise_scope :user do
-    delete 'users/sign_out', to: 'devise/sessions#destroy'
-  end
 
   devise_scope :user do
     post "users/guest_sign_in", to: "public/sessions#guest_login"
+    post "/logout", to: "public/sessions#destroy", as: :logout  # ✅ `POST` のルート
+    delete "/logout", to: "public/sessions#destroy"  # ✅ `DELETE` のルートを追加！
   end
-
-
+  
   root to: "public/homes#top"
   get '/about' => 'public/homes#about', as: 'about'
 

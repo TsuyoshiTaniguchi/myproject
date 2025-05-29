@@ -28,15 +28,15 @@ class Public::SessionsController < Devise::SessionsController
   end
 
   def destroy
-    if current_user.guest?
-      sign_out current_user 
-      reset_session
-      redirect_to about_path, notice: "ゲスト利用ありがとうございました！新規登録してみましょう！"
+    if current_user&.guest?
+      reset_session  # ✅ ゲストユーザーでもセッションをクリア
+      cookies.delete(:guest_user_id)  # ✅ クッキーを削除
+      sign_out current_user  # ✅ ログアウト処理を実行
+      redirect_to about_path, notice: "ゲスト利用ありがとうございました！ もし気に入っていただけたら、ぜひ新規登録してください！"
     else
       super
     end
   end
-
 
 
 

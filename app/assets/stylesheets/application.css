@@ -86,3 +86,14 @@ th, td {
   object-fit: cover;
   border-radius: 50%;
 }
+
+.button-wrapper {
+  min-height: 40px;  /* ボタンがない時でも最低40pxの高さを確保！ */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card {
+  min-height: 250px;  /* すべてのカードに最低高さを設定！ */
+}

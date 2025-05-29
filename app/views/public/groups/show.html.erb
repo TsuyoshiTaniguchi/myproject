@@ -32,8 +32,10 @@
 
 <% if @group.users.include?(current_user) %>
   <%= button_to "グループを脱退", leave_group_path(@group), method: :delete, class: "btn btn-danger mt-3" %>
+<% elsif current_user.guest? %>
+  <button class="btn btn-secondary mt-3" disabled>このグループに参加する</button>
 <% else %>
-  <%= button_to "このグループに参加する", group_memberships_path(@group), method: :post, class: "btn btn-primary mt-3" %>
+  <%= button_to "このグループに参加する", request_join_group_path(@group), method: :post, class: "btn btn-primary mt-3" %>
 <% end %>
 
 <h3>最近のアクティビティ</h3>
@@ -49,7 +51,7 @@
     <p>👤 <%= link_to member.name, user_path(member) %> がメンバーになりました！（<%= member.created_at.strftime("%Y-%m-%d") %>）</p>
   <% end %>
   
-<% else %>  # ✅ 正しく `if` のブロックの最後に `else` を配置！
+<% else %>
   <p>まだ新しい活動はありません。</p>
 <% end %>
 

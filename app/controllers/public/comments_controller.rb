@@ -39,7 +39,7 @@ class Public::CommentsController < ApplicationController
 
   def restrict_guest_access
     if current_user.guest?
-      flash[:alert] = "ゲストユーザーは通報できません。"
+      flash[:alert] = "ゲストユーザーはこの操作を実行できません。"
       redirect_back(fallback_location: post_path(params[:post_id]))
     end
   end

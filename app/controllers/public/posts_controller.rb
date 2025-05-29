@@ -18,6 +18,11 @@ class Public::PostsController < ApplicationController
   end
 
   def new
+    if current_user.guest?
+      flash[:alert] = "ゲストユーザーは投稿できません。"
+      return redirect_to posts_path
+    end
+    
     if params[:group_id].present?
       @group = Group.find_by(id: params[:group_id])
       unless @group
@@ -113,7 +118,7 @@ class Public::PostsController < ApplicationController
 
   def restrict_guest_access
     if current_user.guest?
-      flash[:alert] = "ゲストユーザーは通報できません。"
+      flash[:alert] = "ゲストユーザーはこの操作を実行できません。"
       redirect_back(fallback_location: posts_path)
     end
   end

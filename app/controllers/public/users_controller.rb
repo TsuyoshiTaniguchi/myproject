@@ -1,9 +1,9 @@
 class Public::UsersController < ApplicationController
   before_action :authenticate_user!
-  before_action :restrict_guest_access, only: [:edit, :update, :destroy]
+  before_action :restrict_guest_access, only: [:edit, :update, :withdraw] 
   
   def mypage
-    @user = current_user  # `mypage` はログイン中のユーザー情報を取得する！
+    @user = current_user  # `mypage` はログイン中のユーザー情報を取得する
     @posts = @user.posts
   end
 
@@ -17,7 +17,11 @@ class Public::UsersController < ApplicationController
   end
 
   def edit
-    @user = current_user
+    if current_user.guest?
+      redirect_to users_mypage_path, alert: "ゲストユーザーはプロフィールを編集できません。"
+    else
+      @user = current_user
+    end
   end
 
   def update
@@ -43,10 +47,13 @@ class Public::UsersController < ApplicationController
 
 
   def withdraw
-    @user = current_user
-    @user.withdraw!
-    reset_session # セッションをクリア
-    redirect_to root_path, notice: "退会しました"
+    if current_user.guest?
+      redirect_to users_mypage_path, alert: "ゲストユーザーは退会できません。"
+    else
+      current_user.withdraw!
+      reset_session
+      redirect_to root_path, notice: "退会しました"
+    end
   end
 
   def search
@@ -70,8 +77,8 @@ class Public::UsersController < ApplicationController
 
   def restrict_guest_access
     if current_user.guest?
-      flash[:alert] = "ゲストユーザーは退会できません。"
-      redirect_back(fallback_location: users_mypage_path)
+      flash[:alert] = "ゲストユーザーはこの操作を実行できません。"
+      redirect_to users_mypage_path  #  `users_mypage_path` にリダイレクト
     end
   end
 

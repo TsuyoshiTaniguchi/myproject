@@ -4,24 +4,25 @@ class Public::GroupsController < ApplicationController
 
   def index
     @user = User.find(params[:user_id])
+    @groups = Group.where(id: @user.memberships.pluck(:group_id))  # ✅ 
     @query = params[:query] # 検索キーワードを取得
   
     if @query.present?
-      normalized_query = @query.tr('ァ-ン', 'ぁ-ん').downcase # カタカナ→ひらがな＋小文字化
-  
+      normalized_query = @query.tr('ァ-ン', 'ぁ-ん').downcase
+      
       @groups = Group.where("LOWER(name) LIKE ?", "%#{@query.downcase}%")
                .or(Group.where("LOWER(name) LIKE ?", "%#{normalized_query}%"))
-               .where(privacy: ["public_visibility", "restricted_visibility"]) # プライバシー設定を考慮
+               .where(privacy: ["public_visibility", "restricted_visibility"])
     else
-      @groups = @user.groups
+      @groups = @user.groups.includes(:memberships)  # ✅ 関連データを読み込む！
     end
   end
 
   def show
     @group = Group.find(params[:id])
-    @user = User.find(params[:user_id]) if params[:user_id].present? # ✅ `user_id` の存在を確認！
+    @user = User.find_by(id: params[:user_id])  # ✅ `find_by` ならエラーにならず nil を返す
     @membership = current_user.memberships.find_by(group: @group)
-  
+
     session[:return_to] = request.original_url
   end
   
@@ -61,25 +62,36 @@ class Public::GroupsController < ApplicationController
 
   def request_join
     @group = Group.find(params[:id])
-    @user = current_user # ✅ `current_user` から取得することで `user_id` を明示的に渡さなくてもOK！
+    @user = current_user
   
-    # 承認制グループかチェック
-    if @group.privacy != "restricted_visibility"
-      redirect_to user_group_path(@user, @group), alert: "このグループは参加リクエスト不要です。"
+    if @user.guest?
+      redirect_to user_group_path(@group), alert: "ゲストユーザーはグループに参加できません。"
       return
     end
   
     # すでにメンバーかチェック
-    if @group.users.exists?(id: @user.id)
-      redirect_to user_group_path(@user, @group), alert: "すでにメンバーです！"
+    membership = @group.memberships.find_by(user: @user)
+  
+    if membership&.role == "member"
+      redirect_to user_group_path(@group), alert: "すでにメンバーとして参加済みです！"
+      return
+    elsif membership&.role == "pending"
+      redirect_to user_group_path(@group), alert: "すでに参加リクエストを送信済みです！"
       return
     end
   
-    # 参加リクエストを "pending" 状態で保存
-    @group.memberships.create!(user: @user, role: "pending")
+    # `public_visibility` の場合は直接参加OK
+    if @group.privacy == "public_visibility"
+      @group.memberships.create!(user: @user, role: "member")
+      redirect_to user_group_path(@group), notice: "グループに参加しました！"
+      return
+    end
   
-    redirect_to user_group_path(@user, @group), notice: "参加リクエストを送信しました！"
+    # `restricted_visibility` の場合はリクエストを送信
+    @group.memberships.create!(user: @user, role: "pending")
+    redirect_to user_group_path(@group), notice: "参加リクエストを送信しました！"
   end
+  
 
   def leave
     @group = Group.find(params[:id])

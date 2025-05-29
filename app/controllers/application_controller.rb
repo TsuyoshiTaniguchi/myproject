@@ -1,7 +1,6 @@
 class ApplicationController < ActionController::Base
   before_action :configure_permitted_parameters, if: :devise_controller?
-  before_action :restrict_guest_access, only: [:edit, :update, :destroy]
-
+  before_action :restrict_guest_access, only: [:edit, :update]
 
     # ログアウト後のリダイレクト先を指定
     def after_sign_out_path_for(resource_or_scope)
@@ -18,11 +17,11 @@ class ApplicationController < ActionController::Base
   private
 
 
-  private
-
   def restrict_guest_access
     return unless current_user.present?  # ✅ `current_user` が `nil` でないことを確認！
     
+    return if params[:action] == "destroy"  # ✅ ログアウト時は制限をスキップ！
+  
     if current_user.guest?
       redirect_to root_path, alert: "ゲストユーザーはこの操作を実行できません"
     end
