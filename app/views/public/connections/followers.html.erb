@@ -1,8 +1,10 @@
-<ul data-turbo="false"> <!-- ✅ フォロワー一覧の更新を防ぐ -->
+<h1><%= @user.name %>さんのフォロワー一覧</h1>
+
+<div id="followers-list"> <!-- ✅ AJAXで更新する部分 -->
   <% @users.each do |user| %>
     <li>
       <%= link_to user.name, user_path(user) %>
-      <%= button_to "フォロー解除", connection_path(user), method: :delete, class: "btn btn-danger", data: { turbo: false } %>
+      <%= button_to "フォロー解除", connection_path(user), method: :delete, remote: true, class: "btn btn-danger" %>
     </li>
   <% end %>
-</ul>
+</div>

@@ -1,14 +1,10 @@
 <h1><%= @user.name %>さんのフォローしているユーザー一覧</h1>
 
-<ul>
+<div id="following-list">
   <% @users.each do |user| %>
     <li>
-      <%= link_to user.name, user_path(user) %>  <!-- 🔹 `public_user_path` ではなく `user_path` に修正 -->
-      <%= button_to "フォロー解除", connection_path(user), method: :delete, class: "btn btn-danger" %>  <!-- 🔹 `public_connection_path` ではなく `connection_path` に修正 -->
+      <%= link_to user.name, user_path(user) %>
+      <%= button_to "フォロー解除", connection_path(user), method: :delete, remote: true, data: { turbo_method: :delete, turbo_frame: "_top" }, class: "btn btn-danger" %> <!-- ✅ Turboの影響を防ぐ -->
     </li>
   <% end %>
-</ul>
-
-<div class="mt-4 text-center">
-  <button class="btn btn-secondary px-4" onclick="history.back()">戻る</button>
 </div>

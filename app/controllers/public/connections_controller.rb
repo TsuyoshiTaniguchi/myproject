@@ -8,22 +8,23 @@ class Public::ConnectionsController < ApplicationController
     redirect_to request.referer, notice: "#{user.name}さんをフォローしました！"
   end
   
-
   # フォロー解除
   def destroy
     connection = Connection.find_by(followed_id: params[:id], follower_id: current_user.id)
   
     if connection
       connection.destroy!
-      @users = current_user.connected_by_users.reload # ✅ データを削除後に最新のリストを取得！
-      flash[:notice] = "フォロー解除しました"
-      redirect_to followers_user_path(current_user) # ✅ 更新されたデータを反映するためリダイレクト！
+      @users = current_user.connected_by_users.reload # ✅ 最新データを取得
+  
+      respond_to do |format|
+        format.html { redirect_back fallback_location: following_user_path(current_user), notice: "フォロー解除しました" } # ✅ 現在のページに留まる
+        format.js   # ✅ AJAX対応のレスポンス（`destroy.js.erb` を利用）
+      end
     else
       flash[:alert] = "フォロー解除できませんでした"
-      redirect_back fallback_location: followers_user_path(current_user)
+      redirect_back fallback_location: following_user_path(current_user)
     end
   end
-  
 
   # フォローしているユーザー一覧
   def following
