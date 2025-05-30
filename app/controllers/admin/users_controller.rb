@@ -63,6 +63,28 @@ class Admin::UsersController < ApplicationController
     redirect_back(fallback_location: admin_users_path)
   end
 
+  def followers
+    @user = User.find(params[:id])
+    @followers = @user.connected_by_users  # フォロワー一覧を取得
+    
+    respond_to do |format|
+      format.html # HTMLを返す
+      format.json { render json: @followers } # JSONレスポンスも許可
+    end
+  end
+
+  def following
+    @user = User.find(params[:id])
+    @following_users = @user.connected_users  # フォローしているユーザー一覧を取得
+  
+    respond_to do |format|
+      format.html # ビューを表示！
+      format.json { render json: @following_users } # JSONレスポンスも許可
+    end
+  end
+
+
+
 
   def search
     @query = params[:query]

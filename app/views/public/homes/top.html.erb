@@ -19,7 +19,6 @@
   <%= link_to "もっと知る", about_path, class: "btn btn-outline-info" %>
   <%= link_to "さっそく始める", new_user_registration_path, class: "btn btn-success" %>
 
-  
   <p>ゲストログインすると、サイトの機能を試すことができますが、投稿や編集はできません。</p>
   
   <%= link_to users_guest_sign_in_path, method: :post, class: "btn btn-outline-secondary btn-sm" do %>
@@ -27,3 +26,20 @@
   <% end %>
 </div>
 
+<section class="recent-posts">
+  <h2> フォローしているユーザーの最新投稿 </h2>
+
+  <% if @posts.present? %>
+    <div class="posts-container">
+      <% @posts.each do |post| %>
+        <div class="post">
+          <h3><%= post.title %></h3>
+          <p><%= post.content.truncate(100) %></p>
+          <p>投稿者: <%= link_to post.user.name, user_path(post.user) %></p>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p>フォローしているユーザーの投稿はまだありません。</p>
+  <% end %>
+</section>

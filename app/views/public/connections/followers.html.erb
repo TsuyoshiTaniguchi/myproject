@@ -1,0 +1,15 @@
+<h1><%= @user.name %>さんのフォロワー一覧</h1>
+
+<ul>
+  <% @users.each do |user| %>
+    <li>
+      <%= link_to user.name, user_path(user) %> <!-- 🔹 `public_user_path` ではなく `user_path` を使用！ -->
+
+      <% if current_user.connected_users.include?(user) %>
+        <%= button_to "フォロー解除", connection_path(user), method: :delete, class: "btn btn-danger" %> <!-- 🔹 `public_connection_path` → `connection_path` に修正！ -->
+      <% else %>
+        <%= button_to "フォローする", connections_path(user_id: user.id), method: :post, class: "btn btn-primary" %> <!-- 🔹 `public_connections_path` → `connections_path` に修正！ -->
+      <% end %>
+    </li>
+  <% end %>
+</ul>

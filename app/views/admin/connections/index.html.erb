@@ -1,0 +1,25 @@
+<h1>フォロー関係管理</h1>
+
+<%= link_to "← 戻る（管理者ダッシュボード）", admin_dashboard_path, class: "btn btn-secondary mb-3" %>
+
+
+<table>
+  <thead>
+    <tr>
+      <th>フォロワー</th>
+      <th>フォロー対象</th>
+      <th>アクション</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @connections.each do |connection| %>
+      <tr>
+        <td><%= link_to connection.follower.name, admin_user_path(connection.follower) %></td>
+        <td><%= link_to connection.followed.name, admin_user_path(connection.followed) %></td>
+        <td>
+          <%= button_to "削除", admin_connections_index_path(connection), method: :delete, class: "btn btn-danger" %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

@@ -1,0 +1,20 @@
+<h1><%= @user.name %>さんのフォロワー一覧</h1>
+
+<%= link_to "← 戻る（ユーザー詳細へ）", admin_user_path(@user), class: "btn btn-secondary mb-3" %>
+
+<table>
+  <thead>
+    <tr>
+      <th>フォロワー名</th>
+      <th>プロフィール</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @followers.each do |follower| %>
+      <tr>
+        <td><%= link_to follower.name, admin_user_path(follower) %></td>
+        <td><%= image_tag follower.profile_image.variant(resize_to_limit: [50, 50]), class: "rounded-circle" if follower.profile_image.attached? %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

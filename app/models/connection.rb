@@ -11,4 +11,5 @@ class Connection < ApplicationRecord
   # スコープ（特定ユーザーのフォロワー / フォロー一覧）
   scope :followers_of, ->(user) { where(followed_id: user.id) }
   scope :following_by, ->(user) { where(follower_id: user.id) }
+
 end

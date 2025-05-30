@@ -11,6 +11,24 @@
   <p> メールアドレス: <%= user.email %></p>
   <p> 登録日: <%= user.created_at.strftime("%Y年%m月%d日") %></p>
 
+
+
+  <% if current_user.connected_users.include?(@user) %>
+    <%= button_to "フォロー解除", connection_path(current_user.connections.find_by(followed_id: user)), method: :delete, class: "btn btn-danger" %>
+  <% else %>
+    <%= button_to "フォローする", connections_path(user_id: @user.id), method: :post, class: "btn btn-primary" %>
+  <% end %>
+
+
+<h2>フォロー中: <%= @user.connected_users.count %>人</h2>
+<h2>フォロワー: <%= @user.connected_by_users.count %>人</h2>
+
+<h2>フォローしているユーザー</h2>
+<%= link_to "フォロー一覧を見る", following_user_path(@user), class: "btn btn-primary" %>
+
+<h2>フォロワー</h2>
+<%= link_to "フォロワー一覧を見る", followers_user_path(@user), class: "btn btn-secondary" %>
+
   <h3 class="mb-3"> 自己紹介</h3>
   <% if user.personal_statement.present? %>
     <p><%= user.personal_statement %></p>
@@ -35,6 +53,8 @@
     <% else %>
       <p class="text-muted">ポートフォリオのファイルは未登録です。</p>
     <% end %>
+
+
 
 
   <h3 class="mb-3"> 所属グループ</h3>

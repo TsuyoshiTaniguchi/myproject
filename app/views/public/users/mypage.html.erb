@@ -6,4 +6,22 @@
 
 <%= render partial: "public/posts/delete_modal", locals: { user: current_user } %>
 
+<section class="recent-posts">
+  <h2> フォローしているユーザーの最新投稿 </h2>
+
+  <% if @posts.present? %>
+    <div class="posts-container">
+      <% @posts.each do |post| %>
+        <div class="post">
+          <h3><%= post.title %></h3>
+          <p><%= post.content.truncate(100) %></p>
+          <p>投稿者: <%= link_to post.user.name, user_path(post.user) %></p>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p>フォローしているユーザーの投稿はまだありません。</p>
+  <% end %>
+</section>
+
 <%= link_to "ユーザー一覧", users_path, class: "btn btn-outline-secondary mt-3" %>

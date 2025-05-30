@@ -11,11 +11,26 @@ class User < ApplicationRecord
   has_many :memberships
   has_many :groups, through: :memberships
   has_many :likes, as: :likeable, dependent: :destroy  # User を対象にする
+  has_many :connections, foreign_key: :follower_id, dependent: :destroy
+  has_many :connected_users, through: :connections, source: :followed
+  has_many :inverse_connections, class_name: "Connection", foreign_key: :followed_id, dependent: :destroy
+  has_many :connected_by_users, through: :inverse_connections, source: :follower
   has_many :notifications, dependent: :destroy
 
   has_many_attached :portfolio_files
 
   has_one_attached :profile_image # プロフィール画像の添付機能を追加
+
+  # 🔹 フォロー機能を追加
+  def connect(user)
+    connections.create(followed_id: user.id) unless connected_users.include?(user)
+  end
+
+  # 🔹 フォロー解除機能を追加
+  def disconnect(user)
+    connections.find_by(followed_id: user.id)&.destroy
+  end
+
 
 
   enum status: { active: 0, withdrawn: 1 }
@@ -48,11 +63,11 @@ class User < ApplicationRecord
   end
 
   def get_profile_image(width, height)
-    unless profile_image.attached?
-      file_path = Rails.root.join('app/assets/images/sample-author1.jpg')
-      profile_image.attach(io: File.open(file_path), filename: 'default-image.jpg', content_type: 'image/jpeg')
+    if profile_image.attached?
+      profile_image.variant(resize_to_fill: [width, height]).processed
+    else
+      "no_image.jpg"
     end
-    "no_image.jpg"
   end
 
   def admin?

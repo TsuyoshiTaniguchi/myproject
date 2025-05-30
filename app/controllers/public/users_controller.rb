@@ -9,11 +9,24 @@ class Public::UsersController < ApplicationController
 
   def index
     @users = User.where.not(id: current_user.id)
+    @users = User.where.not(role: ["admin"]).where.not(email: "guest@example.com")
   end
+
 
   def show
     @user = User.find(params[:id])  # 他のユーザーのプロフィールを見る
-    @posts = @user.posts
+    @connected_users = @user.connected_users
+    @connected_by_users = @user.connected_by_users
+  
+    # 自分の投稿を取得
+    own_posts = @user.posts
+  
+    # フォローしているユーザーの投稿を取得
+    followed_user_ids = current_user.connected_users.pluck(:id)
+    followed_posts = Post.where(user_id: followed_user_ids)
+  
+    # 自分の投稿 + フォローユーザーの投稿を統合し、最新順に並び替え
+    @posts = (own_posts + followed_posts).sort_by(&:created_at).reverse
   end
 
   def edit
@@ -33,8 +46,6 @@ class Public::UsersController < ApplicationController
     end
   end
 
-  
-  
 
   def unsubscribe
   end
@@ -54,6 +65,11 @@ class Public::UsersController < ApplicationController
       reset_session
       redirect_to root_path, notice: "退会しました"
     end
+  end
+
+  def followed_posts
+    user = User.find(params[:id]) # 指定されたユーザーを取得
+    @posts = Post.where(user_id: user.connected_users.pluck(:id)) # フォローしているユーザーの投稿を取得
   end
 
   def search

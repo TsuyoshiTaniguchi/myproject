@@ -1,5 +1,8 @@
 <h1>ユーザー管理</h1>
 
+<%= link_to "フォロー関係管理", admin_connections_index_path, class: "btn btn-outline-primary" %>
+
+
 <form action="<%= search_admin_users_path %>" method="get" class="d-flex mb-3">
   <input type="text" name="query" class="form-control" placeholder="ユーザー名で検索">
   <button type="submit" class="btn btn-primary ms-2">検索</button>

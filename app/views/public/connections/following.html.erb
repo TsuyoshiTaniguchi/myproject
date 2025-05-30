@@ -1,0 +1,10 @@
+<h1><%= @user.name %>さんのフォローしているユーザー一覧</h1>
+
+<ul>
+  <% @users.each do |user| %>
+    <li>
+      <%= link_to user.name, user_path(user) %>  <!-- 🔹 `public_user_path` ではなく `user_path` に修正 -->
+      <%= button_to "フォロー解除", connection_path(user), method: :delete, class: "btn btn-danger" %>  <!-- 🔹 `public_connection_path` ではなく `connection_path` に修正 -->
+    </li>
+  <% end %>
+</ul>

@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  namespace :admin do
+    get 'connections/index'
+    get 'connections/destroy'
+  end
   devise_for :users, controllers: {
     registrations: "public/registrations",
     sessions: "public/sessions"
@@ -29,7 +33,7 @@ Rails.application.routes.draw do
   # 一般ユーザー関連
   scope module: :public do
     get '/users/mypage' => 'users#mypage', as: 'users_mypage'
-  
+
     resources :posts do
       resources :comments, only: [:create, :destroy] do
         member do
@@ -47,20 +51,24 @@ Rails.application.routes.draw do
         get :search  # 投稿検索機能
       end
     end
-    
-   
-      
+  
+    resources :connections, only: [:create, :destroy]
 
     resources :users, only: [:index, :show, :edit, :update, :destroy] do
       collection do
         get :search  # ユーザー検索機能
       end
+      get "followed_posts", on: :member
+  
       member do
+        get :following, to: "connections#following" 
+        get :followers, to: "connections#followers" 
         patch :withdraw
         patch :report  # ユーザー通報機能
       end
+   
       resources :posts, only: [:index, :show, :new, :create, :edit, :update, :destroy]
-      resources :groups, only: [:index, :show, :new, :create]  # `create` を追加！
+      resources :groups, only: [:index, :show, :new, :create] 
      end
     
 
@@ -87,6 +95,8 @@ Rails.application.routes.draw do
       end
       member do
         patch :toggle_status  #  ユーザーのステータス変更機能を追加
+        get :followers  # 🔹 `/admin/users/:id/followers` → フォロワー一覧
+        get :following  # 🔹 `/admin/users/:id/following` → フォローしているユーザー一覧
       end
     end
 

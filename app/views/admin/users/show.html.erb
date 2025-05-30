@@ -20,23 +20,27 @@
     <p class="text-muted">まだ自己紹介がありません。</p>
   <% end %>
 
-<h3 class="mb-3"> ポートフォリオ</h3>
-<% if @user.portfolio_url.present? %>
-  <p><%= link_to @user.portfolio_url, @user.portfolio_url, target: "_blank", rel: "noopener noreferrer", class: "btn btn-outline-primary" %></p>
-<% else %>
-  <p class="text-muted">ポートフォリオは未登録です。</p>
-<% end %>
+  <h2>フォロー管理</h2>
+  <%= link_to "#{@user.name}さんのフォロワー一覧", followers_admin_user_path(@user), class: "btn btn-outline-info" %>
+  <%= link_to "#{@user.name}さんがフォローしているユーザー", following_admin_user_path(@user), class: "btn btn-outline-info" %>
 
-<h3 class="mb-3"> ポートフォリオファイル</h3>
-<% if @user.portfolio_files.attached? %>
-  <ul>
-    <% @user.portfolio_files.each do |file| %>
-      <li><%= link_to file.filename, file, class: "btn btn-outline-success" %></li>
-    <% end %>
-  </ul>
-<% else %>
-  <p class="text-muted">ポートフォリオのファイルは未登録です。</p>
-<% end %>
+  <h3 class="mb-3"> ポートフォリオ</h3>
+  <% if @user.portfolio_url.present? %>
+    <p><%= link_to @user.portfolio_url, @user.portfolio_url, target: "_blank", rel: "noopener noreferrer", class: "btn btn-outline-primary" %></p>
+  <% else %>
+    <p class="text-muted">ポートフォリオは未登録です。</p>
+  <% end %>
+
+  <h3 class="mb-3"> ポートフォリオファイル</h3>
+  <% if @user.portfolio_files.attached? %>
+    <ul>
+      <% @user.portfolio_files.each do |file| %>
+        <li><%= link_to file.filename, file, class: "btn btn-outline-success" %></li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="text-muted">ポートフォリオのファイルは未登録です。</p>
+  <% end %>
 
   <div class="user-groups">
   <h2>所属グループ</h2>
