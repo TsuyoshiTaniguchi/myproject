@@ -1,8 +1,5 @@
 Rails.application.routes.draw do
-  namespace :admin do
-    get 'connections/index'
-    get 'connections/destroy'
-  end
+
   devise_for :users, controllers: {
     registrations: "public/registrations",
     sessions: "public/sessions"
@@ -23,11 +20,17 @@ Rails.application.routes.draw do
   devise_scope :user do
     post "users/guest_sign_in", to: "public/sessions#guest_login"
     post "/logout", to: "public/sessions#destroy", as: :logout  # `POST` のルート
-    delete "/logout", to: "public/sessions#destroy"  # `DELETE` のルート
   end
+
   
   root to: "public/homes#top"
   get '/about' => 'public/homes#about', as: 'about'
+
+  resources :notifications, only: [:index, :update, :show] do
+    member do
+      patch :mark_as_read
+    end
+  end
 
 
   # 一般ユーザー関連
@@ -125,6 +128,11 @@ Rails.application.routes.draw do
         patch :unreport  #  通報解除を追加
       end
     end
+
+    namespace :admin do
+      resources :notifications, only: [:index]
+    end
+    
 
     get 'dashboard', to: 'dashboard#index', as: 'dashboard'  # これを管理者トップページに
     root to: "dashboard#index"  # `root` はここで統一（外に書かない）

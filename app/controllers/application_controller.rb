@@ -1,6 +1,7 @@
 class ApplicationController < ActionController::Base
   before_action :configure_permitted_parameters, if: :devise_controller?
   before_action :restrict_guest_access, only: [:edit, :update]
+  before_action :set_unread_notifications_count
 
     # ログアウト後のリダイレクト先を指定
     def after_sign_out_path_for(resource_or_scope)
@@ -18,14 +19,19 @@ class ApplicationController < ActionController::Base
 
 
   def restrict_guest_access
-    return unless current_user.present?  # ✅ `current_user` が `nil` でないことを確認！
+    return unless current_user.present?  # `current_user` が `nil` でないことを確認！
     
-    return if params[:action] == "destroy"  # ✅ ログアウト時は制限をスキップ！
+    return if params[:action] == "destroy"  # ログアウト時は制限をスキップ！
   
     if current_user.guest?
       redirect_to root_path, alert: "ゲストユーザーはこの操作を実行できません"
     end
   end
+
+  def set_unread_notifications_count
+    @unread_notifications_count ||= current_user.notifications.where(read: false).count if user_signed_in?
+  end
+
   
 
 end

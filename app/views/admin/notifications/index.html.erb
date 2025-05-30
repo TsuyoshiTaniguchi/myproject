@@ -1,0 +1,8 @@
+<h2>管理者向け通知</h2>
+
+<% @admin_notifications.each do |notification| %>
+  <div class="admin-notification">
+    <%= notification.message %>
+    <small><%= time_ago_in_words(notification.created_at) %>前</small>
+  </div>
+<% end %>

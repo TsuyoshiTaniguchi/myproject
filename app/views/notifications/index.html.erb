@@ -1,0 +1,19 @@
+<table class="table">
+  <% @notifications.each do |notification| %>
+    <tr class="<%= notification.read? ? 'read' : 'unread' %>">
+      <% if notification.source.present? %>
+        <% message = case notification.source_type
+          when "Comment"
+            "#{notification.source&.user&.name} さんがあなたの投稿にコメントしました！"
+          when "Like"
+            "#{notification.source&.user&.name} さんがあなたの投稿をいいねしました！"
+          else
+            "新しい通知があります！"
+        end %>
+        <td><%= link_to message, notification_path(notification), method: :patch %></td>
+      <% else %>
+        <td><span class="text-muted">通知の情報がありません</span></td>
+      <% end %>
+    </tr>
+  <% end %>
+</table>

@@ -11,17 +11,19 @@ class Public::ConnectionsController < ApplicationController
 
   # フォロー解除
   def destroy
-    connection = Connection.find_by(id: params[:id])  
+    connection = Connection.find_by(followed_id: params[:id], follower_id: current_user.id)
   
     if connection
-      Rails.logger.debug "削除対象の Connection: #{connection.inspect}"
-      connection.destroy
-      redirect_to request.referer, notice: "フォローを解除しました！"
+      connection.destroy!
+      @users = current_user.connected_by_users.reload # ✅ データを削除後に最新のリストを取得！
+      flash[:notice] = "フォロー解除しました"
+      redirect_to followers_user_path(current_user) # ✅ 更新されたデータを反映するためリダイレクト！
     else
-      Rails.logger.debug "削除対象の Connection が見つかりません。"
-      redirect_to request.referer, alert: "ユーザー情報が見つかりませんでした。"
+      flash[:alert] = "フォロー解除できませんでした"
+      redirect_back fallback_location: followers_user_path(current_user)
     end
   end
+  
 
   # フォローしているユーザー一覧
   def following
@@ -31,8 +33,9 @@ class Public::ConnectionsController < ApplicationController
 
   def followers
     @user = User.find(params[:id])
-    @users = @user.connected_by_users # 🔹 `@users` にフォローしてくれているユーザー一覧をセット
+    @users = User.joins(:connections).where(connections: { followed_id: @user.id }).distinct # ✅ 最新のフォロワーを明示的に取得！
   end
+  
 
 
 end

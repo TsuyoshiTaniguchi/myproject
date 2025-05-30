@@ -7,8 +7,9 @@ class Public::CommentsController < ApplicationController
     post = Post.find(params[:post_id])
     comment = post.comments.new(comment_params)
     comment.user = current_user
-
+  
     if comment.save
+      comment.send_comment_notification  # ✅ 通知を作成する処理を追加！
       redirect_to post_path(post), notice: "コメントを追加しました！"
     else
       redirect_to post_path(post), alert: "コメントの追加に失敗しました。"

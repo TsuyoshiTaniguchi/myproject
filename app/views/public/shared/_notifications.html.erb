@@ -1,7 +1,28 @@
-<% if current_user&.guest? %>
-  <h3> 通知</h3>
-  <% current_user.notifications.each do |notification| %>
-    <p><%= notification.message %></p>
-  <% end %>
-<% end %>
+<li class="nav-item">
+  <!-- 未読通知のボタン -->
+  <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+    📩 未読通知 <span class="badge badge-danger"><%= @unread_notifications_count %></span>
+  </button>
+  <div class="dropdown-menu" data-turbo="false"> <!-- ✅ Turbo を無効化し、通知のリストを確実に表示！ -->
+    <% if current_user.notifications.where(read: false).any? %>
+      <% current_user.notifications.where(read: false).limit(5).each do |notification| %>
+        <% message = case notification.source_type
+          when "Comment"
+            "#{notification.source.user.name} さんがあなたの投稿にコメントしました！"
+          when "Like"
+            "#{notification.source.user.name} さんがあなたの投稿をいいねしました！"
+          else
+            "新しい通知があります！"
+        end %>
+        <%= link_to message, notification_path(notification), method: :patch, class: "dropdown-item", data: { turbo: false } %> <!-- Turbo を防ぐ -->
+      <% end %>
+    <% else %>
+      <span class="dropdown-item disabled">未読の通知はありません</span>
+    <% end %>
+  </div>
+</li>
 
+<li class="nav-item">
+  <!-- 通知一覧ページへのボタン -->
+  <%= link_to "通知一覧を見る", notifications_path, class: "btn btn-info", data: { turbo: false } %> <!-- Turbo を防ぐ -->
+</li>

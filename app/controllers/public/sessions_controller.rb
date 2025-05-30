@@ -6,6 +6,21 @@ class Public::SessionsController < Devise::SessionsController
   # ユーザーcreate前にreject_userを呼び出す
   before_action :reject_user, only: [:create]
 
+  skip_before_action :verify_signed_out_user, only: :destroy #  フィルターをスキップ
+
+  def destroy
+    if current_user&.guest?
+      reset_session  # ゲストユーザーのセッションをクリア
+      cookies.delete(:guest_user_id)  #  クッキーを削除
+      sign_out current_user  #  ログアウト処理を実行
+      redirect_to about_path, notice: "ゲスト利用ありがとうございました！ もし気に入っていただけたら、ぜひ新規登録してください！"
+    else
+      sign_out current_user if current_user.present? #  `current_user` が存在する場合のみログアウト！
+      redirect_to root_path, notice: "ログアウトしました！"
+    end
+  end
+
+
   # GET /resource/sign_in
   # def new
   #   super
@@ -25,17 +40,6 @@ class Public::SessionsController < Devise::SessionsController
     user = User.guest
     sign_in user
     redirect_to root_path, notice: "ゲストログインしました"
-  end
-
-  def destroy
-    if current_user&.guest?
-      reset_session  # ✅ ゲストユーザーでもセッションをクリア
-      cookies.delete(:guest_user_id)  # ✅ クッキーを削除
-      sign_out current_user  # ✅ ログアウト処理を実行
-      redirect_to about_path, notice: "ゲスト利用ありがとうございました！ もし気に入っていただけたら、ぜひ新規登録してください！"
-    else
-      super
-    end
   end
 
 

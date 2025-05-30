@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_05_29_100221) do
+ActiveRecord::Schema.define(version: 2025_05_30_095657) do
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -125,12 +125,13 @@ ActiveRecord::Schema.define(version: 2025_05_29_100221) do
 
   create_table "notifications", force: :cascade do |t|
     t.integer "user_id", null: false
-    t.string "notification_type"
+    t.integer "notification_type", default: 0
     t.integer "source_id"
     t.string "source_type"
     t.datetime "read_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.boolean "read", default: false
     t.index ["source_type", "source_id"], name: "index_notifications_on_source"
     t.index ["user_id"], name: "index_notifications_on_user_id"
   end
