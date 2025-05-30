@@ -1,10 +1,10 @@
-<h1><%= @user.name %>さんのフォロワー一覧</h1>
+<h1><%= @user.name %> さんのフォロワー一覧</h1>
 
 <div id="followers-list"> <!-- ✅ AJAXで更新する部分 -->
   <% @users.each do |user| %>
     <li>
       <%= link_to user.name, user_path(user) %>
-      <%= button_to "フォロー解除", connection_path(user), method: :delete, remote: true, class: "btn btn-danger" %>
+      <%= button_to "フォロー解除", connection_path(user), method: :delete, remote: true, class: "btn btn-danger" %> <!-- ✅ AJAX対応！ -->
     </li>
   <% end %>
 </div>

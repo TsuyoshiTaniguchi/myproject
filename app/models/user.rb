@@ -28,7 +28,8 @@ class User < ApplicationRecord
 
   # 🔹 フォロー解除機能を追加
   def disconnect(user)
-    connections.find_by(followed_id: user.id)&.destroy
+    connection = Connection.find_by(followed_id: user.id, follower_id: self.id) || Connection.find_by(followed_id: user.id)
+    connection&.destroy
   end
 
 
