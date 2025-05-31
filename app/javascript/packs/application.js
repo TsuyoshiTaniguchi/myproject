@@ -13,6 +13,9 @@ import "popper.js";
 import "bootstrap";
 import "../stylesheets/application"; 
 
+
+Rails.start();
+
 document.addEventListener("turbo:load", function () {
   var dropdownToggle = document.querySelector(".dropdown-toggle");
   var dropdownMenu = document.querySelector(".dropdown-menu");
@@ -48,4 +51,15 @@ document.addEventListener("turbo:frame-load", function () {
       }
     });
   }
+});
+
+document.addEventListener("turbo:load", function () {
+  document.querySelectorAll(".delete-comment").forEach(button => {
+    button.addEventListener("click", event => {
+      event.preventDefault();
+      if (confirm("⚠️ 本当に削除しますか？この操作は取り消せません！")) {
+        window.location.href = button.getAttribute("href"); //  リダイレクトして削除
+      }
+    });
+  });
 });

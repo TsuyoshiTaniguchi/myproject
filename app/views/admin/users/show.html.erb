@@ -83,7 +83,44 @@
 <div class="actions">
   <h2>アクション</h2>
   <%= link_to "編集", edit_admin_user_path(@user), class: "btn btn-primary" %>
-  <%= link_to "削除", admin_user_path(@user), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger" %>
+  <%= link_to "削除", admin_user_path(@user), method: :delete, data: { confirm: "⚠️ 本当に削除しますか？ この操作は取り消せません！" }, class: "btn btn-danger" %>
+</div>
+
+<h2>フォロー関係の管理</h2>
+
+<div class="row">
+  <div class="col-md-6">
+    <h3>フォロー中</h3>
+    <div class="list-group">
+      <% @user.following.each do |followed| %>
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+          <% if followed.profile_image.attached? %>
+            <%= image_tag followed.profile_image.variant(resize_to_fill: [30, 30]), class: "rounded-circle border" %>
+          <% else %>
+            <%= image_tag "no_image.jpg", class: "rounded-circle border", width: 30, height: 30 %>
+          <% end %>
+          <%= link_to followed.name, admin_user_path(followed), class: "fw-bold text-dark" %>
+          <%= button_to "解除", admin_connection_path(@user.connections.find_by(followed: followed)), method: :delete, class: "btn btn-danger btn-sm", data: { confirm: "本当に解除しますか？" } %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <h3>フォロワー</h3>
+    <div class="list-group">
+      <% @user.followers.each do |follower| %>
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+          <% if follower.profile_image.attached? %>
+            <%= image_tag follower.profile_image.variant(resize_to_fill: [30, 30]), class: "rounded-circle border" %>
+          <% else %>
+            <%= image_tag "no_image.jpg", class: "rounded-circle border", width: 30, height: 30 %>
+          <% end %>
+          <%= link_to follower.name, admin_user_path(follower), class: "fw-bold text-dark" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
 </div>
 
 <div class="actions mt-3">

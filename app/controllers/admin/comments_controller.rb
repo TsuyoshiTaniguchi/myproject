@@ -10,10 +10,16 @@ class Admin::CommentsController < ApplicationController
   end
 
   def destroy
-    @comment = Comment.find(params[:id])
-    @comment.destroy
-    redirect_to admin_comments_path, notice: "コメントを削除しました"
+    @comment = Comment.find_by(id: params[:id])
+  
+    if @comment
+      @comment.destroy
+      redirect_to admin_comments_path, notice: "コメントを削除しました"
+    else
+      redirect_back fallback_location: admin_comments_path, alert: "コメントが見つかりませんでした"
+    end
   end
+  
 
   def unreport
     @comment = Comment.find(params[:id])

@@ -1,25 +1,41 @@
-<h1>フォロー関係管理</h1>
-
-<%= link_to "← 戻る（管理者ダッシュボード）", admin_dashboard_path, class: "btn btn-secondary mb-3" %>
-
-
-<table>
-  <thead>
+<table class="table table-hover">
+  <thead class="table-dark text-center">
     <tr>
-      <th>フォロワー</th>
-      <th>フォロー対象</th>
-      <th>アクション</th>
+      <th style="width: 35%;">フォロワー</th>
+      <th style="width: 35%;">フォロー対象</th>
+      <th style="width: 30%;">アクション</th>
     </tr>
   </thead>
   <tbody>
     <% @connections.each do |connection| %>
-      <tr>
-        <td><%= link_to connection.follower.name, admin_user_path(connection.follower) %></td>
-        <td><%= link_to connection.followed.name, admin_user_path(connection.followed) %></td>
-        <td>
-          <%= button_to "削除", admin_connections_index_path(connection), method: :delete, class: "btn btn-danger" %>
+      <tr class="align-middle">
+        <td class="d-flex align-items-center gap-2">
+          <% if connection.follower.profile_image.attached? %>
+            <%= image_tag connection.follower.profile_image.variant(resize_to_fill: [40, 40]), class: "rounded-circle border" %>
+          <% else %>
+            <%= image_tag "no_image.jpg", class: "rounded-circle border", width: 40, height: 40 %>
+          <% end %>
+          <%= link_to connection.follower.name, admin_user_path(connection.follower), class: "fw-bold text-dark" %>
+        </td>
+
+        <td class="d-flex align-items-center gap-2">
+          <% if connection.followed.profile_image.attached? %>
+            <%= image_tag connection.followed.profile_image.variant(resize_to_fill: [40, 40]), class: "rounded-circle border" %>
+          <% else %>
+            <%= image_tag "no_image.jpg", class: "rounded-circle border", width: 40, height: 40 %>
+          <% end %>
+          <%= link_to connection.followed.name, admin_user_path(connection.followed), class: "fw-bold text-dark" %>
+        </td>
+
+        <td class="text-center">
+          <%= button_to "削除", admin_connection_path(connection), method: :delete, class: "btn btn-danger btn-sm", data: { confirm: "⚠️ 本当に削除しますか？" } %>
         </td>
       </tr>
     <% end %>
   </tbody>
 </table>
+
+<div class="d-flex justify-content-between mt-4">
+  <%= link_to "← ダッシュボードへ戻る", admin_dashboard_path, class: "btn btn-outline-secondary" %>
+  <%= link_to "ユーザー管理へ", admin_users_path, class: "btn btn-outline-primary" %>
+</div>

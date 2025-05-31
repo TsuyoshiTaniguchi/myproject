@@ -10,7 +10,7 @@
   <div class="alert alert-danger mt-2">
     ⚠️ このコメントは通報されています（通報日時: <%= @comment.updated_at.strftime("%Y/%m/%d %H:%M") %>）
   </div>
-  <%= link_to "通報解除", unreport_admin_comment_path(@comment), method: :patch, class: "btn btn-secondary" %>  <!-- ✅ 追加 -->
+  <%= button_to "報告解除", unreport_admin_comment_path(@comment), method: :patch, class: "btn btn-warning" %> <!-- ✅ 修正！ -->
 <% else %>
   <div class="alert alert-success mt-2">
       ✅ 正常な投稿
@@ -19,7 +19,7 @@
 
 
 
-<%= link_to "削除", admin_comment_path(@comment), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger" %>
+<%= button_to "削除", admin_comment_path(@comment), method: :delete, data: { confirm: "⚠️ 本当に削除しますか？ この操作は取り消せません！" }, class: "btn btn-danger mt-3" %> 
 <%= link_to "コメント一覧へ戻る", admin_comments_path, class: "btn btn-secondary" %>
 
 </div>

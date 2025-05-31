@@ -15,14 +15,13 @@ class Public::UsersController < ApplicationController
 
   def show
     @user = User.find(params[:id])  # 他のユーザーのプロフィールを見る
-    @connected_users = @user.connected_users
-    @connected_by_users = @user.connected_by_users
+    @following_users = @user.following
   
     # 自分の投稿を取得
     own_posts = @user.posts
   
     # フォローしているユーザーの投稿を取得
-    followed_user_ids = current_user.connected_users.pluck(:id)
+    followed_user_ids = current_user.following.pluck(:id)
     followed_posts = Post.where(user_id: followed_user_ids)
   
     # 自分の投稿 + フォローユーザーの投稿を統合し、最新順に並び替え

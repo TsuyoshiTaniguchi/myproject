@@ -6,12 +6,18 @@ class Public::PostsController < ApplicationController
   def index
     @posts = Post.active_users_posts.with_attached_images.includes(:user).where(users: { status: 0 })
   end
-  
+
 
   def show
-    @post = Post.find(params[:id])
-    
-    #  意図したページから来た場合のみ `session[:return_to]` をセット
+    @post = Post.find_by(id: params[:id]) # `find_by` を使用し、削除済みの投稿に対応
+  
+    if @post.nil?
+      flash[:alert] = "投稿が見つかりませんでした。"
+      redirect_to group_posts_path(params[:group_id]) #  削除済みなら投稿一覧へリダイレクト
+      return
+    end
+  
+    # 意図したページから来た場合のみ `session[:return_to]` をセット
     if request.referer.present? && !request.referer.include?("/posts/")
       session[:return_to] = request.referer
     end
@@ -36,19 +42,21 @@ class Public::PostsController < ApplicationController
   end
 
   def create
+    # `group_id` がリクエストに含まれている場合、そのグループを取得。なければ `nil`
     @group = params[:group_id].present? ? Group.find_by(id: params[:group_id]) : nil
   
-    if @group
-      @post = @group.posts.build(post_params)
-    else
-      @post = current_user.posts.build(post_params)
-    end
-  
+    # `@group` が存在する場合、そのグループに紐づく投稿を作成。なければ、個人投稿として作成
+    @post = @group ? @group.posts.build(post_params) : current_user.posts.build(post_params)
+    
+    # 投稿したユーザーを設定（明示的に `current_user` をセット）
     @post.user = current_user
   
+    # 投稿を保存し、成功した場合はリダイレクト
     if @post.save
-      redirect_to @group ? user_group_post_path(current_user, @group, @post) : post_path(@post), notice: "投稿が作成されました"
+      session[:return_to] = @group ? group_posts_path(@group) : posts_path # 新規投稿後は投稿一覧へ戻れるようセット
+      redirect_to @group ? group_post_path(@group, @post) : post_path(@post), notice: "投稿が作成されました" 
     else
+      # エラーが発生した場合、エラーメッセージを `flash[:alert]` に保存し、新規投稿フォームを再表示
       flash[:alert] = @post.errors.full_messages.join(", ")
       render :new
     end
@@ -73,19 +81,22 @@ class Public::PostsController < ApplicationController
     end
   end
 
-
   def edit
     @post = current_user.posts.find(params[:id])
   end
 
   def destroy
-    @post = current_user.posts.find(params[:id])
+    @post = current_user.posts.find_by(id: params[:id]) #  `find_by` を使い、エラーを防ぐ
   
-    if @post.destroy
-      redirect_to request.referer, notice: "投稿が削除されました"
+    if @post
+      @group = @post.group # 投稿が属するグループを取得
+      @post.destroy
+  
+      # 削除後は投稿一覧ページへリダイレクト
+      redirect_to @group ? group_posts_path(@group) : posts_path, notice: "投稿が削除されました！"
     else
-      flash[:alert] = "投稿の削除に失敗しました"
-      redirect_to post_path(@post)
+      flash[:alert] = "投稿が見つかりませんでした！"
+      redirect_to posts_path
     end
   end
 

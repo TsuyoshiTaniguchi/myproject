@@ -13,15 +13,15 @@
 
 
 
-  <% if current_user.connected_users.include?(@user) %>
-    <%= button_to "フォロー解除", connection_path(current_user.connections.find_by(followed_id: user)), method: :delete, class: "btn btn-danger" %>
+  <% if current_user.following.include?(@user) %>
+    <%= button_to "フォロー解除", connection_path(current_user.connections.find_by(followed_id: @user)), method: :delete, class: "btn btn-danger" %>
   <% else %>
     <%= button_to "フォローする", connections_path(user_id: @user.id), method: :post, class: "btn btn-primary" %>
   <% end %>
 
 
-<h2>フォロー中: <%= @user.connected_users.count %>人</h2>
-<h2>フォロワー: <%= @user.connected_by_users.count %>人</h2>
+<h2>フォロー中: <%= @user.following.count %>人</h2>
+<h2>フォロワー: <%= @user.followers.count %>人</h2>
 
 <h2>フォローしているユーザー</h2>
 <%= link_to "フォロー一覧を見る", following_user_path(@user), class: "btn btn-primary" %>

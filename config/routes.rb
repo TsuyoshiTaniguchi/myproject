@@ -98,8 +98,8 @@ Rails.application.routes.draw do
       end
       member do
         patch :toggle_status  #  ユーザーのステータス変更機能を追加
-        get :followers  # 🔹 `/admin/users/:id/followers` → フォロワー一覧
-        get :following  # 🔹 `/admin/users/:id/following` → フォローしているユーザー一覧
+        get :followers  # フォロワー一覧
+        get :following  # ユーザーのフォロー関係は個別ページで管理
       end
     end
 
@@ -129,10 +129,11 @@ Rails.application.routes.draw do
       end
     end
 
-    namespace :admin do
-      resources :notifications, only: [:index]
-    end
-    
+   
+    resources :notifications, only: [:index]
+
+    resources :connections, only: [:destroy]
+
 
     get 'dashboard', to: 'dashboard#index', as: 'dashboard'  # これを管理者トップページに
     root to: "dashboard#index"  # `root` はここで統一（外に書かない）

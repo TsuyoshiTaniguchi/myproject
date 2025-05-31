@@ -33,7 +33,7 @@
         </td>
         <td class="d-flex gap-2"> 
           <%= link_to "詳細", admin_comment_path(comment), class: "btn btn-info btn-sm flex-fill" %>
-          <%= link_to "削除", admin_comment_path(comment), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm flex-fill" %>
+          <%= link_to "削除", admin_comment_path(comment), method: :delete, data: { confirm: "⚠️ 本当に削除しますか？ この操作は取り消せません！" }, class: "btn btn-danger btn-sm flex-fill delete-comment" %>
         </td>
       </tr>
     <% end %>

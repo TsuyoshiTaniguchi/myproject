@@ -6,10 +6,13 @@
   <%= image_tag "no_image.jpg", class: "group-image mb-3", width: 200, height: 200 %>
 <% end %>
 
-
 <p><%= @group.description %></p>
 <p><strong>作成日:</strong> <%= @group.created_at.strftime("%Y-%m-%d") %></p>
 <p><strong>メンバー数:</strong> <%= @group.users.count %> 人</p>
+<p><strong>カテゴリー:</strong> <%= I18n.t("enums.group.category.#{@group.category}") %></p>
+<p><strong>公開範囲:</strong> <%= I18n.t("enums.group.privacy.#{@group.privacy}") %></p>
+<p><strong>参加ルール:</strong> <%= I18n.t("enums.group.join_policy.#{@group.join_policy}") %></p>
+<p><strong>活動場所:</strong> <%= @group.location.presence || "未設定" %></p>
 
 <h2>メンバー管理</h2>
 <table class="table">
@@ -43,5 +46,10 @@
   </div>
   <%= f.submit "追加", class: "btn btn-primary" %>
 <% end %>
+
+<div class="d-flex gap-2 mt-3">
+  <%= link_to "編集", edit_admin_group_path(@group), class: "btn btn-warning" %>
+  <%= link_to "削除", admin_group_path(@group), method: :delete, data: { confirm: "⚠️ 本当にこのグループを削除しますか？ この操作は取り消せません！" }, class: "btn btn-danger" %>
+</div>
 
 <%= link_to "グループ一覧へ戻る", admin_groups_path, class: "btn btn-secondary mt-3" %>

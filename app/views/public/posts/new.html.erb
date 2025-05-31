@@ -1,9 +1,10 @@
 <h1>新規投稿</h1>
 
-<%= form_with model: @post, url: @group.nil? ? posts_path : user_group_posts_path(current_user, @group), local: true do |f| %>
+<%= form_with model: @post, url: @group.nil? ? posts_path : group_posts_path(@group), local: true do |f| %>
   <% if @group.present? %>
     <%= hidden_field_tag :group_id, @group.id %>
   <% end %>
+
 
   <div>
     <%= f.label :title, "タイトル" %>

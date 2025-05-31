@@ -19,7 +19,7 @@
 
   <div class="d-flex gap-2 mt-3">
     <%= link_to "編集", edit_admin_post_path(@post), class: "btn btn-warning btn-sm" %>
-    <%= link_to "削除", admin_post_path(@post), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
+    <%= link_to "削除", admin_post_path(@post), method: :delete, data: { confirm: "⚠️ 本当に削除しますか？ この操作は取り消せません！" }, class: "btn btn-danger btn-sm" %>
     <% if @post.reported? %>
       <%= button_to "通報解除", unreport_admin_post_path(@post), method: :patch, class: "btn btn-secondary btn-sm" %>
     <% end %>

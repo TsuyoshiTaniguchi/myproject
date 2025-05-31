@@ -10,14 +10,19 @@ class Public::ConnectionsController < ApplicationController
   
   # フォロー解除
   def destroy
-    user = User.find(params[:id])
-    current_user.disconnect(user) # ✅ `disconnect` メソッドを使用！
-    
-    @users = User.joins(:connections).where(connections: { followed_id: params[:id] }).distinct.reload
+    connection = Connection.find_by(id: params[:id])
   
-    respond_to do |format|
-      format.html { redirect_back fallback_location: request.referer, notice: "フォロー解除しました" }
-      format.js
+    if connection
+      connection.destroy!
+      @users = User.joins(:connections).where(connections: { followed_id: connection.followed_id }).distinct.reload
+  
+      respond_to do |format|
+        format.html { redirect_back fallback_location: request.referer, notice: "フォロー解除しました" }
+        format.js
+      end
+    else
+      flash[:alert] = "フォロー解除できませんでした"
+      redirect_back fallback_location: request.referer
     end
   end
   
@@ -25,12 +30,12 @@ class Public::ConnectionsController < ApplicationController
   # フォローしているユーザー一覧
   def following
     @user = User.find(params[:id])
-    @users = @user.connected_users  # 🔹 `@users` にフォローしているユーザー一覧を代入
+    @users = @user.following  # `@users` にフォローしているユーザー一覧を代入
   end
 
   def followers
     @user = User.find(params[:id])
-    @users = User.joins(:connections).where(connections: { followed_id: @user.id }).distinct.reload # ✅ 最新データを強制的に取得！
+    @users = @user.followers 
   end
 
 
