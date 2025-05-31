@@ -8,6 +8,20 @@
   <% end %>
 </div>
 
+
+
+<h3>📥 承認待ちメンバー</h3>
+<% @group.memberships.where(status: "pending").each do |membership| %>
+  <div class="border p-2 mb-2">
+    <strong><%= membership.user.name %></strong> が参加リクエスト中
+
+    <div class="d-flex gap-2">
+      <%= link_to "✅ 承認", approve_admin_membership_path(membership), method: :patch, class: "btn btn-success btn-sm" %>
+      <%= link_to "❌ 拒否", reject_admin_membership_path(membership), method: :patch, class: "btn btn-danger btn-sm" %>
+    </div>
+  </div>
+<% end %>
+
 <table class="table table-striped table-hover">
   <thead class="table-dark">
     <tr>

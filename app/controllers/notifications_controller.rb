@@ -21,8 +21,8 @@ class NotificationsController < ApplicationController
     @notification = current_user.notifications.find_by(id: params[:id])
   
     if @notification
-      @notification.update(read: true) # ✅ 既読にする
-      redirect_to notification_redirect_path(@notification) # ✅ 通知の関連ページへ移動
+      @notification.update(read: true) #  既読にする
+      redirect_to notification_redirect_path(@notification) #  通知の関連ページへ移動
     else
       redirect_to notifications_path, alert: "通知が見つかりません"
     end

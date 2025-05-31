@@ -9,7 +9,7 @@ class Public::CommentsController < ApplicationController
     comment.user = current_user
   
     if comment.save
-      comment.send_comment_notification  # ✅ 通知を作成する処理を追加！
+      comment.send_comment_notification  # 通知を作成する処理を追加！
       redirect_to post_path(post), notice: "コメントを追加しました！"
     else
       redirect_to post_path(post), alert: "コメントの追加に失敗しました。"
@@ -28,8 +28,20 @@ class Public::CommentsController < ApplicationController
 
   def report
     @comment = Comment.find(params[:id])
-    @comment.update(reported: true)
-    redirect_to post_path(@comment.post), notice: "コメントを通報しました"
+    
+    if @comment.update(reported: true)
+      # 通報時に管理者へ通知
+      Notification.create(
+        recipient: Admin.first, # 管理者に通知
+        sender: current_user,
+        notification_type: "admin_alert",
+        message: "⚠️ ユーザー #{current_user.name} がコメント「#{@comment.content.truncate(50)}」を通報しました！"
+      )
+  
+      redirect_to post_path(@comment.post), notice: "コメントを通報しました"
+    else
+      redirect_to post_path(@comment.post), alert: "このコメントはすでに通報されています"
+    end
   end
 
   private

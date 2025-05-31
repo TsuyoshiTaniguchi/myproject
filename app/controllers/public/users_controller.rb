@@ -8,9 +8,10 @@ class Public::UsersController < ApplicationController
   end
 
   def index
-    @users = User.where.not(id: current_user.id)
-    @users = User.where.not(role: ["admin"]).where.not(email: "guest@example.com")
+    # ログインユーザー（current_user）、管理者（admin）、ゲストユーザー（guest@example.com）を除外
+    @users = User.where.not(id: current_user.id).where.not(role: "admin").where.not(email: "guest@example.com")
   end
+
 
 
   def show

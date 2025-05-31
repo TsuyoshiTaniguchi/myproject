@@ -1,22 +1,31 @@
 <h1>管理者ダッシュボード</h1>
 
-<section>
-  <h2> ダッシュボード概要</h2>
-  <ul>
-    <li> 登録ユーザー数: <%= User.count %> 人</li>
-    <li> 投稿総数: <%= Post.count %> 件</li>
-  </ul>
+<section class="dashboard-summary d-flex gap-4">
+  <div class="card p-4 text-center bg-primary text-white shadow">
+    <h3>👥 登録ユーザー数</h3>
+    <p class="fs-3"><%= User.count %> 人</p>
+  </div>
+  <div class="card p-4 text-center bg-success text-white shadow">
+    <h3>📝 投稿総数</h3>
+    <p class="fs-3"><%= Post.count %> 件</p>
+  </div>
 </section>
 
-<section class="alert alert-warning">
-  <h2> 重要なお知らせ</h2>
-  <p>次回のシステムメンテナンスは 2025/06/05 14:00 〜 16:00 です。</p>
-  <p>新機能「グループチャット」が近日追加予定！</p>
+
+<section class="admin-alerts alert alert-warning">
+  <h3>⚠️ 重要なお知らせ</h3>
+  <% Notification.where(notification_type: "admin_alert").each do |notification| %>
+    <p>🟡 <strong><%= notification.created_at.strftime("%Y/%m/%d") %></strong> - <%= notification.message %></p>
+  <% end %>
 </section>
 
 
 <section>
   <h2> 最新の投稿</h2>
+<div class="d-flex justify-content-between mb-3">
+  <h3>📢 最新の投稿一覧</h3>
+
+</div>
   <table class="table">
     <thead class="table-dark text-center">
       <tr>
@@ -33,7 +42,8 @@
           <td class="text-center align-middle"><%= post.user.name %></td>
           <td class="text-center align-middle"><%= post.created_at.strftime("%Y-%m-%d %H:%M") %></td>
           <td class="text-center align-middle">
-            <%= link_to "削除", admin_post_path(post), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
+          <%= link_to "✏️ 編集", edit_admin_post_path(post), class: "btn btn-warning btn-sm" %>
+          <%= link_to "🗑️ 削除", admin_post_path(post), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
           </td>
         </tr>
       <% end %>
@@ -95,7 +105,7 @@
   </table>
 </section>
 
-<h2> 管理メニュー</h2>
+<h2> 管理メニュー 🔔（<%= Notification.where(notification_type: "admin_alert", read: false).count %>）</h2>
 <div class="d-flex gap-3 justify-content-center mt-4">
   <%= link_to "ユーザー管理", admin_users_path, class: "btn btn-outline-secondary btn-lg" %>
   <%= link_to "投稿管理", admin_posts_path, class: "btn btn-outline-secondary btn-lg" %>

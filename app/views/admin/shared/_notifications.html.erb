@@ -1,6 +1,30 @@
-<% unless current_user.guest? %>
-  <h3>📩 通知</h3>
-  <% current_user.notifications.each do |notification| %>
-    <p><%= notification.message %></p>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <ul class="navbar-nav ms-auto">
+    <% if current_admin.present? %> <!-- ✅ 管理者のみ通知リンクを表示 -->
+      <li class="nav-item">
+        <%= link_to admin_notifications_path, class: "nav-link" do %>
+          🔔 通知（<%= Notification.where(notification_type: "admin_alert", read: false).count %>）
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+</nav>
+
+<% if current_admin.present? %> <!-- ✅ 管理者のみ通知一覧を表示 -->
+  <h3>📩 管理者通知</h3>
+
+  <% unread_notifications = Notification.where(notification_type: "admin_alert", read: false) %>
+
+  <% if unread_notifications.any? %>
+    <ul class="list-group">
+      <% unread_notifications.each do |notification| %>
+        <li class="list-group-item">
+          <strong><%= notification.created_at.strftime("%Y/%m/%d %H:%M") %></strong> |
+          <%= notification.message %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p>未読の通知はありません。</p>
   <% end %>
 <% end %>

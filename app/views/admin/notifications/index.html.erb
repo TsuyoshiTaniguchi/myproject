@@ -1,8 +1,24 @@
-<h2>管理者向け通知</h2>
+<h1>管理者通知一覧</h1>
 
-<% @admin_notifications.each do |notification| %>
-  <div class="admin-notification">
-    <%= notification.message %>
-    <small><%= time_ago_in_words(notification.created_at) %>前</small>
-  </div>
+<% if @admin_notifications.any? %>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>通知内容</th>
+        <th>送信者</th>
+        <th>日時</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @admin_notifications.each do |notification| %>
+        <tr>
+          <td><%= notification.message %></td>
+          <td><%= notification.sender.name if notification.sender.present? %></td>
+          <td><%= notification.created_at.strftime("%Y/%m/%d %H:%M") %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>通知はありません。</p>
 <% end %>

@@ -107,9 +107,15 @@ Rails.application.routes.draw do
       resources :memberships, only: [:create, :destroy]  # 管理者がメンバーを追加・削除
       member do
         delete :remove_group_image
+        patch :approve  # 承認処理（管理者用）
+        patch :reject   # 拒否処理（管理者用）  
       end
     end
 
+    member do
+      delete :remove_group_image
+    end
+  
     resources :posts, only: [:index, :show, :edit, :update, :destroy] do
       member do
         patch :report  #  投稿通報機能

@@ -14,13 +14,13 @@ class Public::GroupsController < ApplicationController
                .or(Group.where("LOWER(name) LIKE ?", "%#{normalized_query}%"))
                .where(privacy: ["public_visibility", "restricted_visibility"])
     else
-      @groups = @user.groups.includes(:memberships)  # ✅ 関連データを読み込む！
+      @groups = @user.groups.includes(:memberships)  #  関連データを読み込む
     end
   end
 
   def show
     @group = Group.find(params[:id])
-    @user = User.find_by(id: params[:user_id])  # ✅ `find_by` ならエラーにならず nil を返す
+    @user = User.find_by(id: params[:user_id])  #  `find_by` ならエラーにならず nil を返す
     @membership = current_user.memberships.find_by(group: @group)
 
     session[:return_to] = request.original_url

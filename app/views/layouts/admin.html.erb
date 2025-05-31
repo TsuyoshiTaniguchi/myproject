@@ -9,21 +9,25 @@
     <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
     <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
   </head>
-  <body class="d-flex flex-column vh-100" style="background-color : #F0F0F0">
 
-  <!--ヘッダー部分-->
-  <%= render 'layouts/header' %>
+  <body class="d-flex flex-column vh-100" style="background-color: #F0F0F0">
+  
+    <!-- ヘッダー部分 -->
+    <%= render 'layouts/header' %>
 
-  <!--メイン部分-->
-  <main class="mb-auto">
-    <p class='text-success'><%= flash[:notice] %></p>
-    <p class='text-danger'><%= flash[:alert] %></p>
+    <!-- 管理者用通知（ヘッダーの下に設置）-->
+    <%= render "admin/shared/notifications" %>
 
-    <%= yield %>
-  </main>
+    <!-- メインコンテンツ -->
+    <main class="flex-grow-1">
+      <p class='text-success'><%= flash[:notice] %></p>
+      <p class='text-danger'><%= flash[:alert] %></p>
 
-  <!--フッター部分-->
-  <%= render "layouts/footer" %>
+      <%= yield %>
+    </main>
+
+    <!-- フッター部分 -->
+    <%= render "layouts/footer" %>
 
   </body>
 </html>
