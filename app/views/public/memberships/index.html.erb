@@ -1,0 +1,10 @@
+<% @group.members.each do |member| %>
+  <div class="member-list-item">
+    <strong><%= member.name %></strong>
+
+    <% unless member == current_user %> # ✅ 自分自身は通報できない
+      <%= link_to "🚫 ブロック", block_user_path(member), method: :patch, class: "btn btn-warning btn-sm" %>
+      <%= link_to "⚠️ 通報", report_user_path(member), method: :patch, class: "btn btn-danger btn-sm" %>
+    <% end %>
+  </div>
+<% end %>

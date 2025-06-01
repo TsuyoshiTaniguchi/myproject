@@ -19,27 +19,41 @@
   <%= link_to "もっと知る", about_path, class: "btn btn-outline-info" %>
   <%= link_to "さっそく始める", new_user_registration_path, class: "btn btn-success" %>
 
-  <p>ゲストログインすると、サイトの機能を試すことができますが、投稿や編集はできません。</p>
-  
-  <%= link_to users_guest_sign_in_path, method: :post, class: "btn btn-outline-secondary btn-sm" do %>
-    <i class="fas fa-user"></i> ゲストログイン
+  <% unless user_signed_in? %> <!-- 未ログイン時のみ表示 -->
+    <p>ゲストログインすると、サイトの機能を試すことができますが、投稿や編集はできません。</p>
+    
+    <%= link_to users_guest_sign_in_path, method: :post, class: "btn btn-outline-secondary btn-sm" do %>
+      <i class="fas fa-user"></i> ゲストログイン
+    <% end %>
   <% end %>
 </div>
 
-<section class="recent-posts">
-  <h2> フォローしているユーザーの最新投稿 </h2>
+<% unless user_signed_in? %> <!--  未ログイン時のみ表示 -->
+  <div class="actions text-center mt-4 alert alert-info rounded shadow">
+    <h2 class="fw-bold text-primary"> WAI to WAI の機能を活用するにはログインが必要！</h2>
+    <%= link_to "ログインする", new_user_session_path, class: "btn btn-lg btn-primary fw-bold px-4 py-2 mt-2" %>
+    <p class="text-muted mt-2">新規登録は無料でできます！</p>
+    <%= link_to "新規登録", new_user_registration_path, class: "btn btn-success btn-md" %>
+  </div>
+<% end %>
 
-  <% if @posts.present? %>
-    <div class="posts-container">
-      <% @posts.each do |post| %>
-        <div class="post">
-          <h3><%= post.title %></h3>
-          <p><%= post.content.truncate(100) %></p>
-          <p>投稿者: <%= link_to post.user.name, user_path(post.user) %></p>
-        </div>
-      <% end %>
-    </div>
-  <% else %>
-    <p>フォローしているユーザーの投稿はまだありません。</p>
-  <% end %>
-</section>
+<!-- ✅ フォローしているユーザーの最新投稿 -->
+<% if user_signed_in? %> <!-- ✅ ログインしている場合のみ表示 -->
+  <section class="recent-posts">
+    <h2 class="fw-bold text-dark">フォローしているユーザーの最新投稿</h2>
+
+    <% if @posts.present? %>
+      <div class="posts-container">
+        <% @posts.each do |post| %>
+          <div class="post bg-light shadow p-3 mb-3 rounded border">
+            <h3><%= post.title %></h3>
+            <p><%= post.content.truncate(100) %></p>
+            <p>投稿者: <%= link_to post.user.name, user_path(post.user) %></p>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-muted">フォローしているユーザーの投稿はまだありません。</p>
+    <% end %>
+  </section>
+<% end %>

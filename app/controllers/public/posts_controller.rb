@@ -101,17 +101,17 @@ class Public::PostsController < ApplicationController
   end
 
   def report
-    @post = Post.find_by(id: params[:id])
-    
-    if @post&.normal?
-      @post.update(status: :reported)
+    @post = Post.find(params[:id])
   
-      #  通報時に管理者へ通知
-      Notification.create(
-        recipient: Admin.first, # 管理者へ通知
-        sender: current_user,
-        notification_type: "admin_alert",
-        message: "⚠️ ユーザー #{current_user.name} が投稿「#{@post.title}」を通報しました！"
+    if @post.update(reported: true)
+      # 通報時に管理者へ通知 (`user_id` を使用)
+      Notification.create!(
+        recipient_id: Admin.first.id, # 管理者宛の通知
+        user_id: current_user.id, # `sender_id` の代わりに `user_id` を使用！
+        notification_type: "post_report",
+        source_id: @post.id,
+        source_type: "Post",
+        read: false
       )
   
       redirect_to post_path(@post), notice: "投稿を通報しました"

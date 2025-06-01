@@ -8,3 +8,4 @@
 Admin.find_or_create_by!(email: 'admin@com') do |admin|
   admin.password = 'admin123'
 end
+

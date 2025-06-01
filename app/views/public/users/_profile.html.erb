@@ -1,16 +1,23 @@
 <div class="card p-3 text-center">
-<% if user.profile_image.attached? %>
-<%= image_tag user.profile_image.variant(resize_to_fill: [200, 200]), class: "profile-image mb-3" %>
-<% else %>
-<%= image_tag "no_image.jpg", class: "profile-image mb-3", width: 200, height: 200 %>
-<% end %>
+  <% if user.profile_image.attached? %>
+    <%= image_tag user.profile_image.variant(resize_to_fill: [200, 200]), class: "profile-image mb-3" %>
+  <% else %>
+    <%= image_tag "no_image.jpg", class: "profile-image mb-3", width: 200, height: 200 %>
+  <% end %>
 </div>
 
 <div class="card p-3">
   <h3 class="mb-3"><%= user.name %> さんのプロフィール</h3>
   <p> メールアドレス: <%= user.email %></p>
   <p> 登録日: <%= user.created_at.strftime("%Y年%m月%d日") %></p>
-
+  <!--  通報ボタン（ゲストユーザーを除き、自分のページでは非表示） -->
+  <% unless current_user.guest? || current_user == @user %>
+    <% if @user.reported? %>
+      <p class="text-danger fw-bold">⚠️ このユーザーは通報済みです。</p>
+    <% else %>
+      <%= link_to "⚠️ このユーザーを通報", report_user_path(@user), method: :patch, class: "btn btn-danger btn-sm" %>
+    <% end %>
+  <% end %>
 
 
   <% if current_user.following.include?(@user) %>
@@ -19,15 +26,14 @@
     <%= button_to "フォローする", connections_path(user_id: @user.id), method: :post, class: "btn btn-primary" %>
   <% end %>
 
+  <h2>フォロー中: <%= @user.following.count %>人</h2>
+  <h2>フォロワー: <%= @user.followers.count %>人</h2>
 
-<h2>フォロー中: <%= @user.following.count %>人</h2>
-<h2>フォロワー: <%= @user.followers.count %>人</h2>
+  <h2>フォローしているユーザー</h2>
+  <%= link_to "フォロー一覧を見る", following_user_path(@user), class: "btn btn-primary" %>
 
-<h2>フォローしているユーザー</h2>
-<%= link_to "フォロー一覧を見る", following_user_path(@user), class: "btn btn-primary" %>
-
-<h2>フォロワー</h2>
-<%= link_to "フォロワー一覧を見る", followers_user_path(@user), class: "btn btn-secondary" %>
+  <h2>フォロワー</h2>
+  <%= link_to "フォロワー一覧を見る", followers_user_path(@user), class: "btn btn-secondary" %>
 
   <h3 class="mb-3"> 自己紹介</h3>
   <% if user.personal_statement.present? %>
@@ -36,32 +42,29 @@
     <p class="text-muted">まだ自己紹介がありません。</p>
   <% end %>
 
-<h3 class="mb-3"> ポートフォリオ</h3>
-<% if user.portfolio_url.present? %>
-  <p><%= link_to user.portfolio_url, user.portfolio_url, target: "_blank", rel: "noopener noreferrer", class: "btn btn-outline-primary" %></p>
-<% else %>
-  <p class="text-muted">ポートフォリオは未登録です。</p>
-<% end %>
+  <h3 class="mb-3"> ポートフォリオ</h3>
+  <% if user.portfolio_url.present? %>
+    <p><%= link_to user.portfolio_url, user.portfolio_url, target: "_blank", rel: "noopener noreferrer", class: "btn btn-outline-primary" %></p>
+  <% else %>
+    <p class="text-muted">ポートフォリオは未登録です。</p>
+  <% end %>
 
-<h3 class="mb-3"> ポートフォリオファイル</h3>
-    <% if user.portfolio_files.attached? %>
-      <ul>
-    <% user.portfolio_files.each do |file| %>
-      <li><%= link_to file.filename, file, class: "btn btn-outline-success" %></li>
-    <% end %>
-      </ul>
-    <% else %>
-      <p class="text-muted">ポートフォリオのファイルは未登録です。</p>
-    <% end %>
-
-
-
+  <h3 class="mb-3"> ポートフォリオファイル</h3>
+  <% if user.portfolio_files.attached? %>
+    <ul>
+      <% user.portfolio_files.each do |file| %>
+        <li><%= link_to file.filename, file, class: "btn btn-outline-success" %></li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="text-muted">ポートフォリオのファイルは未登録です。</p>
+  <% end %>
 
   <h3 class="mb-3"> 所属グループ</h3>
   <% if user.groups.any? %>
     <ul>
       <% user.groups.each do |group| %>
-        <li><%= link_to group.name, user_group_path(user, group) %></li>
+        <li><%= link_to group.name, group_path(group) %></li>
       <% end %>
     </ul>
   <% else %>

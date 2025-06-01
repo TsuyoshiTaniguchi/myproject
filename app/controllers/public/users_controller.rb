@@ -78,6 +78,12 @@ class Public::UsersController < ApplicationController
     render :index
   end
 
+  def report
+    @user = User.find(params[:id])
+    @user.update(reported: true) #  ユーザーを「通報済み」にする
+    redirect_to user_path(@user), notice: "このユーザーを通報しました。"
+  end
+
   private
 
   def user_params

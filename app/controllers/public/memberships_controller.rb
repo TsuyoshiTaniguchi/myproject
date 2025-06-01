@@ -22,11 +22,16 @@ class Public::MembershipsController < ApplicationController
 
   def destroy
     @membership = Membership.find_by(user: current_user, group_id: params[:group_id])
-
+  
+    if @membership.nil?
+      redirect_to groups_path, alert: "グループに所属していません！"
+      return
+    end
+  
     if @membership.destroy
-      redirect_to user_group_path(current_user, @membership.group), notice: "グループを脱退しました。" 
+      redirect_to groups_path, notice: "グループを脱退しました。"
     else
-      redirect_to user_group_path(current_user, @membership.group), alert: "脱退できませんでした。" 
+      redirect_to group_path(@membership.group), alert: "脱退できませんでした。"
     end
   end
 
@@ -48,4 +53,54 @@ class Public::MembershipsController < ApplicationController
     end
   end
 
+  def report
+    @membership = Membership.find(params[:id])
+    
+    if @membership.update(reported: true)
+      # ✅ 通報時に管理者へ通知！
+      Notification.create(
+        recipient: Admin.first, # 管理者へ通知！
+        sender: current_user,
+        notification_type: "admin_alert",
+        message: "⚠️ ユーザー #{current_user.name} が「#{@membership.user.name}」を通報しました！"
+      )
+  
+      redirect_to group_path(@membership.group), notice: "メンバーを通報しました"
+    else
+      redirect_to group_path(@membership.group), alert: "このメンバーはすでに通報されています"
+    end
+  end
+
+  # メンバーの通報処理
+  def report_member
+    if @membership.nil?
+      redirect_to groups_path, alert: "指定されたメンバーが見つかりませんでした"
+      return
+    end
+
+    process_member_report(@membership, "member_reported", "メンバーを通報しました")
+  end
+
+  private
+
+  # `@membership` を取得する共通処理
+  def set_membership
+    @membership = Membership.find_by(id: params[:id])
+  end
+
+  # 通報処理の共通メソッド
+  def process_member_report(membership, notification_type, message)
+    if membership.update(reported: true)
+      # ✅ 通報時に管理者へ通知
+      Notification.create(
+        recipient: Admin.first,
+        sender: current_user,
+        notification_type: notification_type,
+        message: "⚠️ ユーザー #{current_user.name} がメンバー「#{membership.user.name}」を通報しました！"
+      )
+      redirect_to group_path(membership.group), notice: message
+    else
+      redirect_to group_path(membership.group), alert: "このメンバーはすでに通報されています"
+    end
+  end
 end

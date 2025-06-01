@@ -77,9 +77,9 @@ class Public::RegistrationsController < Devise::RegistrationsController
   def sign_out_guest
     return unless current_user&.guest?
     
-    Rails.logger.debug "🎯 ゲストユーザーをログアウト"
+    Rails.logger.debug " ゲストユーザーをログアウト"
     sign_out current_user
-    session.clear  # 🔥 セッションを完全にクリア
+    session.clear  # セッションを完全にクリア
     redirect_to new_user_registration_path
   end
 

@@ -36,6 +36,9 @@ class User < ApplicationRecord
 
   validates :email, presence: true, uniqueness: true
   validates :personal_statement, length: { maximum: 500 }
+  # reported フラグ
+  validates :reported, inclusion: { in: [true, false] }
+
 
   before_validation :set_default_status, on: :create
 
@@ -81,6 +84,12 @@ class User < ApplicationRecord
   def guest?
     role == "guest"
   end
+
+  # メンバー判定メソッド
+  def member_of?(group)
+    memberships.exists?(group_id: group.id)
+  end  
+  
 
   private
 

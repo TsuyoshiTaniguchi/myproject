@@ -9,7 +9,7 @@
       <% if user_signed_in? %>
         <li style="color: #333;">ようこそ、<%= current_user.name %>さん！</li>
         
-        <% unless current_user.guest? %> # ゲストユーザーには通知を表示しない
+        <% unless current_user.guest? %> 
           <li>
             <%= render "public/shared/notifications" %>
           </li>

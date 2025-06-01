@@ -56,9 +56,11 @@ class Public::SessionsController < Devise::SessionsController
 
   # 退会済みのユーザーがログインできないようにする（退会処理とは別）
   def reject_user
+    return if params[:controller] == "admin/sessions" #  管理者ログイン時は処理をスキップ
+  
     @user = User.find_by(email: params[:user][:email])
     if @user && @user.valid_password?(params[:user][:password])
-      if @user.status == false # `nil` も含めたくないなら、`@user.status.nil? || @user.status == false`
+      if @user.status == false
         flash[:alert] = "退会済みです。再度ご登録をしてご利用ください"
         redirect_to new_user_registration_path and return
       end

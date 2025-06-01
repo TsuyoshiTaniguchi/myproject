@@ -28,14 +28,16 @@ class Public::CommentsController < ApplicationController
 
   def report
     @comment = Comment.find(params[:id])
-    
+  
     if @comment.update(reported: true)
-      # 通報時に管理者へ通知
-      Notification.create(
-        recipient: Admin.first, # 管理者に通知
-        sender: current_user,
-        notification_type: "admin_alert",
-        message: "⚠️ ユーザー #{current_user.name} がコメント「#{@comment.content.truncate(50)}」を通報しました！"
+      # 通報時に管理者へ通知 (`notification_type` を使用！)
+      Notification.create!(
+        recipient_id: Admin.first.id, # 通報通知の宛先を管理者に
+        user_id: current_user.id, # 通報したユーザーの情報を記録
+        notification_type: "comment_report", # `message` の代わりに `notification_type` を使用
+        source_id: @comment.id,
+        source_type: "Comment",
+        read: false
       )
   
       redirect_to post_path(@comment.post), notice: "コメントを通報しました"

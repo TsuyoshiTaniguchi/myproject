@@ -75,16 +75,23 @@ Rails.application.routes.draw do
      end
     
 
-    resources :groups, only: [:index, :show, :new, :create, :edit, :update, :destroy] do
-      resources :memberships, only: [:create, :destroy]
+     resources :groups, only: [:index, :show, :new, :create, :edit, :update, :destroy] do
+      resources :memberships, only: [:create, :destroy] do
+        member do
+          patch :report_member # メンバー通報ルートを正しい場所へ移動
+        end
+      end
+    
       resources :posts, only: [:index, :show, :create, :new, :edit, :update, :destroy]
+    
       member do
         post :request_join
-        patch :report  # グループ通報機能
-        delete :leave  # グループ退会機能
+        patch :report  # グループ通報ルート
+        delete :leave  # グループ退会ルート
       end
+    
       collection do
-        get :search  # グループ検索機能
+        get :search  # グループ検索ルート
       end
     end
   end
@@ -103,18 +110,24 @@ Rails.application.routes.draw do
       end
     end
 
+
     resources :groups, only: [:index, :show, :new, :create, :edit, :update, :destroy] do
-      resources :memberships, only: [:create, :destroy]  # 管理者がメンバーを追加・削除
+      resources :memberships, only: [:create, :destroy] do
+        member do
+          patch :approve # メンバー承認処理
+          patch :reject  # メンバー拒否処理
+          patch :report_member #  メンバー通報ルートを正しい場所へ移動
+        end
+      end
+  
       member do
+        patch :unreport #  グループ通報解除
         delete :remove_group_image
-        patch :approve  # 承認処理（管理者用）
-        patch :reject   # 拒否処理（管理者用）  
+        patch :approve  # グループ承認処理（管理者用）
+        patch :reject   # グループ拒否処理（管理者用）
       end
     end
 
-    member do
-      delete :remove_group_image
-    end
   
     resources :posts, only: [:index, :show, :edit, :update, :destroy] do
       member do

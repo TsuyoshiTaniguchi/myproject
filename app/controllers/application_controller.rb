@@ -3,11 +3,22 @@ class ApplicationController < ActionController::Base
   before_action :restrict_guest_access, only: [:edit, :update]
   before_action :set_unread_notifications_count
 
-    # ログアウト後のリダイレクト先を指定
-    def after_sign_out_path_for(resource_or_scope)
-      root_path
+  # ユーザーと管理者でログイン後のリダイレクト先を分ける
+  def after_sign_in_path_for(resource)
+    if resource.is_a?(Admin)
+      admin_dashboard_path # 管理者は管理画面へ
+    else
+      users_mypage_path # 一般ユーザーはマイページへ
     end
+  end
   
+  
+  
+  # ログアウト後のリダイレクト先を指定
+  def after_sign_out_path_for(resource_or_scope)
+    root_path
+  end
+
 
   protected
 
@@ -21,7 +32,7 @@ class ApplicationController < ActionController::Base
   def restrict_guest_access
     return unless current_user.present?  # `current_user` が `nil` でないことを確認！
     
-    return if params[:action] == "destroy"  # ログアウト時は制限をスキップ！
+    return if params[:action] == "destroy"  # ログアウト時は制限をスキップ
   
     if current_user.guest?
       redirect_to root_path, alert: "ゲストユーザーはこの操作を実行できません"

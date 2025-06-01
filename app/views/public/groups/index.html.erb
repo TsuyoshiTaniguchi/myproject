@@ -1,104 +1,128 @@
-<h1>グループ一覧</h1>
+<h1 class="mt-4 text-center fw-bold">グループ一覧</h1>
 
-<!-- 検索フォーム（常に表示） -->
-<div class="mb-3">
-  <form action="<%= user_groups_path(@user) %>" method="get" class="d-flex">
-    <input type="text" name="query" class="form-control" placeholder="グループ名で検索" value="<%= params[:query] %>">
-    <button type="submit" class="btn btn-primary ms-2">検索</button>
-  </form>
+<div class="d-flex justify-content-end mt-4">
+  <%= link_to "➕ 新しいグループを作成", new_group_path, class: "btn btn-success fw-bold" %>
 </div>
 
-<!-- 検索結果を分かりやすく表示 -->
-<% if @query.present? %>
-  <div class="alert alert-info">
-    <h2>「<%= @query %>」の検索結果</h2>
+<!-- タブ切り替え（視認性アップ） -->
+<ul class="nav nav-pills nav-justified mt-3">
+  <li class="nav-item">
+    <a class="nav-link active fw-bold" data-bs-toggle="tab" href="#search_results">🔍 検索結果</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link fw-bold" data-bs-toggle="tab" href="#recommended_groups">⭐ おすすめ</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link fw-bold" data-bs-toggle="tab" href="#joined_groups">👥 参加中</a>
+  </li>
+</ul>
+
+<div class="tab-content mt-4">
+
+  <!-- 🔍 検索結果タブ -->
+  <div class="tab-pane fade show active" id="search_results">
+    <div class="mb-4 bg-light p-3 rounded shadow-sm">
+      <form action="<%= groups_path %>" method="get" class="d-flex">
+        <input type="text" name="query" class="form-control" placeholder="グループ名で検索" value="<%= params[:query] %>">
+        <button type="submit" class="btn btn-primary ms-2">検索</button>
+      </form>
+    </div>
+
+    <% if @query.present? %>
+      <div class="alert alert-info fw-bold">
+        <h2>「<%= @query %>」の検索結果</h2>
+      </div>
+
+      <% if @groups.any? %>
+        <div class="row">
+          <% @groups.each do |group| %>
+            <div class="col-md-4">
+              <div class="card bg-light shadow p-3 mb-4 rounded">
+                <!-- グループ画像（枠付き） -->
+                <% if group.group_image.attached? %>
+                  <%= image_tag group.group_image.variant(resize_to_fill: [100, 100]), class: "rounded-circle border border-secondary mx-auto d-block mb-3" %>
+                <% else %>
+                  <%= image_tag "no_image.jpg", class: "rounded-circle border border-secondary mx-auto d-block mb-3", width: 100, height: 100 %>
+                <% end %>
+                
+                <h4 class="fw-bold text-center"><%= link_to group.name, group_path(group) %></h4>
+                <p class="text-muted text-center">📢 <%= group.category.present? ? t("enums.group.category.#{group.category}") : "未分類" %></p>
+                <p class="text-center">👥 メンバー数: <strong><%= group.memberships.where.not(role: "admin").count %>人</strong></p>
+
+                <%= link_to "詳細を見る", group_path(group), class: "btn btn-outline-info w-100 mt-2" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="alert alert-warning text-center">
+          <p>該当するグループが見つかりませんでした。</p>
+        </div>
+      <% end %>
+    <% end %>
   </div>
 
-  <% if @groups.any? %>
+  <!-- ⭐ おすすめのグループタブ -->
+  <div class="tab-pane fade" id="recommended_groups">
     <div class="row">
-      <% @groups.each do |group| %>
+      <% recommended_groups = Group.public_visibility.where.not(id: current_user.memberships.select(:group_id)).order("RANDOM()").limit(3) %>
+  
+      <% recommended_groups.each do |group| %>
         <div class="col-md-4">
-          <div class="card p-3 mb-3">
-            <!-- グループ画像の表示 -->
+          <div class="card bg-light shadow p-3 mb-4 rounded">
             <% if group.group_image.attached? %>
-              <%= image_tag group.group_image.variant(resize_to_fill: [100, 100]), class: "group-image-preview mb-2" %>
+              <%= image_tag group.group_image.variant(resize_to_fill: [100, 100]), class: "rounded-circle border border-secondary mx-auto d-block mb-3" %>
             <% else %>
-              <%= image_tag asset_path("no_image.jpg"), class: "group-image mb-3" %>
+              <%= image_tag "no_image.jpg", class: "rounded-circle border border-secondary mx-auto d-block mb-3", width: 100, height: 100 %>
             <% end %>
-
-            <h4><%= link_to group.name, user_group_path(@user, group) %></h4>
-            <p>📢 <%= group.category.present? ? t("enums.group.category.#{group.category}") : "未分類" %></p>
-            <p>👥 メンバー数: <%= group.memberships.count %>人</p>
-            <%= link_to "詳細を見る", user_group_path(@user, group), class: "btn btn-outline-info btn-sm" %>
+  
+            <h4 class="fw-bold text-center"><%= link_to group.name, group_path(group) %></h4>
+            <p class="text-muted text-center">📢 <%= group.category.present? ? t("enums.group.category.#{group.category}") : "未分類" %></p>
+            <p class="text-center">👥 メンバー数: <strong><%= group.memberships.where.not(role: "admin").count %>人</strong></p>
+  
+            <div class="text-center mt-3">
+            <% unless group.memberships.exists?(user: current_user) %>
+              <% if group.join_policy == "admin_approval" %>
+                <%= button_to "🔒 参加リクエストを送る", request_join_group_path(group), method: :post, class: "btn btn-warning w-100", data: { confirm: "このグループは管理者の承認が必要です。リクエストを送りますか？" } %>
+              <% else %>
+                <%= button_to "✅ 参加する", request_join_group_path(group), method: :post, class: "btn btn-primary w-100", data: { confirm: "このグループに参加しますか？" } %>
+              <% end %>
+            <% end %>
+          </div>
+  
+            <%= link_to "詳細を見る", group_path(group), class: "btn btn-outline-info w-100 mt-2" %>
           </div>
         </div>
       <% end %>
     </div>
-  <% else %>
-    <div class="alert alert-warning">
-      <p>該当するグループが見つかりませんでした。</p>
-    </div>
-  <% end %>
+  </div>
 
-  <!-- ✅ 検索結果終了を明確に -->
-  <hr class="my-4">
-  <p class="text-center text-muted">🔍 検索結果の表示はここまでです。</p>
-<% end %>
-
-<h2>おすすめのグループ</h2>
-<div class="row">
-  <% Group.public_visibility.order("RANDOM()").limit(3).each do |group| %>
-    <div class="col-md-4">
-      <div class="card p-3 mb-3">
-        <!-- ✅ 追加: グループ画像の表示 -->
-        <% if group.group_image.attached? %>
-          <%= image_tag group.group_image.variant(resize_to_fill: [100, 100]), class: "group-image-preview mb-2" %>
-        <% else %>
-          <%= image_tag "no_image.jpg", class: "group-image-preview mb-2", width: 200, height: 200 %>
-        <% end %>
-
-        <h4><%= link_to group.name, user_group_path(current_user, group) %></h4>
-        <p>📢 <%= group.category.present? ? t("enums.group.category.#{group.category}") : "未分類" %></p>
-        <p>👥 メンバー数: <%= group.memberships.count %>人</p>
-        <div class="button-wrapper">
-        <% unless group.users.include?(current_user) %>
-          <%= button_to "🔒 参加リクエストを送る", request_join_group_path(group), method: :post, class: "btn btn-primary btn-sm" %>
-        <% end %>
-      </div>
-        <%= link_to "詳細を見る", user_group_path(current_user, group), class: "btn btn-outline-info btn-sm" %>
-      </div>
-    </div>
-  <% end %>
-</div>
-
-<h2>参加中しているグループ</h2>
-<% if @user.groups.present? %>
-  <% @user.groups.each do |group| %>
-    <div class="card p-3 mb-3">
-      <!-- ✅ 追加: グループ画像の表示 -->
-      <% if group.group_image.attached? %>
-        <%= image_tag group.group_image.variant(resize_to_fill: [100, 100]), class: "group-image-preview mb-2" %>
-      <% else %>
-        <%= image_tag "no_image.jpg", class: "group-image-preview mb-2", width: 200, height: 200 %>
+  <!-- 👥 参加中のグループタブ -->
+  <div class="tab-pane fade" id="joined_groups">
+    <% joined_groups = @groups.select { |group| group.memberships.exists?(user: current_user, role: "member") } %>
+  
+    <% if joined_groups.present? %>
+      <% joined_groups.each do |group| %>
+        <div class="card bg-light shadow p-3 mb-4 rounded">
+          <% if group.group_image.attached? %>
+            <%= image_tag group.group_image.variant(resize_to_fill: [100, 100]), class: "rounded-circle border border-secondary mx-auto d-block mb-3" %>
+          <% else %>
+            <%= image_tag "no_image.jpg", class: "rounded-circle border border-secondary mx-auto d-block mb-3", width: 100, height: 100 %>
+          <% end %>
+  
+          <h4 class="fw-bold text-center"><%= link_to group.name, group_path(group) %></h4>
+          <p class="text-muted text-center">📢 <%= group.category.present? ? t("enums.group.category.#{group.category}") : "未分類" %></p>
+          <p class="text-center">👥 メンバー数: <strong><%= group.memberships.where.not(role: "admin").count %>人</strong></p>
+  
+          <%= link_to "📄 詳細を見る", group_path(group), class: "btn btn-outline-info w-100 mt-2" %>
+  
+          <!-- 🚪 退会ボタン (管理者承認不要のグループなら表示) -->
+          <% if group.join_policy != "admin_approval" %>
+            <%= button_to "🚪 退会する", leave_group_path(group), method: :delete, class: "btn btn-danger w-100 mt-2", data: { confirm: "本当に退会しますか？" } %>
+          <% end %>
+        </div>
       <% end %>
-
-      <h4><%= link_to group.name, user_group_path(@user, group) %></h4>
-      <p>📢 <%= group.category.present? ? t("enums.group.category.#{group.category}") : "未分類" %></p>
-      <p>👥 メンバー数: <%= group.memberships.count %>人</p>
-
-      <div class="button-wrapper">
-      <% unless group.users.include?(current_user) %>
-        <%= button_to "🔒 参加リクエストを送る", request_join_group_path(group), method: :post, class: "btn btn-primary btn-sm" %>
-      <% end %>
-    </div>
-
-      <%= link_to "📄 詳細を見る", user_group_path(@user, group), class: "btn btn-outline-info btn-sm" %>
-    </div>
-  <% end %>
-<% end %>
-
-<div class="d-flex justify-content-center gap-2 mb-3">
-  <%= link_to " ホームに戻る", root_path, class: "btn btn-outline-secondary btn-lg" %>
-  <%= link_to " マイグループ", user_groups_path(@user), class: "btn btn-primary btn-lg" %>
-  <%= link_to "新しいグループを作成", new_group_path, class: "btn btn-success btn-lg" %>
-</div>
+    <% else %>
+      <p class="text-muted text-center">参加中のグループはありません。</p>
+    <% end %>
+  </div>

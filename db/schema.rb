@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_05_30_095657) do
+ActiveRecord::Schema.define(version: 2025_06_01_121504) do
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -119,6 +119,7 @@ ActiveRecord::Schema.define(version: 2025_05_30_095657) do
     t.string "role"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "status", default: "pending"
     t.index ["group_id"], name: "index_memberships_on_group_id"
     t.index ["user_id"], name: "index_memberships_on_user_id"
   end
@@ -132,6 +133,8 @@ ActiveRecord::Schema.define(version: 2025_05_30_095657) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.boolean "read", default: false
+    t.integer "recipient_id"
+    t.index ["recipient_id"], name: "index_notifications_on_recipient_id"
     t.index ["source_type", "source_id"], name: "index_notifications_on_source"
     t.index ["user_id"], name: "index_notifications_on_user_id"
   end
@@ -175,6 +178,7 @@ ActiveRecord::Schema.define(version: 2025_05_30_095657) do
     t.string "role", default: "user", null: false
     t.string "portfolio_url"
     t.string "portfolio_file"
+    t.boolean "reported", default: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end

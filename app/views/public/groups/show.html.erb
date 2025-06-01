@@ -1,61 +1,101 @@
 <% if @group.group_image&.attached? %>
-  <%= image_tag @group.group_image.variant(resize_to_fill: [200, 200]) if @group.group_image&.attached? %>
+  <!-- グループ画像の表示 -->
+  <%= image_tag @group.group_image.variant(resize_to_fill: [200, 200]) %>
 <% else %>
   <%= image_tag "no_image.jpg", class: "group-image mb-3", width: 200, height: 200 %>
 <% end %>
 
+<!-- グループ情報 -->
 <h1><%= @group.name %></h1>
-<p><%= @group.description %></p>
 
+<!-- グループの説明 -->
+<h3>グループ情報</h3>
+<% if @group.description.present? %>
+  <p><%= @group.description %></p>
+<% else %>
+  <p class="text-muted">このグループにはまだ説明がありません。</p>
+<% end %>
+
+<!-- グループの種別（公式 or ユーザー作成） -->
 <% if @group.official_label? %>
   <p class="badge bg-warning text-dark">公式プロジェクト</p>
 <% else %>
   <p class="badge bg-info text-white">ユーザー作成グループ</p>
 <% end %>
 
+<!-- グループの所有者 -->
 <p>オーナー: <%= @group.owner&.name || "未設定" %></p>
 
+<!-- プライバシー設定の表示 -->
+<p> 共有設定: 
+  <% case @group.privacy %>
+    <% when "public_visibility" %>
+      <span class="badge bg-success">公開</span>
+    <% when "restricted_visibility" %>
+      <span class="badge bg-warning">メンバーのみ公開</span>
+    <% when "private_visibility" %>
+      <span class="badge bg-danger">非公開</span>
+    <% else %>
+      <span class="badge bg-secondary">未設定</span>
+  <% end %>
+</p>
+
+<!-- グループ編集ボタン（オーナーのみ表示） -->
 <% if @group.owner == current_user %>
   <%= link_to "グループを編集", edit_group_path(@group), class: "btn btn-warning" %>
 <% end %>
 
 <h3>メンバー一覧</h3>
-<% if @group.users.any? %>
-  <ul>
-    <% @group.users.each do |user| %>
-      <li><%= link_to user.name, user_path(user) %></li>
+
+<% non_admin_memberships = @group.memberships.where(role: "member") %>
+
+<% if non_admin_memberships.any? %>
+  <ul class="list-group">
+    <% non_admin_memberships.limit(10).each do |membership| %>
+      <li class="list-group-item d-flex justify-content-between">
+        <%= link_to membership.user.name, user_path(membership.user) %>
+        <% unless current_user.guest? %>
+          <% if membership.user.reported? %>
+            <span class="text-danger fw-bold">⚠️ 通報済み</span>
+          <% else %>
+            <%= link_to "⚠️ メンバーを通報する", user_path(membership.user), class: "text-danger" %>
+          <% end %>
+        <% end %>
+      </li>
     <% end %>
   </ul>
+  <% if non_admin_memberships.count > 10 %>
+    <%= link_to "すべてのメンバーを見る", group_members_path(@group), class: "btn btn-sm btn-outline-secondary" %>
+  <% end %>
 <% else %>
   <p>まだメンバーがいません。</p>
 <% end %>
 
-<% if @group.users.include?(current_user) %>
-  <%= button_to "グループを脱退", leave_group_path(@group), method: :delete, class: "btn btn-danger mt-3" %>
-<% elsif current_user.guest? %>
-  <button class="btn btn-secondary mt-3" disabled>このグループに参加する</button>
+<!-- グループへの参加・脱退ボタン -->
+<% if current_user.guest? %>
+  <p class="text-muted">ゲストユーザーはグループに参加できません。</p>
+<% elsif @group.users.include?(current_user) %>
+  <%= link_to "グループを脱退", leave_group_path(@group), method: :delete, class: "btn btn-danger mt-3" %>
 <% else %>
-  <%= button_to "このグループに参加する", request_join_group_path(@group), method: :post, class: "btn btn-primary mt-3" %>
+  <%= link_to "このグループに参加する", request_join_group_path(@group), method: :post, class: "btn btn-primary mt-3" %>
 <% end %>
 
+<!-- 最近のアクティビティ（新規投稿・新しいメンバー） -->
 <h3>最近のアクティビティ</h3>
-<% recent_posts = @group.posts.order(created_at: :desc).limit(5) %>
-<% new_members = @group.users.order(created_at: :desc).limit(3) %>
-
-<% if recent_posts.any? || new_members.any? %>
-  <% recent_posts.each do |post| %>
-    <p>📝 <%= link_to post.title, group_post_path(@group, post) %>（<%= post.created_at.strftime("%Y-%m-%d") %>）</p>
-  <% end %>
-
-  <% new_members.each do |member| %>
-    <p>👤 <%= link_to member.name, user_path(member) %> がメンバーになりました！（<%= member.created_at.strftime("%Y-%m-%d") %>）</p>
-  <% end %>
-  
+<% if @recent_posts.any? || @new_members.any? %>
+  <ul class="list-unstyled">
+    <% @recent_posts.each do |post| %>
+      <li>📢 <strong>新規投稿:</strong> <%= link_to post.title, group_post_path(@group, post) %>（<%= post.created_at.strftime("%Y-%m-%d") %>）</li>
+    <% end %>
+    <% @new_members.each do |member| %>
+      <li>🆕 <strong>新しいメンバー:</strong> <%= link_to member.name, user_path(member) %>（<%= member.created_at.strftime("%Y-%m-%d") %>）</li>
+    <% end %>
+  </ul>
 <% else %>
-  <p>まだ新しい活動はありません。</p>
+  <p class="text-muted">まだ新しい活動はありません。</p>
 <% end %>
 
-
+<!-- 投稿一覧 -->
 <h3>このグループの投稿</h3>
 <% if @group.posts.any? %>
   <ul>
@@ -69,12 +109,10 @@
   <p>まだ投稿がありません。</p>
 <% end %>
 
+<!-- 新規投稿ボタン（参加済みのメンバーにのみ表示） -->
 <% if @group.users.include?(current_user) %>
   <%= link_to "新規投稿", new_group_post_path(@group), class: "btn btn-primary mt-3" %>
 <% end %>
 
-
-
-<%= link_to "グループ一覧へ戻る", user_groups_path(current_user), class: "btn btn-secondary" %>
-
- 
+<!-- グループ一覧に戻るボタン -->
+<%= link_to "グループ一覧へ戻る", groups_path, class: "btn btn-secondary" %>

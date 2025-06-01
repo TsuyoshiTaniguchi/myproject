@@ -1,6 +1,6 @@
 <h1>グループを編集</h1>
 
-<%= form_with model: @group, url: user_group_path(current_user, @group) do |f| %>
+<%= form_with model: @group, url: group_path(@group), method: :patch do |f| %>
   <div>
     <%= f.label :name, "グループ名" %>
     <%= f.text_field :name %>
@@ -17,7 +17,7 @@
   </div>
 
   <%= f.label :description, "説明" %>
-    <%= f.text_area :description, class: "form-control" %>
+  <%= f.text_area :description, class: "form-control" %>
 
   <%= f.label :group_image, "グループ画像" %>
   <%= f.file_field :group_image, class: "form-control", onchange: "previewImage(event)" %>
@@ -27,9 +27,7 @@
       <p>現在の画像:</p>
       <%= image_tag @group.group_image.variant(resize_to_fill: [100, 100]), class: "group-image-preview" %>
     </div>
-<% end %> 
+  <% end %> 
 
-
-
-<%= f.submit "保存", class: "btn btn-primary mt-3" %>
-<% end %> 
+  <%= f.submit "更新", class: "btn btn-primary mt-3" %>
+<% end %>

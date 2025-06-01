@@ -42,14 +42,14 @@
     <%= f.text_field :location, class: "form-control", placeholder: "例: 東京, 大阪" %>
   </div>
 
-
-
-
-
+  <% if @group.reported %>
+  <p class="text-danger">⚠️ このグループは通報されています。</p>
+  <%= link_to "通報を解除する", unreport_admin_group_path(@group), method: :patch, class: "btn btn-warning" %>
+  <% end %>
 
   <%= f.submit "更新する", class: "btn btn-primary mt-3" %>
-  <%= link_to "キャンセル", admin_groups_path, class: "btn btn-secondary mt-3" %>
-<% end %>
+  <%= link_to "戻る", admin_groups_path, class: "btn btn-secondary mt-3" %>
+  <% end %>
 
 <% if @group.errors.any? %>
   <div class="alert alert-danger mt-3">
