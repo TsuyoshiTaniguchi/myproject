@@ -12,7 +12,7 @@
     <tbody>
       <% @admin_notifications.each do |notification| %>
         <tr>
-          <td><%= notification.message %></td>
+          <td><%= notification.formatted_content %></td>
           <td><%= notification.sender.name if notification.sender.present? %></td>
           <td><%= notification.created_at.strftime("%Y/%m/%d %H:%M") %></td>
         </tr>

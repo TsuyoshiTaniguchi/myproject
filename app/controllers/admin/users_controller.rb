@@ -3,7 +3,23 @@ class Admin::UsersController < ApplicationController
 
   def index
     @users_by_status = User.all.group_by(&:status)
-    @users = User.where.not(status: nil) 
+    @users = User.where.not(status: nil)
+  
+    # フィルター処理
+    if params[:filter] == "active"
+      @users = @users.where(status: "active")
+    elsif params[:filter] == "reported"
+      @users = @users.where(reported: true)
+    end
+
+      # ソート処理
+    case params[:sort]
+    when "newest"
+      @users = @users.order(created_at: :desc)
+    when "oldest"
+      @users = @users.order(created_at: :asc)
+    end
+
   end
 
   def show
@@ -83,18 +99,22 @@ class Admin::UsersController < ApplicationController
     end
   end
 
-
-
-
   def search
     @query = params[:query]
     @users = User.where("name LIKE ?", "%#{@query}%")
     render :index
   end
 
+  def unreport
+    @user = User.find(params[:id])
+    @user.update(reported: false)
+    redirect_to admin_users_path, notice: "#{@user.name} の通報を解除しました。"
+  end
+  
   private
 
   def user_params
     params.require(:user).permit(:name, :email, :status, :role)
   end
+
 end

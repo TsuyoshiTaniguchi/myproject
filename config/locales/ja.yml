@@ -8,18 +8,17 @@ ja:
     group: 
       category:
         official_label: "公式グループ"
-        community_label: "コミュニティグループ"
         user_created_label: "ユーザー作成グループ"
 
       privacy:
         public_visibility: "公開"
-        private_visibility: "非公開"
-        restricted_visibility: "限定公開"
+        private_visibility: "管理者のみ"
+        restricted_visibility: "メンバーのみ"
 
       join_policy:
         open: "誰でも参加可能"
         admin_only: "管理者のみが参加を許可"
-        invite_only: "招待制"
+        invite_only: "承認制"
 
   activerecord:
     attributes:

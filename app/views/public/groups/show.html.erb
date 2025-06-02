@@ -25,6 +25,12 @@
 
 <!-- グループの所有者 -->
 <p>オーナー: <%= @group.owner&.name || "未設定" %></p>
+<% if current_user == @group.owner %>
+  <div class="mt-3">
+    <%= link_to "🛠 参加リクエスト管理", manage_group_path(@group), class: "btn btn-warning" %>
+  </div>
+<% end %>
+
 
 <!-- プライバシー設定の表示 -->
 <p> 共有設定: 
@@ -74,10 +80,16 @@
 <!-- グループへの参加・脱退ボタン -->
 <% if current_user.guest? %>
   <p class="text-muted">ゲストユーザーはグループに参加できません。</p>
-<% elsif @group.users.include?(current_user) %>
+<% elsif @group.memberships.exists?(user: current_user, status: "member") %> <!-- ✅ 修正！ -->
   <%= link_to "グループを脱退", leave_group_path(@group), method: :delete, class: "btn btn-danger mt-3" %>
+<% elsif @group.memberships.exists?(user: current_user, status: "pending") %>
+  <p class="text-muted">⏳ 参加リクエスト送信済み。管理者の承認待ち！</p>
 <% else %>
-  <%= link_to "このグループに参加する", request_join_group_path(@group), method: :post, class: "btn btn-primary mt-3" %>
+  <% if @group.join_policy == "admin_approval" %>
+    <%= button_to "🔒 参加リクエストを送る", request_join_group_path(@group), method: :post, class: "btn btn-warning mt-3" %>
+  <% else %>
+    <%= button_to "✅ 参加する", request_join_group_path(@group), method: :post, class: "btn btn-primary mt-3" %>
+  <% end %>
 <% end %>
 
 <!-- 最近のアクティビティ（新規投稿・新しいメンバー） -->

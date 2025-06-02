@@ -4,12 +4,8 @@ class Public::GroupsController < ApplicationController
 
   def index
     # `params[:user_id]` が存在するかチェックし、ユーザーを取得
-    if params[:user_id].present?
-      @user = User.find(params[:user_id])
-      @groups = Group.where(id: @user.memberships.pluck(:group_id)) #　参加しているグループを取得
-    else
-      @groups = Group.all # `user_id` がない場合は全グループを表示
-    end
+    @user = User.find_by(id: params[:user_id]) # `find` → `find_by` でエラー防止
+    @groups = @user ? Group.where(id: @user.memberships.pluck(:group_id)) : Group.all #  `nil` の場合の処理追加
   
     # 検索キーワードの取得
     @query = params[:query]
@@ -22,9 +18,10 @@ class Public::GroupsController < ApplicationController
       @groups = @groups.where("LOWER(name) LIKE ?", "%#{@query.downcase}%")
                        .or(@groups.where("LOWER(name) LIKE ?", "%#{normalized_query}%"))
                        .where(privacy: ["public_visibility", "restricted_visibility"]) # 非公開グループを除外
-    else
-      @groups = @groups.includes(:memberships) #  関連データを読み込み、N+1問題を回避
     end
+  
+    # 関連データの読み込みを適用し、N+1問題を回避
+    @groups = @groups.includes(:memberships)
   end
 
   def show
@@ -78,34 +75,19 @@ class Public::GroupsController < ApplicationController
     @group = Group.find(params[:id])
     @user = current_user
   
-    if @user.guest?
-      return redirect_to group_path(@group), alert: "ゲストユーザーはグループに参加できません。"
-    end
+    return redirect_to group_path(@group), alert: "ゲストユーザーはグループに参加できません。" if @user.guest?
   
-    # すでにメンバーかチェック
     membership = @group.memberships.find_by(user: @user)
   
-    if membership&.role == "member"
-      return redirect_to group_path(@group), alert: "すでにメンバーとして参加済みです！"
-    elsif membership&.role == "pending"
-      return redirect_to group_path(@group), alert: "すでに参加リクエストを送信済みです！"
-    end
+    return redirect_to group_path(@group), alert: "すでにメンバーとして参加済みです！" if membership&.status == "member"
+    return redirect_to group_path(@group), alert: "すでに参加リクエストを送信済みです！" if membership&.status == "pending"
   
-    # `public_visibility` の場合は即参加
-    if @group.privacy == "public_visibility"
-      @group.memberships.create!(user: @user, role: "member")
-      return redirect_to group_path(@group), notice: "グループに参加しました！"
-    end
+    # `invite_only` や `admin_only` の場合は `pending` を適用
+    status = %w[invite_only admin_only].include?(@group.join_policy) ? "pending" : "member"
   
-    # `admin_approval` の場合は `pending` に設定し、承認待ち！
-    if @group.join_policy == "admin_approval"
-      @group.memberships.create!(user: @user, role: "pending")
-      return redirect_to group_path(@group), notice: "参加リクエストを送信しました。管理者の承認を待っています。"
-    end
+    @group.memberships.create!(user: @user, status: status)
   
-    # `restricted_visibility` の場合もリクエストを送信
-    @group.memberships.create!(user: @user, role: "pending")
-    redirect_to group_path(@group), notice: "参加リクエストを送信しました！"
+    redirect_to group_path(@group), notice: status == "pending" ? "参加リクエストを送信しました。管理者の承認を待っています。" : "グループに参加しました！"
   end
   
   def leave
@@ -180,6 +162,58 @@ class Public::GroupsController < ApplicationController
     else
       redirect_to group_path(@group), alert: "通報処理に失敗しました"
     end
+  end
+
+  def approve_membership
+    @membership = Membership.find(params[:id])
+    @group = @membership.group
+  
+    # 管理者承認
+    if @group.join_policy == "admin_approval"
+      return redirect_to group_path(@group), alert: "この操作は管理者のみ可能です。" unless current_user.admin?
+    end
+  
+    # オーナー承認
+    if @group.join_policy == "owner_approval"
+      return redirect_to group_path(@group), alert: "この操作はグループオーナーのみ可能です。" unless current_user == @group.owner
+    end
+  
+    # `pending` の場合のみ承認
+    if @membership.status == "pending"
+      @membership.update!(status: "member")
+      redirect_to group_path(@group), notice: "参加リクエストを承認しました！"
+    else
+      redirect_to group_path(@group), alert: "このユーザーはすでにメンバーです！"
+    end
+  end
+
+  def owner_dashboard
+    @owned_groups = Group.where(owner_id: current_user.id) # オーナーが所有するグループ一覧
+  end
+  
+  def manage_group
+    @group = Group.find(params[:id])
+  
+    # オーナーのみアクセス可能にする
+    return redirect_to group_path(@group), alert: "この操作はグループオーナーのみ可能です。" unless current_user == @group.owner
+  
+    @pending_members = @group.memberships.where(status: "pending")
+  end
+  
+  def approve_membership
+    @membership = Membership.find(params[:id])
+    return redirect_to manage_group_path(@membership.group), alert: "権限がありません" unless current_user == @membership.group.owner
+  
+    @membership.update!(status: "member")
+    redirect_to manage_group_path(@membership.group), notice: "参加リクエストを承認しました！"
+  end
+  
+  def reject_membership
+    @membership = Membership.find(params[:id])
+    return redirect_to manage_group_path(@membership.group), alert: "権限がありません" unless current_user == @membership.group.owner
+  
+    @membership.destroy
+    redirect_to manage_group_path(@membership.group), notice: "参加リクエストを拒否しました！"
   end
 
   private

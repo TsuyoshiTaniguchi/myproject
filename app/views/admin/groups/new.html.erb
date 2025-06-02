@@ -39,20 +39,28 @@
   <!-- 🔹 グループのカテゴリ -->
   <h2>グループの種類</h2>
   <div class="mb-3">
-    <%= f.label :category, "グループのカテゴリー" %>
-    <%= f.select :category, [
-    ["公式プロジェクト", "official_label"], 
-    ["一般コミュニティ", "community_label"], 
-    ["ユーザー作成グループ", "user_created_label"]
-  ], prompt: "選択してください", class: "form-control" %>
+  <label for="group_category">グループのカテゴリ</label>
+  <%= f.select :category, [["公式グループ", "official_label"], ["ユーザー作成グループ", "user_created_label"]], {}, class: "form-control" %>
+  <%= f.hidden_field :category, value: @group.category %> <%# ✅ 追加 %>
   </div>
 
+  <!-- 🔹 公開範囲と参加ルール -->
+  <h2>参加ルール</h2>
   <div class="mb-3">
     <%= f.label :join_policy, "参加ルール" %>
     <%= f.select :join_policy, [
       ["誰でも参加可能", "open"], 
-      ["管理者のみ参加可能", "admin_only"], 
-      ["招待制", "invite_only"]
+      ["管理者のみ参加を許可", "admin_only"], 
+      ["承認制", "invite_only"]
+    ], prompt: "選択してください", class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :privacy, "投稿の公開範囲" %>
+    <%= f.select :privacy, [
+      ["公開", "public_visibility"], 
+      ["管理者のみ", "private_visibility"], 
+      ["メンバーのみ", "restricted_visibility"]
     ], prompt: "選択してください", class: "form-control" %>
   </div>
 
@@ -60,18 +68,6 @@
     <%= f.label :location, "活動場所" %>
     <%= f.text_field :location, class: "form-control", placeholder: "例: 東京, 大阪" %>
   </div>
-
-  <!-- 🔹 公開範囲と参加ルール -->
-  <h2>参加ルール</h2>
-  <div class="mb-3">
-    <%= f.label :privacy, "公開範囲" %>
-    <%= f.select :privacy, [
-      ["公開（誰でも参加可能）", "public_visibility"], 
-      ["非公開（招待制）", "private_visibility"], 
-      ["限定公開（管理者の許可が必要）", "restricted_visibility"]
-    ], prompt: "選択してください", class: "form-control" %>
-  </div>
-
 
   <%= f.submit "グループを作成", class: "btn btn-success mt-3" %>
 <% end %>

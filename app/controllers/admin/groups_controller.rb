@@ -2,18 +2,21 @@ class Admin::GroupsController < ApplicationController
   before_action :authenticate_admin!
 
   def index
-    @groups = Group.all # グループ一覧を取得
-    @group = @groups.first # 最初のグループをセットして `nil` を防ぐ
-  
-    # 検索機能: `params[:search]` が存在する場合、グループ名で検索
+    @groups = Group.all
+    @pending_memberships = Membership.where(status: "pending").where.not(user_id: Membership.where(status: "approved").pluck(:user_id)).includes(:user, :group)
+
+    #  検索処理: パラメータが存在する場合のみ適用
     if params[:search].present?
       @groups = @groups.where("name LIKE ?", "%#{params[:search]}%")
     end
   
-    # 通報フィルター: `params[:reported_only]` が `true` の場合、通報されたグループのみ取得
-    if params[:reported_only] == "true"
+    #  通報済みグループのみフィルタリング
+    if params[:reported_only].present? && params[:reported_only] == "true"
       @groups = @groups.where(reported: true)
     end
+  
+    #  データが空にならないよう、確認
+    flash.now[:alert] = "該当するグループがありません。" if @groups.empty?
   end
 
   def show
@@ -29,16 +32,21 @@ class Admin::GroupsController < ApplicationController
   end
 
   def update
-    @group = Group.find_by(id: params[:id]) # 🔹 `find` → `find_by` に変更して `nil` を防ぐ
+    Rails.logger.debug "📥 params received: #{params[:group].inspect}"
   
+    @group = Group.find_by(id: params[:id]) # `find_by` を使用して `nil` を防ぐ
     if @group.nil?
       flash[:alert] = "グループが見つかりません。"
       redirect_to admin_groups_path and return
     end
-
+  
+    Rails.logger.debug "🔍 Before update: #{@group.attributes.inspect}"
+  
     if @group.update(group_params)
+      Rails.logger.debug "✅ Update successful: #{@group.attributes.inspect}"
       redirect_to admin_group_path(@group), notice: "グループ情報を更新しました！"
     else
+      Rails.logger.error "❌ Update failed: #{@group.errors.full_messages.join(', ')}"
       flash.now[:alert] = "更新に失敗しました。"
       render :edit, status: :unprocessable_entity
     end
@@ -60,14 +68,25 @@ class Admin::GroupsController < ApplicationController
   end
 
   def create
+    Rails.logger.debug "📥 params received: #{params[:group].inspect}"
+    Rails.logger.debug "🔍 Attempting to create group with category: #{params[:group][:category]}"
+    
     @group = Group.new(group_params)
   
+    unless current_admin.present?
+      redirect_to admin_groups_path, alert: "公式グループは管理者のみ作成可能です！"
+      return
+    end
+  
     if @group.save
+      Rails.logger.debug "✅ Group created successfully: #{@group.attributes.inspect}"
       redirect_to admin_group_path(@group), notice: "#{@group.name} を作成しました！"
     else
-      render :new
+      Rails.logger.error "❌ Group creation failed: #{@group.errors.full_messages.join(', ')}"
+      render :new, status: :unprocessable_entity
     end
   end
+  
 
   def remove_group_image
     @group.group_image.purge

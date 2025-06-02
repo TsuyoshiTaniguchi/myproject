@@ -17,7 +17,7 @@ class Group < ApplicationRecord
 
 
   enum privacy: { public_visibility: "public", private_visibility: "private", restricted_visibility: "restricted" } 
-  enum category: { official_label: "official", community_label: "community", user_created_label: "user_created" } 
+  enum category: { official_label: "official_label", user_created_label: "user_created_label" } 
   enum join_policy: { open: "open", admin_only: "admin_only", invite_only: "invite_only" }
 
   before_create :assign_owner
@@ -33,5 +33,5 @@ class Group < ApplicationRecord
   
   validates :name, presence: true, uniqueness: true
   validates :description, length: { maximum: 500 } # 説明文の長さを制限
-  validates :category, exclusion: { in: ["official_label"], message: "公式グループは作成できません" }, unless: -> { owner&.present? && owner.admin? }
+  validates :category, exclusion: { in: ["official_label"], message: "公式グループは管理者のみ作成できます" }, unless: -> { owner&.admin? }
 end

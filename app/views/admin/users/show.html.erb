@@ -86,6 +86,20 @@
   <%= link_to "削除", admin_user_path(@user), method: :delete, data: { confirm: "⚠️ 本当に削除しますか？ この操作は取り消せません！" }, class: "btn btn-danger" %>
 </div>
 
+<h2>通報状況</h2>
+<div class="text-center">
+  <% if @user.reported %>
+    <span class="badge bg-danger">通報済み</span>
+    <%= form_with url: unreport_admin_user_path(@user), method: :patch do |f| %>
+      <%= f.label :unreport_reason, "通報解除の理由（任意）" %>
+      <%= f.text_area :unreport_reason, class: "form-control", rows: 2 %>
+      <%= f.submit "通報解除", class: "btn btn-outline-danger btn-sm mt-2" %>
+    <% end %>
+  <% else %>
+    <span class="badge bg-success">正常</span>
+  <% end %>
+</div>
+
 <h2>フォロー関係の管理</h2>
 
 <div class="row">

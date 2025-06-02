@@ -12,7 +12,8 @@ class Admin::MembershipsController < ApplicationController
         return
       end
   
-      @membership = @group.memberships.create(user: @user, role: params[:role] || "member")
+      # 新規メンバー追加時に `status: "approved"` を指定
+      @membership = @group.memberships.create(user: @user, role: params[:role] || "member", status: "approved")
   
       if @membership.persisted?
         redirect_to admin_group_path(@group, anchor: "members"), notice: "#{@user.name} をグループに追加しました！"
@@ -36,15 +37,15 @@ class Admin::MembershipsController < ApplicationController
   end
 
   def approve
-    @membership = Membership.find(params[:id])
-    
+    @membership = Membership.find_by(id: params[:id])
+  
+    # ✅ 管理者 (`admin`) は承認処理をスキップ
+    if current_admin.present?
+      redirect_to admin_group_path(@membership.group), notice: "管理者は承認する必要がありません。"
+      return
+    end
+  
     if @membership.update(status: "approved")
-      Notification.create(
-        recipient: @membership.user, # 申請したユーザーへ通知！
-        sender: @membership.group.admin,
-        notification_type: "group_request_approved",
-        message: "✅ 「#{@membership.group.name}」への参加が承認されました！"
-      )
       redirect_to admin_group_path(@membership.group), notice: "参加リクエストを承認しました！"
     else
       redirect_to admin_group_path(@membership.group), alert: "承認に失敗しました。"
@@ -52,15 +53,15 @@ class Admin::MembershipsController < ApplicationController
   end
   
   def reject
-    @membership = Membership.find(params[:id])
-    
+    @membership = Membership.find_by(id: params[:id])
+  
+    # ✅ 管理者 (`admin`) は拒否処理をスキップ
+    if current_admin.present?
+      redirect_to admin_group_path(@membership.group), notice: "管理者は拒否する必要がありません。"
+      return
+    end
+  
     if @membership.destroy
-      Notification.create(
-        recipient: @membership.user, # 申請したユーザーへ通知
-        sender: @membership.group.admin,
-        notification_type: "group_request_rejected",
-        message: "❌ 「#{@membership.group.name}」への参加が拒否されました！"
-      )
       redirect_to admin_group_path(@membership.group), notice: "参加リクエストを拒否しました！"
     else
       redirect_to admin_group_path(@membership.group), alert: "拒否に失敗しました。"

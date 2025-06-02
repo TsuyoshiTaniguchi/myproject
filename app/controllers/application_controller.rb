@@ -19,6 +19,13 @@ class ApplicationController < ActionController::Base
     root_path
   end
 
+  def current_user
+    @current_user ||= User.find_by(id: session[:user_id]) || Admin.find_by(id: session[:admin_id]) # ✅ 修正: `Admin` も統合！
+  end
+
+
+
+
 
   protected
 

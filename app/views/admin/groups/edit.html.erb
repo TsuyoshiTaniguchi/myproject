@@ -28,7 +28,7 @@
   </div>
 
   <div class="form-group">
-    <%= f.label :privacy, "公開範囲" %>
+    <%= f.label :privacy, "投稿の公開範囲" %>
     <%= f.select :privacy, Group.privacies.keys.map { |key| [I18n.t("enums.group.privacy.#{key}"), key] }, {}, class: "form-control" %>
   </div>
 

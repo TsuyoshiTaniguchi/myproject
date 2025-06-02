@@ -6,16 +6,6 @@
     <%= f.text_field :name %>
   </div>
 
-  <div>
-    <%= f.label :category, "カテゴリー" %>
-    <%= f.select :category, Group.categories.except("official_label").keys.map { |key| [I18n.t("enums.group.category.#{key}"), key] } %>
-  </div>
-
-  <div>
-    <%= f.label :privacy, "プライバシー設定" %>
-    <%= f.select :privacy, Group.privacies.keys.map { |key| [I18n.t("enums.group.privacy.#{key}"), key] } %>
-  </div>
-
   <%= f.label :description, "説明" %>
   <%= f.text_area :description, class: "form-control" %>
 
@@ -28,6 +18,18 @@
       <%= image_tag @group.group_image.variant(resize_to_fill: [100, 100]), class: "group-image-preview" %>
     </div>
   <% end %> 
+
+    <div>
+    <%= f.label :privacy, "投稿の公開範囲" %>
+    <%= f.select :privacy, Group.privacies.keys.map { |key| [I18n.t("enums.group.privacy.#{key}"), key] } %>
+    </div>
+
+    <div class="form-group">
+      <label for="group_join_policy">参加ルール</label>
+      <%= f.select :join_policy, 
+        [["誰でも参加可能", "open"], ["オーナーの承認制", "invite_only"]], 
+        {}, class: "form-control" %>
+    </div>
 
   <%= f.submit "更新", class: "btn btn-primary mt-3" %>
 <% end %>

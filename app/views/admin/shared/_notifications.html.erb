@@ -20,7 +20,7 @@
       <% unread_notifications.each do |notification| %>
         <li class="list-group-item">
           <strong><%= notification.created_at.strftime("%Y/%m/%d %H:%M") %></strong> |
-          <%= notification.message %>
+          <%= notification.formatted_content %> <!-- ✅ `message` を `formatted_content` に変更 -->
         </li>
       <% end %>
     </ul>

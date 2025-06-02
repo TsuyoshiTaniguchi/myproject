@@ -38,31 +38,34 @@
   </tbody>
 </table>
 
-<% if @group.join_policy == "admin_approval" || (@group.join_policy == "invite_only" && @group.owner_id == current_admin.id) %>
-  <h3>📥 承認待ちメンバー</h3>
-  
-  <% @group.memberships.where(status: "pending").each do |membership| %>
+<h3>📥 承認待ちメンバー</h3>
+
+<% pending_memberships_for_group = @group.memberships.where(status: "pending") %>
+<% if pending_memberships_for_group.any? %>
+  <% pending_memberships_for_group.each do |membership| %>
     <div class="border p-2 mb-2">
       <strong><%= membership.user.name %></strong> が参加リクエスト中
-      
-      <% # 承認フォーム (理由記入付き) %>
-      <%= form_with url: approve_admin_group_membership_path(membership), method: :patch do |f| %>
-        <%= f.label :approval_reason, "承認理由（任意）" %>
-        <%= f.text_area :approval_reason, class: "form-control", rows: 3 %>
-        <%= f.submit "承認する", class: "btn btn-success mt-2" %>
+
+      <% unless current_admin.present? %> 
+        <%= form_with url: approve_admin_group_membership_path(membership), method: :patch do |f| %>
+          <%= f.label :approval_reason, "承認理由（任意）" %>
+          <%= f.text_area :approval_reason, class: "form-control", rows: 3 %>
+          <%= f.submit "承認する", class: "btn btn-success mt-2" %>
+        <% end %>
+
+        <%= link_to "❌ 拒否", reject_admin_group_membership_path(membership), method: :patch, data: { confirm: "本当に拒否しますか？" }, class: "btn btn-danger mt-2" %>
       <% end %>
-      
-      <% # 拒否ボタン %>
-      <%= link_to "❌ 拒否", reject_admin_group_membership_path(membership), method: :patch, data: { confirm: "本当に拒否しますか？" }, class: "btn btn-danger mt-2" %>
     </div>
   <% end %>
+<% else %>
+  <p class="text-muted text-center">⏳ 現在承認待ちのメンバーはいません。</p>
 <% end %>
 
 <h3>新規メンバーを追加</h3>
 <%= form_with url: admin_group_memberships_path(@group), method: :post do |f| %>
   <div class="mb-3">
     <%= f.label :user_id, "ユーザー選択" %>
-    <%= f.collection_select :user_id, User.where.not(id: @group.users.pluck(:id)), :id, :name, prompt: "ユーザーを選択" %>
+    <%= f.collection_select :user_id, User.where.not(id: @group.users.pluck(:id)).where.not(role: "admin").where.not(name: "ゲスト"), :id, :name, prompt: "ユーザーを選択" %>
   </div>
   <%= f.submit "追加", class: "btn btn-primary" %>
 <% end %>

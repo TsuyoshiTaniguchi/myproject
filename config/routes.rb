@@ -51,7 +51,7 @@ Rails.application.routes.draw do
       end
     
       collection do
-        get :search  # 投稿検索機能
+        get :search    # 投稿検索機能
       end
     end
   
@@ -78,7 +78,10 @@ Rails.application.routes.draw do
      resources :groups, only: [:index, :show, :new, :create, :edit, :update, :destroy] do
       resources :memberships, only: [:create, :destroy] do
         member do
-          patch :report_member # メンバー通報ルートを正しい場所へ移動
+          get :owner_dashboard      # オーナー管理ページ
+          get :manage_group         # 承認・拒否ページ
+          patch :approve_membership # グループ単位で承認
+          patch :report_member      # メンバー通報ルートを正しい場所へ移動
         end
       end
     
@@ -91,7 +94,7 @@ Rails.application.routes.draw do
       end
     
       collection do
-        get :search  # グループ検索ルート
+        get :search    # グループ検索ルート
       end
     end
   end
@@ -104,9 +107,10 @@ Rails.application.routes.draw do
         get :search  # 検索機能（管理者用）
       end
       member do
+        patch :unreport       # 通報解除のルート 
         patch :toggle_status  #  ユーザーのステータス変更機能を追加
-        get :followers  # フォロワー一覧
-        get :following  # ユーザーのフォロー関係は個別ページで管理
+        get :followers        # フォロワー一覧
+        get :following        # ユーザーのフォロー関係は個別ページで管理
       end
     end
 
@@ -114,8 +118,8 @@ Rails.application.routes.draw do
     resources :groups, only: [:index, :show, :new, :create, :edit, :update, :destroy] do
       resources :memberships, only: [:create, :destroy] do
         member do
-          patch :approve # メンバー承認処理
-          patch :reject  # メンバー拒否処理
+          patch :approve       # メンバー承認処理
+          patch :reject        # メンバー拒否処理
           patch :report_member #  メンバー通報ルートを正しい場所へ移動
         end
       end
@@ -131,17 +135,17 @@ Rails.application.routes.draw do
   
     resources :posts, only: [:index, :show, :edit, :update, :destroy] do
       member do
-        patch :report  #  投稿通報機能
+        patch :report    #  投稿通報機能
         patch :unreport  # 通報解除
       end
       collection do
-        get :search  # 検索機能（管理者用）
+        get :search      # 検索機能（管理者用）
       end
     end
 
     resources :comments, only: [:index, :show, :destroy] do
       collection do
-        get :search  # 検索機能
+        get :search      # 検索機能
       end
       member do
         patch :unreport  #  通報解除を追加

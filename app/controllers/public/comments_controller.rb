@@ -2,14 +2,13 @@ class Public::CommentsController < ApplicationController
   before_action :authenticate_user!
   before_action :restrict_guest_access, only: [:create, :report]
 
-
   def create
     post = Post.find(params[:post_id])
     comment = post.comments.new(comment_params)
     comment.user = current_user
   
     if comment.save
-      comment.send_comment_notification  # 通知を作成する処理を追加！
+      comment.send_comment_notification  # 通知を作成する処理を追加
       redirect_to post_path(post), notice: "コメントを追加しました！"
     else
       redirect_to post_path(post), alert: "コメントの追加に失敗しました。"
@@ -30,16 +29,16 @@ class Public::CommentsController < ApplicationController
     @comment = Comment.find(params[:id])
   
     if @comment.update(reported: true)
-      # 通報時に管理者へ通知 (`notification_type` を使用！)
+      # 通報時に管理者へ通知 (`notification_type` を使用)
       Notification.create!(
         recipient_id: Admin.first.id, # 通報通知の宛先を管理者に
         user_id: current_user.id, # 通報したユーザーの情報を記録
-        notification_type: "comment_report", # `message` の代わりに `notification_type` を使用
+        notification_type: "comment_report",
         source_id: @comment.id,
         source_type: "Comment",
         read: false
       )
-  
+
       redirect_to post_path(@comment.post), notice: "コメントを通報しました"
     else
       redirect_to post_path(@comment.post), alert: "このコメントはすでに通報されています"
@@ -58,6 +57,4 @@ class Public::CommentsController < ApplicationController
       redirect_back(fallback_location: post_path(params[:post_id]))
     end
   end
-
-
 end

@@ -26,7 +26,7 @@
   <tbody>
     <% @groups.each do |group| %>
       <tr class="<%= 'table-warning' if group.reported %>"> <!-- 通報済みなら黄色背景 -->
-        <td class="d-flex align-items-center gap-3">
+        <td class="group-info d-flex align-items-center gap-3">
           <% if group.group_image.attached? %>
             <%= image_tag group.group_image.variant(resize_to_fill: [50, 50]), class: "rounded-circle border" %>
           <% else %>
@@ -51,14 +51,24 @@
           <%= link_to "削除", admin_group_path(group), method: :delete, data: { confirm: "⚠️ 本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
         </div>
       
-        <% # 承認・拒否ボタンを参加ルールに応じて表示 %>
-        <% if group.join_policy == "admin_approval" || (group.join_policy == "invite_only" && group.owner_id == current_admin.id) %>
-          <div class="d-flex justify-content-center gap-2 mt-2">
-            <%= link_to "✅ 承認", approve_admin_group_path(group), method: :patch, data: { confirm: "このグループの参加申請を承認しますか？" }, class: "btn btn-success btn-sm" %>
-            <%= link_to "❌ 拒否", reject_admin_group_path(group), method: :patch, data: { confirm: "本当に拒否しますか？" }, class: "btn btn-danger btn-sm" %>
-          </div>
-        <% end %>
-      </td>
+            <% # 承認・拒否ボタンを参加ルールに応じて表示 %>
+            <% if group.join_policy.in?(["admin_approval", "invite_only", "admin_only"]) %>
+            <% pending_memberships_for_group = @pending_memberships.select { |m| m.group_id == group.id && m.status == "pending" && !m.user.admin? } %> <%# ✅ 修正 %>
+            <% if pending_memberships_for_group.any? %>
+              <% pending_memberships_for_group.each do |membership| %>
+                <div class="pending-request">
+                  <p>📝 <%= membership.user.name %> さんが「<%= membership.group.name %>」への参加申請しました</p>
+                  <div class="d-flex justify-content-center gap-2 mt-2">
+                    <%= link_to "✅ 承認", approve_admin_group_membership_path(membership.group, membership), method: :patch, data: { confirm: "#{membership.user.name} さんの申請を承認しますか？" }, class: "btn btn-success btn-sm" %>
+                    <%= link_to "❌ 拒否", reject_admin_group_membership_path(membership.group, membership), method: :patch, data: { confirm: "#{membership.user.name} さんの申請を拒否しますか？" }, class: "btn btn-danger btn-sm" %>
+                  </div>
+                </div>
+              <% end %>
+            <% else %>
+              <p class="text-muted text-center">⏳ 現在承認待ちのメンバーはいません。</p>
+            <% end %>
+          <% end %>
+        </td>
       </tr>
     <% end %>
   </tbody>

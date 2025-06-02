@@ -42,8 +42,19 @@ class Admin::CommentsController < ApplicationController
   end
 
   def search
-    @comments = Comment.where("content LIKE ?", "%#{params[:query]}%")
-    render :index
+    @comments = Comment.all
+  
+    # 通報されたコメントのみフィルタリング
+    if params[:reported_only] == "true"
+      @comments = @comments.where(reported: true)
+    end
+  
+    # キーワード検索の処理
+    if params[:query].present?
+      @comments = @comments.where("content LIKE ?", "%#{params[:query]}%")
+    end
+  
+    render :index # 既存の `index` ビューを再利用！
   end
 
 end
