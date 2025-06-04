@@ -29,6 +29,13 @@ ja:
         category: "カテゴリ"
         privacy: "プライバシー"
 
+      daily_report:
+        date: "日付"
+        content: "活動内容"
+        location: "場所"
+
+
+
     errors:
       models:
         user:

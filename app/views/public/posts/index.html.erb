@@ -1,54 +1,78 @@
 <h1>投稿一覧</h1>
 
+<!-- 検索フォーム -->
+<%= form_with url: posts_path, method: :get, class: "d-flex mb-3" do |f| %>
+  <%= f.text_field :query, class: "form-control", placeholder: "キーワードで検索" %>
+  <%= f.submit "検索", class: "btn btn-primary ms-2" %>
+<% end %>
+
+<!-- カテゴリフィルタ -->
+<div class="mb-3">
+  <%= form_with url: posts_path, method: :get do %>
+    <%= select_tag :category, options_for_select(["すべて", "技術", "趣味", "日常", "その他"], params[:category]), class: "form-select" %>
+    <%= submit_tag "フィルタ", class: "btn btn-outline-secondary" %>
+  <% end %>
+</div>
+
 <% if @query.present? %>
   <h2>「<%= @query %>」の検索結果</h2>
 <% end %>
 
 <% if @posts.any? %>
-  <% @posts.each do |post| %>
-    <div class="card p-3 mb-3">
-      <div class="d-flex align-items-center">
-        <% if post.user.profile_image.attached? %>
-          <%= image_tag post.user.profile_image, class: "rounded-circle me-2", width: 50, height: 50 %>
-        <% end %>
-        <div>
-          <h5 class="mb-0"><%= link_to post.user.name, user_path(post.user), class: "text-decoration-none" %></h5>
-          <small class="text-muted"><%= time_ago_in_words(post.created_at) %></small>
+  <div class="timeline">
+    <% @posts.each do |post| %>
+      <div class="timeline-item">
+        <div class="timeline-icon">
+          <i class="fas fa-file-alt"></i>
         </div>
-      </div>
+        <div class="timeline-content">
+          <div class="d-flex align-items-center">
+            <% if post.user.profile_image.attached? %>
+              <%= image_tag post.user.profile_image.variant(resize_to_fill: [50, 50]), class: "rounded-circle me-2" %>
+            <% end %>
+            <div>
+              <h5 class="mb-0"><%= link_to post.user.name, user_path(post.user), class: "text-decoration-none" %></h5>
+              <small class="text-muted"><%= time_ago_in_words(post.created_at) %></small>
+            </div>
+          </div>
 
-      <h2><%= link_to post.title, post_path(post), class: "text-decoration-none" %></h2>
-      <p><%= sanitize(truncate(post.content, length: 200)) %></p>
+          <h2><%= link_to post.title, post_path(post), class: "text-decoration-none fw-bold" %></h2>
+          <p><%= sanitize(truncate(post.content, length: 200)) %></p>
 
-      <% if post.images.attached? %>
-        <div class="post-images">
-          <% post.images.each do |image| %>
-            <%= image_tag image.variant(resize: "500x500") %>
+          <% if post.images.attached? %>
+            <div class="post-images">
+              <% post.images.each do |image| %>
+                <%= image_tag image.variant(resize: "400x400"), class: "img-thumbnail" %>
+              <% end %>
+            </div>
+          <% end %>
+
+          <% if post.code_snippet.present? %>
+            <pre class="code-block"><%= sanitize(post.code_snippet) %></pre>
+          <% end %>
+
+          <div id="post-likes-<%= post.id %>">
+            <%= render 'public/likes/like_button', post: post %>
+          </div>
+
+          <div class="d-flex gap-2 mt-3">
+            <% comment_count = post.comments.count %>
+            <%= link_to "💬 コメント (#{comment_count})", post_path(post), class: "btn btn-outline-secondary btn-sm" %>
+          </div>
+
+          <% if post.user == current_user %>
+            <div class="d-flex gap-2 mt-2">
+              <%= link_to "編集", edit_post_path(post), class: "btn btn-warning btn-sm" %>
+              <%= link_to "削除", post_path(post), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
+            </div>
           <% end %>
         </div>
-      <% end %>
-
-      <% if post.code_snippet.present? %>
-        <pre class="code-block"><%= sanitize(post.code_snippet) %></pre>
-      <% end %>
-
-      <div id="post-likes-<%= post.id %>">
-       <%= render 'public/likes/like_button', post: post %>
       </div>
-          
-      <div class="d-flex gap-2 mt-3">
-        <% comment_count = post.comments.count %>
-        <%= link_to "💬 コメント (#{comment_count})", post_path(post), class: "btn btn-outline-secondary btn-sm" %>
-      </div>
+    <% end %>
+  </div>
 
-      <% if post.user == current_user %>
-        <div class="d-flex gap-2 mt-2">
-          <%= link_to "編集", edit_post_path(post), class: "btn btn-warning btn-sm" %>
-          <%= link_to "削除", post_path(post), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
-        </div>
-      <% end %>
-    </div>
-  <% end %>
+  <!-- ページネーション -->
+  <%= paginate @posts %>
 <% else %>
   <div class="alert alert-info">
     <p>まだ投稿がありません。</p>
@@ -57,6 +81,7 @@
   </div>
 <% end %>
 
+<!-- アクションボタン -->
 <div class="d-flex justify-content-center gap-2 mb-3">
   <%= link_to "マイページ", users_mypage_path, class: "btn btn-outline-secondary btn-lg" %>
   <%= link_to "新規投稿", new_post_path, class: "btn btn-primary btn-lg" %>

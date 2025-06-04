@@ -5,6 +5,12 @@ class Public::PostsController < ApplicationController
 
   def index
     @posts = Post.active_users_posts.with_attached_images.includes(:user).where(users: { status: 0 })
+    @query = params[:query]
+    posts_scope = Post.order(created_at: :desc)
+  
+    posts_scope = posts_scope.where("title LIKE ? OR content LIKE ?", "%#{@query}%", "%#{@query}%") if @query.present?
+  
+    @posts = posts_scope.page(params[:page]).per(6)  
   end
 
 

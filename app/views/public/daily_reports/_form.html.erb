@@ -1,0 +1,32 @@
+<%= form_with(model: @daily_report, local: true) do |form| %>
+  <% if @daily_report.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@daily_report.errors.count, "error") %> prohibited this daily_report from being saved:</h2>
+      <ul>
+        <% @daily_report.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= form.label :date, "日付" %>
+    <%= form.date_field :date, class: "form-control" %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :location, "場所" %>
+    <%= form.text_field :location, class: "form-control" %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :content, "活動内容" %>
+    <%= form.text_area :content, class: "form-control" %>
+  </div>
+
+  <div class="actions">
+  <%= form.submit @daily_report.new_record? ? "作成する" : "更新する", class: "btn btn-primary" %>
+  </div>
+
+<% end %>

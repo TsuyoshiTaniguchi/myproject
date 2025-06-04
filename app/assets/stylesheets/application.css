@@ -98,3 +98,25 @@ th, td {
   min-height: 250px;  /* すべてのカードに最低高さを設定！ */
 }
 
+/* いいねボタン */
+.like-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.like-btn.active i {
+  color: #007bff; /* いいね済みのカラー */
+}
+
+.like-btn:hover i {
+  color: #0056b3;
+}
+
+.like-count {
+  font-weight: bold;
+}

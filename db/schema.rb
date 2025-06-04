@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_06_03_072000) do
+ActiveRecord::Schema.define(version: 2025_06_04_112222) do
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -86,6 +86,16 @@ ActiveRecord::Schema.define(version: 2025_06_03_072000) do
     t.datetime "updated_at", precision: 6, null: false
     t.index ["followed_id"], name: "index_connections_on_followed_id"
     t.index ["follower_id"], name: "index_connections_on_follower_id"
+  end
+
+  create_table "daily_reports", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.date "date", null: false
+    t.string "location"
+    t.text "content"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_id"], name: "index_daily_reports_on_user_id"
   end
 
   create_table "groups", force: :cascade do |t|
@@ -180,6 +190,7 @@ ActiveRecord::Schema.define(version: 2025_06_03_072000) do
     t.string "portfolio_url"
     t.string "portfolio_file"
     t.boolean "reported", default: false
+    t.string "github_username"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
@@ -191,6 +202,7 @@ ActiveRecord::Schema.define(version: 2025_06_03_072000) do
   add_foreign_key "comments", "users"
   add_foreign_key "connections", "users", column: "followed_id"
   add_foreign_key "connections", "users", column: "follower_id"
+  add_foreign_key "daily_reports", "users"
   add_foreign_key "groups", "users", column: "owner_id"
   add_foreign_key "likes", "posts", column: "likeable_id"
   add_foreign_key "likes", "users"

@@ -63,3 +63,55 @@ document.addEventListener("turbo:load", function () {
     });
   });
 });
+
+// 画像アップロード時に リアルタイムでプレビュー表示 
+document.addEventListener("DOMContentLoaded", function() {
+  const fileInput = document.querySelector('input[type="file"]');
+  const previewArea = document.getElementById('image-preview');
+
+  fileInput.addEventListener("change", function() {
+    previewArea.innerHTML = ""; // 既存のプレビューをクリア
+    const files = fileInput.files;
+
+    if (files.length > 0) {
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = document.createElement("img");
+          img.src = e.target.result;
+          img.classList.add("img-thumbnail", "m-2");
+          img.style.maxWidth = "200px";
+          previewArea.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      });
+    } else {
+      previewArea.innerHTML = "<p class='text-muted'>画像プレビューはここに表示されます</p>";
+    }
+  });
+
+  // 画像削除チェックボックスが選択されたらプレビューから非表示
+  document.querySelectorAll('.remove-image-checkbox').forEach(checkbox => {
+    checkbox.addEventListener("change", function() {
+      const parent = this.closest('.existing-image');
+      parent.style.display = this.checked ? "none" : "block";
+    });
+  });
+});
+
+//  いいねボタンをでリロードなしに更新
+document.addEventListener("ajax:success", function(event) {
+  const [data, status, xhr] = event.detail;
+  
+  // 投稿IDを取得
+  const postIdMatch = xhr.responseURL.match(/posts\/(\d+)\/likes/);
+  if (postIdMatch) {
+    const postId = postIdMatch[1];
+
+    // いいねボタンのDOMを更新
+    const likeButton = document.getElementById(`post-likes-${postId}`);
+    if (likeButton) {
+      likeButton.innerHTML = data;
+    }
+  }
+});

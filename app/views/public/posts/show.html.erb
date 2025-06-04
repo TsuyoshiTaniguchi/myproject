@@ -1,67 +1,71 @@
+<h2 class="text-center my-3"><%= @post.title %></h2>
 
-<form action="<%= search_posts_path %>" method="get" class="d-flex mb-3">
-  <input type="text" name="query" class="form-control" placeholder="キーワードで検索">
-  <button type="submit" class="btn btn-primary ms-2">検索</button>
-</form>
+<!-- 投稿カード -->
+<div class="card shadow-sm p-4">
+  <p class="text-muted">投稿者: <%= @post.user.name || "匿名ユーザー" %></p>
+  <p class="text-muted">投稿日: <%= @post.created_at.strftime("%Y年%m月%d日 %H:%M") %></p>
 
-<h2><%= @post.title %></h2>
-<p><%= sanitize(@post.content) %></p>
-<small>投稿者: <%= @post.user.name || "匿名ユーザー" %></small>
-<small>投稿日: <%= @post.created_at.strftime("%Y年%m月%d日 %H:%M") %></small>
-
-<!-- 投稿画像の表示 -->
-<% if @post.images.attached? %>
-  <div class="post-images">
-    <% @post.images.each do |image| %>
-      <%= image_tag image.variant(resize: "800x800"), class: "img-fluid mb-3" %>
-    <% end %>
-  </div>
-<% end %>
-
-
-<div class="d-flex gap-2 mt-3">
-  <% if @post.user == current_user %>
-    <%= link_to "編集", edit_post_path(@post), class: "btn btn-warning btn-sm" %>
-    <%= link_to "削除", post_path(@post), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
-  <% elsif !@post.reported? %>
-    <%= link_to "通報する", report_post_path(@post), method: :patch, class: "btn btn-danger btn-sm" %>
-  <% else %>
-    <div class="alert alert-warning mt-2">
-      ⚠️ この投稿は通報されています
+  <!-- 投稿画像の表示 -->
+  <% if @post.images.attached? %>
+    <div class="post-images">
+      <% @post.images.each do |image| %>
+        <%= image_tag image.variant(resize: "800x800"), class: "img-fluid rounded my-3" %>
+      <% end %>
     </div>
   <% end %>
+
+  <p><%= sanitize(@post.content) %></p>
+
+  <!-- 編集・削除・通報ボタン -->
+  <div class="d-flex gap-2 mt-3">
+    <% if @post.user == current_user %>
+      <%= link_to "編集", edit_post_path(@post), class: "btn btn-warning btn-sm" %>
+      <%= link_to "削除", post_path(@post), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
+    <% elsif !@post.reported? %>
+      <%= link_to "通報する", report_post_path(@post), method: :patch, class: "btn btn-danger btn-sm" %>
+    <% else %>
+      <div class="alert alert-warning mt-2">
+        ⚠️ この投稿は通報されています
+      </div>
+    <% end %>
+  </div>
 </div>
 
-<h2>コメントを追加</h2>
+<!-- コメント追加 -->
+<h2 class="mt-4">コメントを追加</h2>
 <%= form_with(model: [@post, Comment.new], local: true) do |form| %>
   <div class="mb-3">
     <%= form.label :content, "コメント" %>
     <%= form.text_area :content, class: "form-control" %>
   </div>
-
   <%= form.submit "送信", class: "btn btn-primary btn-sm" %>
 <% end %>
 
-<h3>コメント一覧</h3>
-<% @post.comments.each do |comment| %>
-  <div class="border p-2 mb-2">
-    <strong><%= comment.user.name %></strong> - <%= time_ago_in_words(comment.created_at) %>前
-    <p><%= sanitize(comment.content) %></p>
+<!-- コメント一覧 -->
+<h3 class="mt-4">コメント一覧</h3>
+<% if @post.comments.any? %>
+  <% @post.comments.each do |comment| %>
+    <div class="card p-3 mb-2 shadow-sm">
+      <strong><%= comment.user.name %></strong> - <%= time_ago_in_words(comment.created_at) %>前
+      <p><%= sanitize(comment.content) %></p>
 
-    <div class="d-flex gap-2">
-      <% if comment.user == current_user %>
-        <%= link_to "削除", post_comment_path(@post, comment), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
-      <% end %>
+      <div class="d-flex gap-2">
+        <% if comment.user == current_user %>
+          <%= link_to "削除", post_comment_path(@post, comment), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
+        <% end %>
 
-      <% unless comment.reported? %>
-        <%= link_to "⚠️ 通報", report_post_comment_path(@post, comment), method: :patch, class: "btn btn-outline-danger btn-sm" %>
-      <% else %>
-        <div class="alert alert-warning mt-1">
-          ⚠️ このコメントは通報済み
-        </div>
-      <% end %>
+        <% unless comment.reported? %>
+          <%= link_to "⚠️ 通報", report_post_comment_path(@post, comment), method: :patch, class: "btn btn-outline-danger btn-sm" %>
+        <% else %>
+          <div class="alert alert-warning mt-1">
+            ⚠️ このコメントは通報済み
+          </div>
+        <% end %>
+      </div>
     </div>
-  </div>
+  <% end %>
+<% else %>
+  <p class="text-muted">まだコメントはありません。</p>
 <% end %>
 
 <%= link_to "戻る", session[:return_to] || posts_path, class: "btn btn-secondary mt-3" %>

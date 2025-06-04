@@ -37,6 +37,8 @@ Rails.application.routes.draw do
   scope module: :public do
     get '/users/mypage' => 'users#mypage', as: 'users_mypage'
 
+    resources :daily_reports, only: [:index, :new, :create, :edit, :update, :destroy]
+    
     resources :posts do
       resources :comments, only: [:create, :destroy] do
         member do

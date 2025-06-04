@@ -12,6 +12,8 @@ class User < ApplicationRecord
   has_many :joined_groups, -> { where(memberships: { role: ["member", "owner"] }) }, through: :memberships, source: :group
   has_many :likes, as: :likeable, dependent: :destroy
   has_many :notifications, dependent: :destroy
+  has_many :daily_reports, dependent: :destroy
+
 
   #  フォロー関係の関連付け
   has_many :connections, foreign_key: :follower_id, dependent: :destroy

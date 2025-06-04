@@ -28,7 +28,7 @@ class Public::UsersController < ApplicationController
 
 
   def show
-    @user = User.find(params[:id])  # 他のユーザーのプロフィールを見る
+    @user = User.find(params[:id])  # ユーザー情報の取得
     @following_users = @user.following
   
     # 自分の投稿を取得
@@ -40,7 +40,16 @@ class Public::UsersController < ApplicationController
   
     # 自分の投稿 + フォローユーザーの投稿を統合し、最新順に並び替え
     @posts = (own_posts + followed_posts).sort_by(&:created_at).reverse
+  
+    # GitHub の情報を取得（デフォルトで空の配列を設定）
+    @github_repos = Kaminari.paginate_array([]).page(params[:page]).per(6)
+  
+    if @user.github_username.present?
+      github_repos = GithubService.new(@user.github_username).fetch_repositories || []
+      @github_repos = Kaminari.paginate_array(github_repos).page(params[:page]).per(6)
+    end
   end
+
 
   def edit
     if current_user.guest?

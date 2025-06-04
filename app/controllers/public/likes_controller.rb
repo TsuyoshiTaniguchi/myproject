@@ -1,18 +1,32 @@
 class Public::LikesController < ApplicationController
   before_action :authenticate_user!
-
+  before_action :set_post
 
   def create
-    @post = Post.find(params[:post_id])
-    @post.likes.create(user_id: current_user.id)
-    redirect_to posts_path
+    @like = @post.likes.create(user: current_user)
+
+    respond_to do |format|
+      format.js { render 'public/likes/create' } # 修正！
+    end
   end
-  
+
+
   def destroy
-    @post = Post.find(params[:post_id])
-    like = @post.likes.find_by(user_id: current_user.id)
-    like.destroy if like
-    redirect_to posts_path
+    @like = @post.likes.find_by(user: current_user)
+    @like.destroy
+
+    respond_to do |format|
+      format.js { render 'public/likes/destroy' } # 修正！
+    end
   end
+
+
+
+  private
+
+  def set_post
+    @post = Post.find(params[:post_id])
+  end
+
 
 end

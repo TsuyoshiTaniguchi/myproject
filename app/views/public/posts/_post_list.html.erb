@@ -5,33 +5,37 @@
 <% end %>
 
 <% if user.posts.present? %>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>タイトル</th>
-        <th>内容</th>
-        <th>アクション</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% user.posts.each do |post| %>
-        <tr>
-          <td><%= link_to post.title, post_path(post) %></td>
+  <div class="timeline">
+    <% user.posts.order(created_at: :desc).each do |post| %>
+      <div class="timeline-item">
+        <div class="timeline-icon">
+          <i class="fas fa-pen"></i>
+        </div>
+        <div class="timeline-content">
+          <h5 class="card-title">
+            <%= link_to post.title, post_path(post), class: "text-dark fw-bold" %>
+          </h5>
+          <p class="text-muted"><%= post.created_at.strftime("%Y年%m月%d日 %H:%M") %></p>
+
           <% visible_text = post.content.truncate(50) %>
           <% full_text = post.content %>
-          <td>
-            <%= visible_text %>
-            <% if full_text.length > 50 %>
-              <%= link_to "続きを読む", post_path(post), class: "text-primary" %>
-            <% end %>
-          </td>
-          <% if show_edit_button %>
-            <td><%= link_to "編集画面へ", edit_post_path(post), class: "btn btn-outline-secondary btn-sm" %></td>
+
+          <p><%= visible_text %></p>
+          <% if full_text.length > 50 %>
+            <%= link_to "続きを読む", post_path(post), class: "btn btn-link text-primary" %>
           <% end %>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
+
+          <div class="post-actions">
+            <span>👍 <%= post.likes.count %> いいね</span>
+            <span>💬 <%= post.comments.count %> コメント</span>
+            <% if show_edit_button %>
+              <%= link_to "編集", edit_post_path(post), class: "btn btn-outline-secondary btn-sm" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
 <% else %>
-  <p>投稿がありません。</p>
+  <p class="text-muted">投稿がありません。</p>
 <% end %>

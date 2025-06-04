@@ -8,9 +8,10 @@
 
 <div class="card p-3">
   <h3 class="mb-3"><%= user.name %> さんのプロフィール</h3>
-  <p> メールアドレス: <%= user.email %></p>
-  <p> 登録日: <%= user.created_at.strftime("%Y年%m月%d日") %></p>
-  <!--  通報ボタン（ゲストユーザーを除き、自分のページでは非表示） -->
+  <p>メールアドレス: <%= user.email %></p>
+  <p>登録日: <%= user.created_at.strftime("%Y年%m月%d日") %></p>
+  
+  <!-- 通報ボタン -->
   <% unless current_user.guest? || current_user == @user %>
     <% if @user.reported? %>
       <p class="text-danger fw-bold">⚠️ このユーザーは通報済みです。</p>
@@ -19,12 +20,11 @@
     <% end %>
   <% end %>
 
-
+  <!-- フォロー状態 -->
   <% if current_user == @user %>
-    <!-- 自分自身の場合は無効なボタンで通知する -->
     <button type="button" class="btn btn-secondary" disabled>自己フォローはできません</button>
   <% elsif current_user.guest? %>
-    <!-- ゲストユーザーは、そもそもフォローできないので何も表示しない、または別の処理をする -->
+    <!-- ゲストユーザーの処理 -->
   <% else %>
     <% if current_user.following.include?(@user) %>
       <%= button_to "フォロー解除", connection_path(current_user.connections.find_by(followed_id: @user)), method: :delete, class: "btn btn-danger" %>
@@ -32,58 +32,122 @@
       <%= button_to "フォローする", connections_path(user_id: @user.id), method: :post, class: "btn btn-primary" %>
     <% end %>
   <% end %>
-
-  <% unless current_user.guest? %>
-    <h2>フォロー中: <%= @user.following.count %>人</h2>
-    <h2>フォロワー: <%= @user.followers.count %>人</h2>
-
-    <h2>フォローしているユーザー</h2>
-    <%= link_to "フォロー一覧を見る", following_user_path(@user), class: "btn btn-primary" %>
-
-    <h2>フォロワー</h2>
-    <%= link_to "フォロワー一覧を見る", followers_user_path(@user), class: "btn btn-secondary" %>
-  <% end %>
-
-  <h3 class="mb-3"> 自己紹介</h3>
-  <% if user.personal_statement.present? %>
-    <p><%= user.personal_statement %></p>
-  <% else %>
-    <p class="text-muted">まだ自己紹介がありません。</p>
-  <% end %>
-
-  <h3 class="mb-3"> ポートフォリオ</h3>
-  <% if user.portfolio_url.present? %>
-    <p><%= link_to user.portfolio_url, user.portfolio_url, target: "_blank", rel: "noopener noreferrer", class: "btn btn-outline-primary" %></p>
-  <% else %>
-    <p class="text-muted">ポートフォリオは未登録です。</p>
-  <% end %>
-
-  <h3 class="mb-3"> ポートフォリオファイル</h3>
-  <% if user.portfolio_files.attached? %>
-    <ul>
-      <% user.portfolio_files.each do |file| %>
-        <li><%= link_to file.filename, file, class: "btn btn-outline-success" %></li>
-      <% end %>
-    </ul>
-  <% else %>
-    <p class="text-muted">ポートフォリオのファイルは未登録です。</p>
-  <% end %>
-
-  <h3 class="mb-3"> 所属グループ</h3>
-  <% if user.joined_groups.any? %>
-    <ul>
-      <% user.joined_groups.each do |group| %>
-        <li><%= link_to group.name, group_path(group) %></li>
-      <% end %>
-    </ul>
-  <% else %>
-    <p class="text-muted">まだグループに参加していません。</p>
-  <% end %>
-
-  <% if show_actions %>
-    <div class="mt-4 d-flex flex-wrap gap-3 justify-content-center">
-      <%= link_to "プロフィール編集", edit_user_path(@user), class: "btn btn-primary px-4" %>
-      <%= link_to "退会する", withdraw_user_path(@user), method: :patch, class: "btn btn-danger px-4", data: { confirm: "本当に退会しますか？" } %>
-    </div>
-  <% end %>
 </div>
+
+<!-- フォロー関係 -->
+<div class="card p-3">
+  <h3 class="mb-3">フォロー関係</h3>
+  <div class="d-flex justify-content-between">
+    <h4>フォロー中: <%= @user.following.count %>人</h4>
+    <h4>フォロワー: <%= @user.followers.count %>人</h4>
+  </div>
+  
+  <div class="d-flex gap-2 mt-3">
+    <%= link_to "フォロー一覧", following_user_path(@user), class: "btn btn-primary" %>
+    <%= link_to "フォロワー一覧", followers_user_path(@user), class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<!-- 自己紹介 -->
+<h3 class="mb-3"> 自己紹介</h3>
+<% if user.personal_statement.present? %>
+  <p><%= user.personal_statement %></p>
+<% else %>
+  <p class="text-muted">まだ自己紹介がありません。</p>
+<% end %>
+
+<!-- ポートフォリオ情報 -->
+<h3 class="mb-3"> ポートフォリオ</h3>
+<% if user.portfolio_url.present? %>
+  <p><%= link_to user.portfolio_url, user.portfolio_url, target: "_blank", rel: "noopener noreferrer", class: "btn btn-outline-primary" %></p>
+<% else %>
+  <p class="text-muted">ポートフォリオは未登録です。</p>
+<% end %>
+
+<h3 class="mb-3"> ポートフォリオファイル</h3>
+<% if user.portfolio_files.attached? %>
+  <ul>
+    <% user.portfolio_files.each do |file| %>
+      <li><%= link_to file.filename, file, class: "btn btn-outline-success" %></li>
+    <% end %>
+  </ul>
+<% else %>
+  <p class="text-muted">ポートフォリオのファイルは未登録です。</p>
+<% end %>
+
+<!-- GitHubリポジトリ一覧 -->
+<h2>GitHubの公開リポジトリ</h2>
+<% if @github_repos.present? && @github_repos.any? %>
+  <div class="container">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+      <% @github_repos.each do |repo| %>
+        <div class="col">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title"><%= repo.name %></h5>
+              <p class="card-text text-muted"><%= repo.description || "説明なし" %></p>
+              <p><strong>⭐️スター:</strong> <%= repo.stargazers_count %></p>
+              <p><strong>🛠 言語:</strong> <span class="badge bg-secondary"><%= repo.language || "不明" %></span></p>
+              <p><strong>📅 更新日:</strong> <%= repo.updated_at.strftime("%Y年%m月%d日") %></p>
+              <%= link_to 'リポジトリを見る', repo.html_url, target: "_blank", class: "btn btn-primary btn-sm" %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+  <%= paginate @github_repos %>
+<% else %>
+  <p class="text-muted">GitHubの情報がありません。</p>
+<% end %>
+
+<h2>GitHubの最新コミット</h2>
+
+<% if @commits.present? %>
+  <div class="container">
+    <% @commits.each do |repo_name, commits| %>
+      <div class="card mb-3">
+        <div class="card-header bg-primary text-white">
+          <strong><%= repo_name %></strong> のコミット履歴
+        </div>
+        <div class="card-body">
+          <% commits.each do |commit| %>
+            <p><strong>✅ メッセージ:</strong> <%= commit.commit.message %></p>
+            <p><strong>🕒 日時:</strong> <%= commit.commit.author.date.strftime("%Y年%m月%d日 %H:%M") %></p>
+            <p><strong>👤 コミット者:</strong> <%= commit.commit.author.name %></p>
+            <%= link_to "コミットを見る", commit.html_url, target: "_blank", class: "btn btn-outline-primary btn-sm" %>
+            <hr>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <p class="text-muted">まだコミット履歴がありません。</p>
+<% end %>
+
+<!-- タブ切り替え -->
+<div class="btn-group mt-4 d-flex justify-content-center">
+  <%= link_to "自己PR", user_path(@user, tab: 'profile'), class: "btn #{'btn-primary' if params[:tab] == 'profile'} btn-outline-primary" %>
+  <%= link_to "ライフログ", daily_reports_path(tab: 'daily_reports'), class: "btn #{'btn-primary' if params[:tab] == 'daily_reports'} btn-outline-secondary" %>
+</div>
+
+<!-- 所属グループ -->
+<h3 class="mb-3"> 所属グループ</h3>
+<% if user.joined_groups.any? %>
+  <ul>
+    <% user.joined_groups.each do |group| %>
+      <li><%= link_to group.name, group_path(group) %></li>
+    <% end %>
+  </ul>
+<% else %>
+  <p class="text-muted">まだグループに参加していません。</p>
+<% end %>
+
+<!-- アクションボタン -->
+<% if show_actions %>
+  <div class="mt-4 d-flex flex-wrap gap-3 justify-content-center">
+    <%= link_to "プロフィール編集", edit_user_path(@user), class: "btn btn-primary px-4" %>
+    <%= link_to "退会する", withdraw_user_path(@user), method: :patch, class: "btn btn-danger px-4", data: { confirm: "本当に退会しますか？" } %>
+  </div>
+<% end %>

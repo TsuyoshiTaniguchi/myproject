@@ -1,27 +1,86 @@
 <h1>マイページ</h1>
 
-<%= render partial: "public/users/profile", locals: { user: current_user, show_actions: true } %>
+<!-- タブ切り替え: プロフィール・投稿一覧 -->
+<ul class="nav nav-tabs">
+  <li class="nav-item">
+    <%= link_to "プロフィール", "#profile", class: "nav-link active", data: { bs_toggle: "tab" } %>
+  </li>
+  <li class="nav-item">
+    <%= link_to "投稿一覧", "#posts", class: "nav-link", data: { bs_toggle: "tab" } %>
+  </li>
+</ul>
 
-<%= render partial: "public/posts/post_list", locals: { user: current_user, show_create_button: true, show_edit_button: true } %>
+<div class="tab-content mt-3">
+  <div class="tab-pane fade show active" id="profile">
+    <!-- プロフィールセクション（抜粋表示）-->
+    <div class="card p-3 text-center">
+      <% if current_user.profile_image.attached? %>
+        <%= image_tag current_user.profile_image.variant(resize_to_fill: [200, 200]), class: "profile-image mb-3" %>
+      <% else %>
+        <%= image_tag "no_image.jpg", class: "profile-image mb-3", width: 200, height: 200 %>
+      <% end %>
+      <h3><%= current_user.name %></h3>
+      <p><%= current_user.personal_statement.truncate(50) || "自己紹介が未登録です" %></p>
+      <%= link_to "詳細を見る", user_path(current_user), class: "btn btn-outline-primary btn-sm" %>
+    </div>
 
-<%= render partial: "public/posts/delete_modal", locals: { user: current_user } %>
+    <h3 class="mb-3"> GitHubの公開リポジトリ</h3>
+    <% if @github_repos.present? && @github_repos.any? %>
+      <div class="container">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+          <% @github_repos.each do |repo| %>
+            <div class="col">
+              <div class="card shadow-sm">
+                <div class="card-body">
+                  <h5 class="card-title"><%= repo.name %></h5>
+                  <p class="card-text"><%= repo.description || "説明なし" %></p>
+                  <p><strong>⭐️スター:</strong> <%= repo.stargazers_count %></p>
+                  <p><strong>🛠 言語:</strong> <span class="badge bg-secondary"><%= repo.language || "不明" %></span></p>
+                  <p><strong>📅 更新日:</strong> <%= repo.updated_at.strftime("%Y年%m月%d日") %></p>
+                  <%= link_to "リポジトリを見る", repo.html_url, target: "_blank", class: "btn btn-primary btn-sm" %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+      <%= paginate @github_repos %>
+    <% else %>
+      <p class="text-muted">GitHubの情報がありません。</p>
+    <% end %>
+  </div>
 
-<section class="recent-posts">
-  <h2> フォローしているユーザーの最新投稿 </h2>
+  <div class="tab-pane fade" id="posts">
+    <!-- 投稿リスト -->
+    <%= render partial: "public/posts/post_list", locals: { user: current_user, show_create_button: true, show_edit_button: true } %>
+  </div>
+</div>
+
+<!-- フォローしているユーザーの最新投稿 -->
+<section class="recent-posts mt-4">
+  <h2>フォローしているユーザーの最新投稿</h2>
 
   <% if @posts.present? %>
-    <div class="posts-container">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
       <% @posts.each do |post| %>
-        <div class="post">
-          <h3><%= post.title %></h3>
-          <p><%= post.content.truncate(100) %></p>
-          <p>投稿者: <%= link_to post.user.name, user_path(post.user) %></p>
+        <div class="col">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title"><%= post.title %></h5>
+              <p class="card-text"><%= post.content.truncate(100) %></p>
+              <p>投稿者: <%= link_to post.user.name, user_path(post.user) %></p>
+              <%= link_to "詳細を見る", post_path(post), class: "btn btn-primary btn-sm" %>
+            </div>
+          </div>
         </div>
       <% end %>
     </div>
   <% else %>
-    <p>フォローしているユーザーの投稿はまだありません。</p>
+    <p class="text-muted">フォローしているユーザーの投稿はまだありません。</p>
   <% end %>
 </section>
 
-<%= link_to "ユーザー一覧", users_path, class: "btn btn-outline-secondary mt-3" %>
+<!-- ユーザー一覧ボタン -->
+<div class="text-center mt-4">
+  <%= link_to "ユーザー一覧", users_path, class: "btn btn-lg btn-outline-secondary px-4" %>
+</div>
