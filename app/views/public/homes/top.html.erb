@@ -37,8 +37,8 @@
   </div>
 <% end %>
 
-<!-- ✅ フォローしているユーザーの最新投稿 -->
-<% if user_signed_in? %> <!-- ✅ ログインしている場合のみ表示 -->
+<!-- フォローしているユーザーの最新投稿 -->
+<% if user_signed_in? && current_user.is_a?(User) %> <!-- ✅ `Admin` の場合は処理をスキップ -->
   <section class="recent-posts">
     <h2 class="fw-bold text-dark">フォローしているユーザーの最新投稿</h2>
 

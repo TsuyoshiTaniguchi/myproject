@@ -82,6 +82,7 @@ Rails.application.routes.draw do
           get :manage_group         # 承認・拒否ページ
           patch :approve_membership # グループ単位で承認
           patch :report_member      # メンバー通報ルートを正しい場所へ移動
+          delete :reject_membership # 拒否ルート
         end
       end
     

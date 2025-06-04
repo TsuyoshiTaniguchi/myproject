@@ -20,20 +20,29 @@
   <% end %>
 
 
-  <% if current_user.following.include?(@user) %>
-    <%= button_to "フォロー解除", connection_path(current_user.connections.find_by(followed_id: @user)), method: :delete, class: "btn btn-danger" %>
+  <% if current_user == @user %>
+    <!-- 自分自身の場合は無効なボタンで通知する -->
+    <button type="button" class="btn btn-secondary" disabled>自己フォローはできません</button>
+  <% elsif current_user.guest? %>
+    <!-- ゲストユーザーは、そもそもフォローできないので何も表示しない、または別の処理をする -->
   <% else %>
-    <%= button_to "フォローする", connections_path(user_id: @user.id), method: :post, class: "btn btn-primary" %>
+    <% if current_user.following.include?(@user) %>
+      <%= button_to "フォロー解除", connection_path(current_user.connections.find_by(followed_id: @user)), method: :delete, class: "btn btn-danger" %>
+    <% else %>
+      <%= button_to "フォローする", connections_path(user_id: @user.id), method: :post, class: "btn btn-primary" %>
+    <% end %>
   <% end %>
 
-  <h2>フォロー中: <%= @user.following.count %>人</h2>
-  <h2>フォロワー: <%= @user.followers.count %>人</h2>
+  <% unless current_user.guest? %>
+    <h2>フォロー中: <%= @user.following.count %>人</h2>
+    <h2>フォロワー: <%= @user.followers.count %>人</h2>
 
-  <h2>フォローしているユーザー</h2>
-  <%= link_to "フォロー一覧を見る", following_user_path(@user), class: "btn btn-primary" %>
+    <h2>フォローしているユーザー</h2>
+    <%= link_to "フォロー一覧を見る", following_user_path(@user), class: "btn btn-primary" %>
 
-  <h2>フォロワー</h2>
-  <%= link_to "フォロワー一覧を見る", followers_user_path(@user), class: "btn btn-secondary" %>
+    <h2>フォロワー</h2>
+    <%= link_to "フォロワー一覧を見る", followers_user_path(@user), class: "btn btn-secondary" %>
+  <% end %>
 
   <h3 class="mb-3"> 自己紹介</h3>
   <% if user.personal_statement.present? %>
@@ -61,9 +70,9 @@
   <% end %>
 
   <h3 class="mb-3"> 所属グループ</h3>
-  <% if user.groups.any? %>
+  <% if user.joined_groups.any? %>
     <ul>
-      <% user.groups.each do |group| %>
+      <% user.joined_groups.each do |group| %>
         <li><%= link_to group.name, group_path(group) %></li>
       <% end %>
     </ul>

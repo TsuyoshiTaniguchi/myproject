@@ -9,13 +9,16 @@ class Public::SessionsController < Devise::SessionsController
   skip_before_action :verify_signed_out_user, only: :destroy #  フィルターをスキップ
 
   def destroy
-    if current_user&.guest?
-      reset_session  # ゲストユーザーのセッションをクリア
-      cookies.delete(:guest_user_id)  #  クッキーを削除
+    if admin_signed_in?
+      sign_out current_admin #  `Admin` のログアウト処理
+      redirect_to new_admin_session_path, notice: "管理者としてログアウトしました"
+    elsif current_user&.guest?
+      reset_session  #  ゲストユーザーのセッションをクリア
+      cookies.delete(:guest_user_id)  # クッキーを削除
       sign_out current_user  #  ログアウト処理を実行
       redirect_to about_path, notice: "ゲスト利用ありがとうございました！ もし気に入っていただけたら、ぜひ新規登録してください！"
     else
-      sign_out current_user if current_user.present? #  `current_user` が存在する場合のみログアウト！
+      sign_out current_user if current_user.present? # `current_user` が存在する場合のみログアウト！
       redirect_to root_path, notice: "ログアウトしました！"
     end
   end

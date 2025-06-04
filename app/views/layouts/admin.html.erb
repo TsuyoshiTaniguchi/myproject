@@ -1,3 +1,4 @@
+<!-- admin.html -->
 <!DOCTYPE html>
 <html>
   <head>
@@ -8,26 +9,31 @@
     <script src="https://kit.fontawesome.com/e1acaa1ac8.js" crossorigin="anonymous"></script>
     <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
     <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
+    <!-- admin.html の head 内に以下を追加 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   </head>
-
   <body class="d-flex flex-column vh-100" style="background-color: #F0F0F0">
-  
-    <!-- ヘッダー部分 -->
-    <%= render 'layouts/header' %>
-
-    <!-- 管理者用通知（ヘッダーの下に設置）-->
-    <%= render "admin/shared/notifications" %>
-
+    
+    <!-- ヘッダー部分：共通のヘッダーに管理者専用クラスを追加 -->
+    <header class="admin-header-fixed">
+      <%= render 'layouts/header' %>
+    </header>
+    
+    <!-- 管理者用通知部分もラップし、固定領域とする -->
+    <div class="notification-area" style="height: 40px !important;">
+      <%= render "admin/shared/notifications" %>
+    </div>
+    
     <!-- メインコンテンツ -->
     <main class="flex-grow-1">
       <p class='text-success'><%= flash[:notice] %></p>
       <p class='text-danger'><%= flash[:alert] %></p>
-
       <%= yield %>
     </main>
-
+    
     <!-- フッター部分 -->
     <%= render "layouts/footer" %>
-
+    
   </body>
 </html>

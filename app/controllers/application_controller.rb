@@ -2,6 +2,8 @@ class ApplicationController < ActionController::Base
   before_action :configure_permitted_parameters, if: :devise_controller?
   before_action :restrict_guest_access, only: [:edit, :update]
   before_action :set_unread_notifications_count
+  before_action :set_cache_buster
+
 
   # ユーザーと管理者でログイン後のリダイレクト先を分ける
   def after_sign_in_path_for(resource)
@@ -20,10 +22,12 @@ class ApplicationController < ActionController::Base
   end
 
   def current_user
-    @current_user ||= User.find_by(id: session[:user_id]) || Admin.find_by(id: session[:admin_id]) # ✅ 修正: `Admin` も統合！
+    if admin_signed_in?
+      nil #  管理者の場合は `current_user` を返さない
+    else
+      super #  通常の `current_user` を返す
+    end
   end
-
-
 
 
 
@@ -37,9 +41,9 @@ class ApplicationController < ActionController::Base
 
 
   def restrict_guest_access
-    return unless current_user.present?  # `current_user` が `nil` でないことを確認！
+    return unless current_user # `nil` チェックを追加
     
-    return if params[:action] == "destroy"  # ログアウト時は制限をスキップ
+    return if params[:action] == "destroy" # ログアウト時は制限をスキップ
   
     if current_user.guest?
       redirect_to root_path, alert: "ゲストユーザーはこの操作を実行できません"
@@ -47,10 +51,19 @@ class ApplicationController < ActionController::Base
   end
 
   def set_unread_notifications_count
-    @unread_notifications_count ||= current_user.notifications.where(read: false).count if user_signed_in?
+    if current_user.is_a?(User) # `Admin` の場合は処理しない
+      @unread_notifications_count = current_user.notifications.where(read: false).count
+    else
+      @unread_notifications_count = 0 # `Admin` の場合は通知を持たない
+    end
   end
 
-  
+  def set_cache_buster
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "Fri, 01 Jan 1990 00:00:00 GMT"
+  end
+
 
 end
 

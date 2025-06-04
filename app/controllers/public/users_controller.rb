@@ -3,9 +3,22 @@ class Public::UsersController < ApplicationController
   before_action :restrict_guest_access, only: [:edit, :update, :withdraw] 
   
   def mypage
-    @user = current_user  # `mypage` はログイン中のユーザー情報を取得する
-    @posts = @user.posts
+    if current_user.nil?
+      redirect_to new_user_session_path, alert: "ログインしてください。"
+      return
+    end
+  
+    @user = current_user
+    # フォローしているユーザーのID配列を取得
+    following_ids = @user.following.pluck(:id)
+    # フォローしているユーザーの投稿のみ取得（念のため自分自身も除外）
+    @posts = Post.where(user_id: following_ids)
+                 .where.not(user_id: @user.id)
+                 .order(created_at: :desc)
+                 .limit(10)
+    @joined_groups = @user.joined_groups
   end
+
 
   def index
     # ログインユーザー（current_user）、管理者（admin）、ゲストユーザー（guest@example.com）を除外

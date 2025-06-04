@@ -13,8 +13,12 @@
 
 <section class="admin-alerts alert alert-warning">
   <h3>⚠️ 重要なお知らせ</h3>
-  <% Notification.where(notification_type: "admin_alert").each do |notification| %>
-    <p>🟡 <strong><%= notification.created_at.strftime("%Y/%m/%d") %></strong> - <%= notification.formatted_content %></p> 
+  <% if Notification.where(notification_type: "admin_alert").any? %>
+    <% Notification.where(notification_type: "admin_alert").each do |notification| %>
+      <p>🟡 <strong><%= notification.created_at.strftime("%Y/%m/%d") %></strong> - <%= notification.formatted_content %></p> 
+    <% end %>
+  <% else %>
+    <p>現在、重要なお知らせはありません。</p>
   <% end %>
 </section>
 
@@ -133,7 +137,7 @@
   </table>
 </section>
 
-<h2> 管理メニュー 🔔（<%= Notification.where(notification_type: "admin_alert", read: false).count %>）</h2>
+<h2> 管理メニュー </h2>
 <div class="d-flex gap-3 justify-content-center mt-4">
   <%= link_to "ユーザー管理", admin_users_path, class: "btn btn-outline-secondary btn-lg" %>
   <%= link_to "投稿管理", admin_posts_path, class: "btn btn-outline-secondary btn-lg" %>

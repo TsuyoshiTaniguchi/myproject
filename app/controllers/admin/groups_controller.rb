@@ -21,6 +21,12 @@ class Admin::GroupsController < ApplicationController
 
   def show
     @group = Group.find(params[:id])
+    
+    # 承認済み（member）のユーザーを最新順に取得（「新しいメンバー」）
+    @new_members = @group.memberships.where(status: "member").order(created_at: :desc).limit(5).map(&:user)
+  
+    # 承認待ち（pending）のメンバーを取得。ここでは、オーナーが pending 状態になっている場合を除外しておく
+    @pending_memberships = @group.memberships.where(status: "pending").where.not(user_id: @group.owner_id)
   end
 
   def new

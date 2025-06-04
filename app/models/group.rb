@@ -1,6 +1,5 @@
 class Group < ApplicationRecord
-  belongs_to :owner, class_name: "User", foreign_key: "owner_id", optional: true
-
+  belongs_to :owner, class_name: "User", foreign_key: "owner_id" #  所有者の関連付け
 
   has_many :posts, dependent: :destroy
   has_many :user_groups, dependent: :destroy
@@ -19,8 +18,6 @@ class Group < ApplicationRecord
   enum privacy: { public_visibility: "public", private_visibility: "private", restricted_visibility: "restricted" } 
   enum category: { official_label: "official_label", user_created_label: "user_created_label" } 
   enum join_policy: { open: "open", admin_only: "admin_only", invite_only: "invite_only" }
-
-  before_create :assign_owner
 
   def assign_owner
     admin = User.find_by(role: "admin")

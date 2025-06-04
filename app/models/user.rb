@@ -3,12 +3,13 @@ class User < ApplicationRecord
   :recoverable, :rememberable, :validatable
 
   # スコープ：アクティブユーザーのみ取得
-  scope :active, -> { where(status: "active") }
+  scope :active, -> { where(status: statuses[:active]) }
 
   has_many :posts, dependent: :destroy
   has_many :comments, dependent: :destroy
   has_many :memberships
   has_many :groups, through: :memberships
+  has_many :joined_groups, -> { where(memberships: { role: ["member", "owner"] }) }, through: :memberships, source: :group
   has_many :likes, as: :likeable, dependent: :destroy
   has_many :notifications, dependent: :destroy
 
