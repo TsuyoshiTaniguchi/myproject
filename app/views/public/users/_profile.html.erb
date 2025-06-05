@@ -122,10 +122,13 @@
 
 <!-- タブ切り替え -->
 <div class="btn-group mt-4 d-flex justify-content-center">
-  <%= link_to "自己PR", user_path(user, tab: 'profile'),
-        class: "btn #{'btn-primary' if params[:tab] == 'profile'} btn-outline-primary" %>
-  <%= link_to "ライフログ", daily_reports_user_path(user, tab: 'daily_reports'),
-        class: "btn #{'btn-primary' if params[:tab] == 'daily_reports'} btn-outline-secondary" %>
+  <%= link_to "自己PR", user_path(user, tab: 'profile'), class: "btn #{'btn-primary' if params[:tab] == 'profile'} btn-outline-primary" %>
+
+  <% if user == current_user %>
+    <%= link_to "ライフログ", daily_reports_path(tab: 'daily_reports'), class: "btn #{'btn-primary' if params[:tab] == 'daily_reports'} btn-outline-secondary" %>
+  <% else %>
+    <%= link_to "ライフログ", daily_reports_path(user_id: user.id, tab: 'daily_reports'), class: "btn #{'btn-primary' if params[:tab] == 'daily_reports'} btn-outline-secondary" %>
+  <% end %>
 </div>
 
 <!-- 所属グループ -->

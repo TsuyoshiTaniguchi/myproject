@@ -29,6 +29,14 @@ class Public::UsersController < ApplicationController
     @joined_groups = @user.joined_groups
   end
 
+  def edit
+    if current_user.guest?Add commentMore actions
+      redirect_to users_mypage_path, alert: "ゲストユーザーはプロフィールを編集できません。"
+    else
+      @user = current_user
+    end
+  end
+
   def show
     @user = User.find(params[:id])
     @following_users = @user.following
@@ -50,13 +58,58 @@ class Public::UsersController < ApplicationController
     end
   end
 
-  # ... その他のアクション（index, edit, update, withdraw, etc.）はそのまま ...
+  def update
+    @user = current_user
+    if @user.update(user_params)
+      redirect_to users_mypage_path, notice: "プロフィールを更新しました"
+    else
+      render :edit
+    end
+  end
 
+  # 退会確認
+  def confirm_withdraw
+    # ログインしているユーザー本人のデータMore actions
+    @user = current_user
+  end
+
+
+  def withdraw
+    if current_user.guest?
+      redirect_to users_mypage_path, alert: "ゲストユーザーは退会できません。"
+    else
+      current_user.withdraw!
+      reset_session
+      redirect_to root_path, notice: "退会しました"
+    end
+  end
+
+  def followed_postsMore actions
+    user = User.find(params[:id]) # 指定されたユーザーを取得
+    @posts = Post.where(user_id: user.connected_users.pluck(:id)) # フォローしているユーザーの投稿を取得
+  end
+
+  def search
+    @query = params[:query]
+    @users = User.where("name LIKE ?", "%#{@query}%")
+    render :index
+  end
+
+  def report
+    @user = User.find(params[:id])
+    @user.update(reported: true) #  ユーザーを「通報済み」にする
+    redirect_to user_path(@user), notice: "このユーザーを通報しました。"
+  end
+
+  def daily_reports
+    @daily_reports = DailyReport.where(user_id: params[:id])
+  end
+  
   private
 
   # ここで、投稿がグループ投稿の場合にフィルタする
   # もし投稿の group が存在し、かつそのグループの privacy が "restricted_visibility" で、
-  # 現在のユーザーがそのグループのメンバーでない場合、その投稿を除外します。
+  # 現在のユーザーがそのグループのメンバーでない場合、その投稿を除外。
   def filter_posts(posts)
     posts.reject do |post|
       post.group.present? &&

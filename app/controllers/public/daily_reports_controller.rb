@@ -3,8 +3,13 @@ class Public::DailyReportsController < ApplicationController
   before_action :set_daily_report, only: [:edit, :update, :destroy]
 
   def index
-    # 通常は、自分自身の日報だけを表示
-    @daily_reports = current_user.daily_reports.order(date: :desc)
+    if params[:user_id]
+      @user = User.find_by(id: params[:user_id]) # 追加
+      @daily_reports = DailyReport.where(user_id: params[:user_id]).order(date: :desc)
+    else
+      @user = current_user # 追加
+      @daily_reports = current_user.daily_reports.order(date: :desc)
+    end
   end
 
   def new

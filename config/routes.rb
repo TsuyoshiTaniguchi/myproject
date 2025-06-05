@@ -70,7 +70,6 @@ Rails.application.routes.draw do
       get "followed_posts", on: :member
   
       member do
-        get :daily_reports
         get :following, to: "connections#following" 
         get :followers, to: "connections#followers" 
         patch :withdraw
