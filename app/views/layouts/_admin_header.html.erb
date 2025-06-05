@@ -1,0 +1,33 @@
+<header class="admin-header py-3">
+  <nav class="container d-flex align-items-center justify-content-between">
+    <!-- ロゴ（クリックで管理者ダッシュボードへ） -->
+    <div class="logo">
+      <%= link_to image_tag("main.jpg", alt: "Dashboard Logo", class: "logo-img"), admin_dashboard_path %>
+    </div>
+    
+    <!-- ナビゲーションメニュー -->
+    <ul class="nav-menu d-flex align-items-center gap-3">
+      <li class="nav-item welcome">
+        <span>ようこそ、管理者さん！</span>
+      </li>
+      <li class="nav-item">
+        <%= link_to "ダッシュボード", admin_dashboard_path, class: "nav-link" %>
+      </li>
+      <li class="nav-item">
+        <%= link_to "ユーザー管理", admin_users_path, class: "nav-link" %>
+      </li>
+      <li class="nav-item">
+        <%= link_to "グループ管理", admin_groups_path, class: "nav-link" %>
+      </li>
+      <li class="nav-item">
+        <%= link_to "投稿管理", admin_posts_path, class: "nav-link" %>
+      </li>
+      <li class="nav-item">
+        <%= link_to "コメント管理", admin_comments_path, class: "nav-link" %>
+      </li>
+      <li class="nav-item">
+        <%= link_to "ログアウト", destroy_admin_session_path, method: :delete, class: "nav-link logout" %>
+      </li>
+    </ul>
+  </nav>
+</header>

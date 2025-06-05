@@ -1,13 +1,23 @@
 <li class="nav-item">
   <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-turbo="false">
-    📩 未読通知 <span class="badge badge-danger"><%= @unread_notifications_count %></span>
+    📩 未読通知 <span class="badge badge-danger"><%= current_user.notifications.where(read: false).count %></span>
   </button>
   <div class="dropdown-menu" data-turbo="false">
-    <% if current_user.notifications.where(read: false).any? %>
-      <% current_user.notifications.where(read: false).limit(5).each do |notification| %>
+    <% 
+      # 未読通知をすべて配列で取得
+      unread_notifications = current_user.notifications.where(read: false).to_a 
+      # 自分自身による Like 通知を除外する
+      filtered_notifications = unread_notifications.reject do |notification|
+         notification.source_type == "Like" &&
+         notification.source.present? &&
+         notification.source.user.present? &&
+         notification.source.user.id == current_user.id
+      end 
+    %>
+    <% if filtered_notifications.any? %>
+      <% filtered_notifications.first(5).each do |notification| %>
         <% message = case notification.source_type
           when "Comment"
-            # sourceが存在していれば、関連するuserのnameを表示。なければ、適切なフォールバック文字列を使用。
             if notification.source && notification.source.user
               "#{notification.source.user.name} さんがあなたの投稿にコメントしました！"
             else
@@ -31,6 +41,5 @@
 </li>
 
 <li class="nav-item">
-  <!-- 通知一覧ページへのボタン -->
-  <%= link_to "通知一覧を見る", notifications_path, class: "btn btn-info", data: { turbo: false } %> <!-- Turbo を防ぐ -->
+  <%= link_to "通知一覧を見る", notifications_path, class: "btn btn-info", data: { turbo: false } %>
 </li>

@@ -2,83 +2,82 @@
   <!-- 基本情報 -->
   <div class="mb-3">
     <%= f.label :name, "名前", class: "form-label" %>
-    <%= f.text_field :name, class: "form-control" %>
+    <%= f.text_field :name, class: "form-control", placeholder: "名前を入力" %>
   </div>
 
   <div class="mb-3">
     <%= f.label :email, "メールアドレス", class: "form-label" %>
-    <%= f.email_field :email, class: "form-control" %>
+    <%= f.email_field :email, class: "form-control", placeholder: "example@example.com" %>
   </div>
 
   <!-- 自己紹介 -->
   <div class="mb-3">
     <%= f.label :personal_statement, "自己紹介", class: "form-label" %>
-    <%= f.text_area :personal_statement, rows: 4, class: "form-control" %>
+    <%= f.text_area :personal_statement, rows: 4, class: "form-control", placeholder: "自己紹介を入力" %>
   </div>
 
-  <!-- ポートフォリオURL -->
-
+  <!-- ポートフォリオURL・サービス選択 -->
   <div class="mb-3">
-  <%= f.label :portfolio_url, "ポートフォリオURLを選択または入力", class: "form-label" %>
-  <select class="form-select mb-2" id="portfolio_platform">
-    <option value="">サービスを選択</option>
-    <option value="github">GitHub</option>
-    <option value="behance">Behance</option>
-    <option value="dribbble">Dribbble</option>
-    <option value="custom">その他（手入力）</option>
-  </select>
-</div>
+    <%= f.label :portfolio_url, "ポートフォリオURLを選択または入力", class: "form-label" %>
+    <select class="form-select mb-2" id="portfolio_platform">
+      <option value="">サービスを選択</option>
+      <option value="github">GitHub</option>
+      <option value="behance">Behance</option>
+      <option value="dribbble">Dribbble</option>
+      <option value="custom">その他（手入力）</option>
+    </select>
+  </div>
 
-<div class="mb-3" id="portfolio_username_field" style="display: none;">
-  <%= f.label :portfolio_username, "ユーザー名を入力" %>
-  <%= f.text_field :portfolio_username, class: "form-control", placeholder: "ユーザー名を入力" %>
-</div>
+  <div class="mb-3" id="portfolio_username_field" style="display: none;">
+    <%= f.label :portfolio_username, "ユーザー名を入力", class: "form-label" %>
+    <%= f.text_field :portfolio_username, class: "form-control", placeholder: "ユーザー名を入力" %>
+  </div>
 
-<div class="mb-3" id="portfolio_url_field">
-  <%= f.label :portfolio_url, "ポートフォリオURL" %>
-  <%= f.text_field :portfolio_url, class: "form-control", placeholder: "https://example.com" %>
-</div>
+  <div class="mb-3" id="portfolio_url_field">
+    <%= f.label :portfolio_url, "ポートフォリオURL", class: "form-label" %>
+    <%= f.text_field :portfolio_url, class: "form-control", placeholder: "https://example.com" %>
+  </div>
 
-<script>
-  document.getElementById("portfolio_platform").addEventListener("change", function() {
-    const selectedService = this.value;
+  <script>
+    // 一度だけ input イベントリスナーを設定する形に変更
+    const portfolioPlatform = document.getElementById("portfolio_platform");
     const usernameField = document.getElementById("portfolio_username_field");
     const urlField = document.getElementById("portfolio_url_field");
     const urlInput = document.querySelector("[name='user[portfolio_url]']");
-    
-    if (selectedService === "github") {
-      usernameField.style.display = "block";
-      urlField.style.display = "none";
-    } else if (selectedService === "behance") {
-      usernameField.style.display = "block";
-      urlField.style.display = "none";
-    } else if (selectedService === "dribbble") {
-      usernameField.style.display = "block";
-      urlField.style.display = "none";
-    } else {
-      usernameField.style.display = "none";
-      urlField.style.display = "block";
-    }
+    let portfolioUsernameInput = document.querySelector("[name='user[portfolio_username]']");
 
-    document.querySelector("[name='user[portfolio_username]']").addEventListener("input", function() {
-      if (selectedService === "github") {
-        urlInput.value = `https://github.com/${this.value}`;
-      } else if (selectedService === "behance") {
-        urlInput.value = `https://www.behance.net/${this.value}`;
-      } else if (selectedService === "dribbble") {
-        urlInput.value = `https://dribbble.com/${this.value}`;
+    portfolioPlatform.addEventListener("change", function() {
+      const selectedService = this.value;
+      if (selectedService === "github" || selectedService === "behance" || selectedService === "dribbble") {
+        usernameField.style.display = "block";
+        urlField.style.display = "none";
+      } else {
+        usernameField.style.display = "none";
+        urlField.style.display = "block";
       }
     });
-  });
-</script>
+
+    // イベントリスナーを一回だけ設定
+    if(portfolioUsernameInput) {
+      portfolioUsernameInput.addEventListener("input", function() {
+        const selectedService = portfolioPlatform.value;
+        if (selectedService === "github") {
+          urlInput.value = `https://github.com/${this.value}`;
+        } else if (selectedService === "behance") {
+          urlInput.value = `https://www.behance.net/${this.value}`;
+        } else if (selectedService === "dribbble") {
+          urlInput.value = `https://dribbble.com/${this.value}`;
+        }
+      });
+    }
+  </script>
 
   <div class="mb-3">
     <%= f.label :portfolio_files, "ポートフォリオのファイルをアップロード", class: "form-label" %>
     <%= f.file_field :portfolio_files, multiple: true, class: "form-control" %>
   </div>
 
-
-  <!-- プロフィール画像 -->
+  <!-- プロフィール画像 プレビュー -->
   <div class="mb-3 text-center">
     <% if @user.profile_image.attached? %>
       <%= image_tag @user.profile_image.variant(resize: "200x200"), class: "rounded-circle mb-3 border" %>

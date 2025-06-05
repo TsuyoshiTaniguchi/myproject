@@ -1,4 +1,3 @@
-<!-- admin.html -->
 <!DOCTYPE html>
 <html>
   <head>
@@ -9,26 +8,32 @@
     <script src="https://kit.fontawesome.com/e1acaa1ac8.js" crossorigin="anonymous"></script>
     <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
     <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
-    <!-- admin.html の head 内に以下を追加 -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- admin.html 用に Bootstrap を追加 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- 管理者専用のスタイル（外部CSSに移すことをおすすめ） -->
+    <%= stylesheet_link_tag 'admin', media: 'all', 'data-turbolinks-track': 'reload' %>
   </head>
-  <body class="d-flex flex-column vh-100" style="background-color: #F0F0F0">
+  <body class="d-flex flex-column vh-100 admin-body" >
     
-    <!-- ヘッダー部分：共通のヘッダーに管理者専用クラスを追加 -->
+    <!-- ヘッダー部分：共通ヘッダーに管理者専用クラスを追加 -->
     <header class="admin-header-fixed">
-      <%= render 'layouts/header' %>
+      <%= render 'layouts/admin_header' %>
     </header>
     
-    <!-- 管理者用通知部分もラップし、固定領域とする -->
-    <div class="notification-area" style="height: 40px !important;">
+    <!-- 管理者用通知部分：固定領域に配置 -->
+    <div class="notification-area" >
       <%= render "admin/shared/notifications" %>
     </div>
     
-    <!-- メインコンテンツ -->
-    <main class="flex-grow-1">
-      <p class='text-success'><%= flash[:notice] %></p>
-      <p class='text-danger'><%= flash[:alert] %></p>
+    <!-- メインコンテンツ：レスポンシブコンテナを追加 -->
+    <main class="flex-grow-1 container my-3">
+      <% if flash[:notice].present? %>
+        <div class="alert alert-success"><%= flash[:notice] %></div>
+      <% end %>
+      <% if flash[:alert].present? %>
+        <div class="alert alert-danger"><%= flash[:alert] %></div>
+      <% end %>
       <%= yield %>
     </main>
     

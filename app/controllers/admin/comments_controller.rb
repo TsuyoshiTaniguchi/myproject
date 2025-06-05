@@ -1,5 +1,7 @@
 class Admin::CommentsController < ApplicationController
   before_action :authenticate_admin!
+  layout 'admin'
+
 
   def index
     @comments = Comment.order(created_at: :desc) # 最新順にソート

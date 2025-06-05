@@ -1,0 +1,47 @@
+/* 共通のヘッダー */
+.header {
+  .logo-img {
+    max-height: 60px;  // ロゴの高さを調整
+    cursor: pointer;
+  }
+}
+
+/* ユーザー用ヘッダー */
+.user-header {
+  background-color: #ffffff;  // 明るくクリーンな背景
+  border-bottom: 2px solid #E0E0E0;
+
+  .nav-menu .nav-link {
+    color: #1ABC9C;  // ターコイズブルー
+    transition: color 0.3s;
+    
+    &:hover {
+      color: darken(#1ABC9C, 10%);
+    }
+  }
+  .logout {
+    color: red;
+  }
+}
+
+/* 管理者用ヘッダー */
+.admin-header {
+  background-color: #002B36;  // 深みある背景
+  color: #F0F0F0;
+
+  .nav-menu .nav-link {
+    color: #1ABC9C;  // 統一感を持たせるため同じベースカラーに
+    transition: color 0.3s;
+    
+    &:hover {
+      color: lighten(#1ABC9C, 10%);
+    }
+  }
+  .logout {
+    color: red;
+  }
+  
+  .welcome {
+    font-weight: bold;
+  }
+}

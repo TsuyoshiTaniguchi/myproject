@@ -1,9 +1,14 @@
 <% if post.liked_by?(current_user) %>
-  <%= button_to post_like_path(post, post.likes.find_by(user_id: current_user.id)), method: :delete, remote: true, class: "like-btn active" do %>
-    <i class="fas fa-thumbs-up text-primary"></i> <span class="like-count"><%= post.likes.count %></span>
+  <% like = post.likes.find_by(user_id: current_user.id) %> <!--  `like` を明示的に定義 -->
+  <%= form_with url: post_like_path(post, like), method: :delete, class: "button_to" do |f| %>
+    <button class="like-btn active" type="submit">
+      <i class="fas fa-thumbs-up text-primary"></i> <span class="like-count"><%= post.likes.count %></span>
+    </button>
   <% end %>
 <% else %>
-  <%= button_to post_likes_path(post), method: :post, remote: true, class: "like-btn" do %>
-    <i class="far fa-thumbs-up text-secondary"></i> <span class="like-count"><%= post.likes.count %></span>
+  <%= form_with url: post_likes_path(post), method: :post, class: "button_to" do |f| %> <!- `remote: true` を削除 -->
+    <button class="like-btn" type="submit">
+      <i class="far fa-thumbs-up text-secondary"></i> <span class="like-count"><%= post.likes.count %></span>
+    </button>
   <% end %>
 <% end %>

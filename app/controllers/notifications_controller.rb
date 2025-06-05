@@ -11,7 +11,7 @@ class NotificationsController < ApplicationController
   def update
     notification = current_user.notifications.find_by(id: params[:id])
     if notification
-      # ここでは update_column を使って、即座に read 属性を変更する（コールバック等をバイパス）
+      # update_column を使うとコールバックをスキップして即時更新されます
       notification.update_column(:read, true)
       
       begin
@@ -30,19 +30,25 @@ class NotificationsController < ApplicationController
     @notification = current_user.notifications.find_by(id: params[:id])
     if @notification
       @notification.update(read: true)  # 既読にする
-      redirect_to notification_redirect_path(@notification)  # 通知の関連ページへ移動
+      redirect_to notification_redirect_path(@notification)  # 通知に関連するページへ移動
     else
       redirect_to notifications_path, alert: "通知が見つかりません"
     end
   end
 
+  # すべて既読にするアクション（ルートヘルパー mark_all_read_notifications_path を使えるようにする）
+  def mark_all_read
+    current_user.notifications.where(read: false).update_all(read: true)
+    redirect_to notifications_path, notice: "すべての通知が既読になりました。"
+  end
+
   private
 
-  # 通知の転送先を安全に決定する
+  # 安全に通知の転送先を決定するメソッド
   def notification_redirect_path(notification)
     source = notification.source
     return root_path unless source.present?
-  
+
     case notification.source_type
     when "Comment"
       if source.respond_to?(:post) && source.post.present?

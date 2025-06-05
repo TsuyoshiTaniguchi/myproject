@@ -1,5 +1,6 @@
 class Admin::NotificationsController < ApplicationController
   before_action :authenticate_admin!
+  layout 'admin'
 
   def index
     # "admin_alert" を使うのではなく、既に定義されている"group_reported"を表示する例

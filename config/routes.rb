@@ -30,7 +30,11 @@ Rails.application.routes.draw do
     member do
       patch :mark_as_read
     end
+    collection do
+      patch :mark_all_read
+    end
   end
+  
 
 
   # 一般ユーザー関連
@@ -66,6 +70,7 @@ Rails.application.routes.draw do
       get "followed_posts", on: :member
   
       member do
+        get :daily_reports
         get :following, to: "connections#following" 
         get :followers, to: "connections#followers" 
         patch :withdraw

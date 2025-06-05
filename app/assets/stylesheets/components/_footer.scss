@@ -1,0 +1,24 @@
+/* _footer.scss */
+.footer {
+  background-color: #002B36;
+  color: #F0F0F0;
+
+  .social-links {
+    // 例: マージンを追加
+    margin-top: 10px;
+  }
+
+  .social-link {
+    color: #F0F0F0;
+    font-size: 20px;
+    transition: color 0.3s;
+
+    &:hover {
+      color: lighten(#F0F0F0, 10%);
+    }
+  }
+
+  p {
+    font-size: 14px;
+  }
+}

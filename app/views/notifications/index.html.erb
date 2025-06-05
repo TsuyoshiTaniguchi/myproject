@@ -1,19 +1,38 @@
-<table class="table">
-  <% @notifications.each do |notification| %>
-    <tr class="<%= notification.read? ? 'read' : 'unread' %>">
-      <% if notification.source.present? %>
-        <% message = case notification.source_type
-          when "Comment"
-            "#{notification.source&.user&.name} さんがあなたの投稿にコメントしました！"
-          when "Like"
-            "#{notification.source&.user&.name} さんがあなたの投稿をいいねしました！"
-          else
-            "新しい通知があります！"
-        end %>
-        <td><%= link_to message, notification_path(notification), method: :patch %></td>
-      <% else %>
-        <td><span class="text-muted">通知の情報がありません</span></td>
+<div class="container my-4">
+  <h2 class="mb-3">通知一覧</h2>
+  
+  <% if @notifications.any? %>
+    <ul class="list-group">
+      <% @notifications.each do |notification| %>
+        <%# 未読は強調表示するクラスを追加 %>
+        <% item_class = notification.read? ? "list-group-item" : "list-group-item list-group-item-info" %>
+        <li class="<%= item_class %> d-flex justify-content-between align-items-center">
+          <% if notification.source.present? %>
+            <%# 種別別にアイコンを追加する例 %>
+            <% message = case notification.source_type
+              when "Comment"
+                "<i class='bi bi-chat-left-text'></i> #{notification.source&.user&.name} さんがあなたの投稿にコメントしました！"
+              when "Like"
+                "<i class='bi bi-hand-thumbs-up'></i> #{notification.source&.user&.name} さんがあなたの投稿をいいねしました！"
+              else
+                "<i class='bi bi-bell'></i> 新しい通知があります！"
+              end.html_safe %>
+            <span>
+              <%= link_to message, notification_path(notification), method: :patch, class: "stretched-link" %>
+              <br>
+              <small class="text-muted"><%= time_ago_in_words(notification.created_at) %> 前</small>
+            </span>
+          <% else %>
+            <span class="text-muted">通知の情報がありません</span>
+          <% end %>
+        </li>
       <% end %>
-    </tr>
+    </ul>
+    <!-- すべて既読にするボタン（オプション） -->
+    <div class="mt-3 text-end">
+      <%= button_to "すべて既読にする", mark_all_read_notifications_path, method: :patch, class: "btn btn-sm btn-secondary" %>
+    </div>
+  <% else %>
+    <p class="text-muted">通知はありません</p>
   <% end %>
-</table>
+</div>

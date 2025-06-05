@@ -4,13 +4,14 @@ class Public::PostsController < ApplicationController
   before_action :restrict_guest_access, only: [:new, :create, :report]
 
   def index
-    @posts = Post.active_users_posts.with_attached_images.includes(:user).where(users: { status: 0 })
     @query = params[:query]
-    posts_scope = Post.order(created_at: :desc)
-  
+    # 初めに投稿全体のスコープを定義
+    posts_scope = Post.visible_to(current_user).order(created_at: :desc)
+    
+    # キーワード検索（query があれば）
     posts_scope = posts_scope.where("title LIKE ? OR content LIKE ?", "%#{@query}%", "%#{@query}%") if @query.present?
-  
-    @posts = posts_scope.page(params[:page]).per(6)  
+    
+    @posts = posts_scope.page(params[:page]).per(6)
   end
 
 
@@ -128,10 +129,11 @@ class Public::PostsController < ApplicationController
 
   def search
     @query = params[:query]
-    @posts = Post.where("title LIKE ? OR content LIKE ?", "%#{@query}%", "%#{@query}%")
+    @posts = Post.visible_to(current_user)
+                 .where("title LIKE ? OR content LIKE ?", "%#{@query}%", "%#{@query}%")
+                 .page(params[:page]).per(6)
     render :index
   end
-
   private
 
   def post_params

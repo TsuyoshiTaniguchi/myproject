@@ -11,25 +11,21 @@
   <p>メールアドレス: <%= user.email %></p>
   <p>登録日: <%= user.created_at.strftime("%Y年%m月%d日") %></p>
   
-  <!-- 通報ボタン -->
-  <% unless current_user.guest? || current_user == @user %>
-    <% if @user.reported? %>
+  <!-- 通報ボタン（自己以外の場合） -->
+  <% unless current_user.guest? || current_user == user %>
+    <% if user.reported? %>
       <p class="text-danger fw-bold">⚠️ このユーザーは通報済みです。</p>
     <% else %>
-      <%= link_to "⚠️ このユーザーを通報", report_user_path(@user), method: :patch, class: "btn btn-danger btn-sm" %>
+      <%= link_to "⚠️ このユーザーを通報", report_user_path(user), method: :patch, class: "btn btn-danger btn-sm" %>
     <% end %>
   <% end %>
 
-  <!-- フォロー状態 -->
-  <% if current_user == @user %>
-    <button type="button" class="btn btn-secondary" disabled>自己フォローはできません</button>
-  <% elsif current_user.guest? %>
-    <!-- ゲストユーザーの処理 -->
-  <% else %>
-    <% if current_user.following.include?(@user) %>
-      <%= button_to "フォロー解除", connection_path(current_user.connections.find_by(followed_id: @user)), method: :delete, class: "btn btn-danger" %>
+  <!-- フォロー状態（自己の場合は表示しない） -->
+  <% if current_user != user && !current_user.guest? %>
+    <% if current_user.following.include?(user) %>
+      <%= button_to "フォロー解除", connection_path(current_user.connections.find_by(followed_id: user)), method: :delete, class: "btn btn-danger" %>
     <% else %>
-      <%= button_to "フォローする", connections_path(user_id: @user.id), method: :post, class: "btn btn-primary" %>
+      <%= button_to "フォローする", connections_path(user_id: user.id), method: :post, class: "btn btn-primary" %>
     <% end %>
   <% end %>
 </div>
@@ -38,18 +34,17 @@
 <div class="card p-3">
   <h3 class="mb-3">フォロー関係</h3>
   <div class="d-flex justify-content-between">
-    <h4>フォロー中: <%= @user.following.count %>人</h4>
-    <h4>フォロワー: <%= @user.followers.count %>人</h4>
+    <h4>フォロー中: <%= user.following.count %>人</h4>
+    <h4>フォロワー: <%= user.followers.count %>人</h4>
   </div>
-  
   <div class="d-flex gap-2 mt-3">
-    <%= link_to "フォロー一覧", following_user_path(@user), class: "btn btn-primary" %>
-    <%= link_to "フォロワー一覧", followers_user_path(@user), class: "btn btn-secondary" %>
+    <%= link_to "フォロー一覧", following_user_path(user), class: "btn btn-primary" %>
+    <%= link_to "フォロワー一覧", followers_user_path(user), class: "btn btn-secondary" %>
   </div>
 </div>
 
 <!-- 自己紹介 -->
-<h3 class="mb-3"> 自己紹介</h3>
+<h3 class="mb-3">自己紹介</h3>
 <% if user.personal_statement.present? %>
   <p><%= user.personal_statement %></p>
 <% else %>
@@ -57,14 +52,14 @@
 <% end %>
 
 <!-- ポートフォリオ情報 -->
-<h3 class="mb-3"> ポートフォリオ</h3>
+<h3 class="mb-3">ポートフォリオ</h3>
 <% if user.portfolio_url.present? %>
   <p><%= link_to user.portfolio_url, user.portfolio_url, target: "_blank", rel: "noopener noreferrer", class: "btn btn-outline-primary" %></p>
 <% else %>
   <p class="text-muted">ポートフォリオは未登録です。</p>
 <% end %>
 
-<h3 class="mb-3"> ポートフォリオファイル</h3>
+<h3 class="mb-3">ポートフォリオファイル</h3>
 <% if user.portfolio_files.attached? %>
   <ul>
     <% user.portfolio_files.each do |file| %>
@@ -102,7 +97,6 @@
 <% end %>
 
 <h2>GitHubの最新コミット</h2>
-
 <% if @commits.present? %>
   <div class="container">
     <% @commits.each do |repo_name, commits| %>
@@ -128,12 +122,14 @@
 
 <!-- タブ切り替え -->
 <div class="btn-group mt-4 d-flex justify-content-center">
-  <%= link_to "自己PR", user_path(@user, tab: 'profile'), class: "btn #{'btn-primary' if params[:tab] == 'profile'} btn-outline-primary" %>
-  <%= link_to "ライフログ", daily_reports_path(tab: 'daily_reports'), class: "btn #{'btn-primary' if params[:tab] == 'daily_reports'} btn-outline-secondary" %>
+  <%= link_to "自己PR", user_path(user, tab: 'profile'),
+        class: "btn #{'btn-primary' if params[:tab] == 'profile'} btn-outline-primary" %>
+  <%= link_to "ライフログ", daily_reports_user_path(user, tab: 'daily_reports'),
+        class: "btn #{'btn-primary' if params[:tab] == 'daily_reports'} btn-outline-secondary" %>
 </div>
 
 <!-- 所属グループ -->
-<h3 class="mb-3"> 所属グループ</h3>
+<h3 class="mb-3">所属グループ</h3>
 <% if user.joined_groups.any? %>
   <ul>
     <% user.joined_groups.each do |group| %>
@@ -144,10 +140,18 @@
   <p class="text-muted">まだグループに参加していません。</p>
 <% end %>
 
-<!-- アクションボタン -->
-<% if show_actions %>
-  <div class="mt-4 d-flex flex-wrap gap-3 justify-content-center">
-    <%= link_to "プロフィール編集", edit_user_path(@user), class: "btn btn-primary px-4" %>
-    <%= link_to "退会する", withdraw_user_path(@user), method: :patch, class: "btn btn-danger px-4", data: { confirm: "本当に退会しますか？" } %>
+<!-- アクションボタン（自己のページの場合） -->
+<% if show_actions && (current_user == user) %>
+  <div class="mt-4 text-center">
+    <div class="btn-group flex-wrap" role="group">
+      <%= link_to edit_user_path(user), class: "btn btn-primary btn-lg d-flex align-items-center gap-2" do %>
+        <i class="fas fa-user-edit"></i>
+        <span>プロフィール編集</span>
+      <% end %>
+      <%= link_to withdraw_user_path(user), method: :patch, data: {confirm: "本当に退会しますか？"}, class: "btn btn-danger btn-lg d-flex align-items-center gap-2" do %>
+        <i class="fas fa-user-slash"></i>
+        <span>退会する</span>
+      <% end %>
+    </div>
   </div>
 <% end %>

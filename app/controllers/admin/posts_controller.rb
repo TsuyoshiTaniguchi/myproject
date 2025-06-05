@@ -1,12 +1,14 @@
 class Admin::PostsController < ApplicationController
 
   before_action :authenticate_admin!
+  layout 'admin'
+
 
   def index
     if params[:reported_only] == "true"
-      @posts = Post.where(status: "reported").order(updated_at: :desc).distinct  # ✅ 通報済み投稿のみ
+      @posts = Post.where(status: "reported").order(updated_at: :desc).distinct  # 通報済み投稿のみ
     else
-      @posts = Post.where(status: ["reported", "normal"]).order(updated_at: :desc).distinct  # ✅ **通報済み & 正常な投稿を両方表示**
+      @posts = Post.where(status: ["reported", "normal"]).order(updated_at: :desc).distinct  # 通報済み & 正常な投稿を両方表示
     end
   end
 
@@ -16,7 +18,7 @@ class Admin::PostsController < ApplicationController
     unless @post
       redirect_to admin_posts_path, alert: "指定された投稿は存在しません"
     else
-      @post.reload  # ✅ 最新データを取得！
+      @post.reload  #  最新データを取得
     end
   end
 

@@ -23,12 +23,30 @@ class Post < ApplicationRecord
   validates :code_snippet, length: { maximum: 1000 }, allow_blank: true # コードの長さを制限
 
 
-   def reported?
-     status == "reported"
-   end
+   # シンプルに restricted_visibility のみの場合（private_visibility が必要なければ）
+   scope :visible_to, ->(user) {
+    left_outer_joins(:group).where(
+      "posts.group_id IS NULL OR 
+       groups.privacy = :public_visibility OR 
+       (groups.privacy = :restricted_visibility 
+         AND EXISTS (
+           SELECT 1 FROM memberships 
+           WHERE memberships.group_id = posts.group_id 
+           AND memberships.user_id = :user_id
+         )
+       )",
+      public_visibility: Group.privacies[:public_visibility],
+      restricted_visibility: Group.privacies[:restricted_visibility],
+      user_id: user.id
+    )
+  }
 
-   def liked_by?(user)
-    likes.exists?(user_id: user.id)
+  def reported?
+    status == "reported"
   end
 
+  def liked_by?(user)
+    return false unless user.present? # `nil` の場合は明示的に `false` を返す
+    likes.where(user_id: user.id).exists?
+  end
 end

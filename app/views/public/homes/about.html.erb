@@ -1,30 +1,37 @@
-<h1>WAI to WAI とは？</h1>
+<!-- app/views/home/about.html.erb などに配置 -->
+<div class="container my-5">
+  <header class="text-center mb-5">
+    <h1 class="display-4">WAI to WAI とは？</h1>
+    <p class="lead">
+      「私は誰なのか？」から「私は何者なのか？」へ。<br>
+      単なる履歴ではなく、あなたの成長と変化を伝えるための場。<br>
+      経験や実績を記録し、自己PRやコミュニティ形成を支援します。
+    </p>
+  </header>
 
-<p>
-  「私は誰なのか？」から「私は何者なのか？」へ。<br>
-  ただの履歴ではなく、自分の成長と変化を伝えるため。<br>
-  個人の経験や成長を記録を可視化し、自己PRやコミュニティ形成を支援するコミュニティサイト
-</p>
+  <!-- サイトの核となる価値 -->
+  <section class="core-values mb-5">
+    <h2 class="h3 mb-3 text-center">何が変わるのか？</h2>
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item"><strong>行動・スキル・価値観で自己表現：</strong> 肩書きではなく、あなたの実力や努力を見せる。</li>
+      <li class="list-group-item"><strong>ストーリーを記録：</strong> 従来の履歴書では伝えきれない、あなた自身の物語を残します。</li>
+      <li class="list-group-item"><strong>データ活用の先進技術：</strong> GitHub API や Vision AI API を取り入れ、実績を可視化。</li>
+    </ul>
+  </section>
 
-<section class="core-values">
-  <h2> 何が変わるのか？</h2>
-  <ul>
-    <li> **「肩書き」ではなく「行動・スキル・価値観」で自己表現**</li>
-    <li> **従来の履歴書では伝えきれない「ストーリー」を記録**</li>
-    <li> **GitHub API & Vision AI API でデータ活用し、実績を可視化**</li>
-  </ul>
-</section>
+  <!-- 今後の展望 -->
+  <section class="roadmap mb-5">
+    <h2 class="h3 mb-3 text-center">これからの進化</h2>
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item"><strong>地図表示 & 行動履歴の可視化：</strong> あなたの活動エリアや学びの軌跡を一目で。</li>
+      <li class="list-group-item"><strong>推薦・共感コメント：</strong> 仲間からの評価を集め、スキルを証明。</li>
+      <li class="list-group-item"><strong>コラボ募集機能：</strong> 新たな出会いやプロジェクトが、ここから生まれる。</li>
+    </ul>
+  </section>
 
-<section class="roadmap">
-  <h2>これからの進化</h2>
-  <ul>
-    <li>**地図表示 & 行動履歴の可視化**</li>
-    <li>**推薦・共感コメントでスキルを証明**</li>
-    <li>**コラボ募集機能で新しい出会いを**</li>
-  </ul>
-</section>
-
-<div class="actions">
-  <%= link_to "トップへ戻る", root_path, class: "btn btn-secondary" %>
-  <%= link_to "登録する", new_user_registration_path, class: "btn btn-success" %>
+  <!-- CTA -->
+  <div class="actions text-center">
+    <%= link_to "トップへ戻る", root_path, class: "btn btn-outline-secondary mx-2" %>
+    <%= link_to "今すぐ登録する", new_user_registration_path, class: "btn btn-success mx-2" %>
+  </div>
 </div>

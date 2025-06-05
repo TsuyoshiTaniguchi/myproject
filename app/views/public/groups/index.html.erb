@@ -1,15 +1,13 @@
 <h1 class="mt-4 text-center fw-bold">グループ一覧</h1>
 
-<div class="container my-4">
-  <div class="row justify-content-center">
-    <div class="col-md-8">
-      <%= form_with url: groups_path, method: :get, local: true, class: "input-group" do %>
-        <%= text_field_tag :query, params[:query], placeholder: "グループを検索...", class: "form-control" %>
-        <button class="btn btn-outline-secondary" type="submit">検索</button>
-      <% end %>
+<%= form_with url: groups_path, method: :get, local: true, html: { class: "d-inline" } do %>
+  <div class="input-group">
+    <%= text_field_tag :query, params[:query], placeholder: "グループを検索...", class: "form-control" %>
+    <div class="input-group-append">
+      <%= submit_tag "検索", class: "btn btn-outline-secondary" %>
     </div>
   </div>
-</div>
+<% end %>
 
 <% unless current_user.guest? %>
   <div class="d-flex justify-content-end mt-4">

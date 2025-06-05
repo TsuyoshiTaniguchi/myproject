@@ -1,5 +1,7 @@
 class Admin::GroupsController < ApplicationController
   before_action :authenticate_admin!
+  layout 'admin'
+
 
   def index
     @groups = Group.all

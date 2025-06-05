@@ -1,59 +1,154 @@
-<h1>ようこそ、WAI to WAI へ</h1>
+<%# app/views/home/index.html.erb %>
 
-<p>
-  **Who Am I to Who Am I — 「私は誰なのか？」から「私は何者なのか？」へ。** <br>
-  自分の過去・現在・未来を記録し、「私」を進化させるためのコミュニティサイト。
-</p>
-
-<section class="features">
-  <h2>✨ 何ができるのか？ ✨</h2>
-  <ul>
-    <li> ライフログを活用した **ストーリー型** の自己PR</li>
-    <li> **GitHub連携** でプロジェクト・コミット履歴を可視化</li>
-    <li> **行動履歴** を記録し、「どこで何を学んだか」を整理</li>
-    <li> **コメント機能** でスキルや価値観を共有</li>
-  </ul>
-</section>
-
-<div class="actions">
-  <%= link_to "もっと知る", about_path, class: "btn btn-outline-info" %>
-  <%= link_to "さっそく始める", new_user_registration_path, class: "btn btn-success" %>
-
-  <% unless user_signed_in? %> <!-- 未ログイン時のみ表示 -->
-    <p>ゲストログインすると、サイトの機能を試すことができますが、投稿や編集はできません。</p>
-    
-    <%= link_to users_guest_sign_in_path, method: :post, class: "btn btn-outline-secondary btn-sm" do %>
-      <i class="fas fa-user"></i> ゲストログイン
-    <% end %>
-  <% end %>
+<!-- ヒーローセクション（サイトのメインビジュアル＋シンプルなCTA） -->
+<div class="hero-section text-center bg-dark text-white py-5">
+  <div class="container">
+    <h1 class="display-3">WAI to WAI</h1>
+    <p class="lead">あなたの過去・現在・未来を記録し、自己成長の軌跡を創るコミュニティ</p>
+    <!-- キャッチコピーを強調して追加 -->
+    <blockquote class="blockquote mt-3">
+      <p class="h4">Who Am I to Who Am I — 「私は誰なのか？」から「私は何者なのか？」へ</p>
+    </blockquote>
+    <div class="mt-4">
+      <% if user_signed_in? %>
+        <%= link_to "マイページへ", users_mypage_path, class: "btn btn-primary btn-lg" %>
+      <% else %>
+        <%= link_to "今すぐ始める", new_user_registration_path, class: "btn btn-success btn-lg" %>
+        <span class="mx-2">or</span>
+        <%= link_to "ログインする", new_user_session_path, class: "btn btn-outline-light btn-lg" %>
+        <div class="mt-3">
+          <%= link_to users_guest_sign_in_path, method: :post, class: "btn btn-outline-secondary btn-sm" do %>
+            <i class="fas fa-user"></i> ゲストログイン
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
 </div>
 
-<% unless user_signed_in? %> <!--  未ログイン時のみ表示 -->
-  <div class="actions text-center mt-4 alert alert-info rounded shadow">
-    <h2 class="fw-bold text-primary"> WAI to WAI の機能を活用するにはログインが必要！</h2>
-    <%= link_to "ログインする", new_user_session_path, class: "btn btn-lg btn-primary fw-bold px-4 py-2 mt-2" %>
-    <p class="text-muted mt-2">新規登録は無料でできます！</p>
-    <%= link_to "新規登録", new_user_registration_path, class: "btn btn-success btn-md" %>
-  </div>
-<% end %>
-
-<!-- フォローしているユーザーの最新投稿 -->
-<% if user_signed_in? && current_user.is_a?(User) %> <!-- ✅ `Admin` の場合は処理をスキップ -->
-  <section class="recent-posts">
-    <h2 class="fw-bold text-dark">フォローしているユーザーの最新投稿</h2>
-
-    <% if @posts.present? %>
-      <div class="posts-container">
-        <% @posts.each do |post| %>
-          <div class="post bg-light shadow p-3 mb-3 rounded border">
-            <h3><%= post.title %></h3>
-            <p><%= post.content.truncate(100) %></p>
-            <p>投稿者: <%= link_to post.user.name, user_path(post.user) %></p>
+<div class="container my-5">
+  <!-- サイト機能紹介セクション -->
+  <section class="features text-center my-5">
+    <h2 class="mb-4">WAI to WAI でできること</h2>
+    <div class="row">
+      <div class="col-md-3 mb-3">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <i class="fas fa-book-open fa-3x mb-3 text-info"></i>
+            <h5 class="card-title">自己成長の記録</h5>
+            <p class="card-text">ライフログで過去・現在・未来を記録。</p>
           </div>
-        <% end %>
+        </div>
       </div>
+      <div class="col-md-3 mb-3">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <i class="fab fa-github fa-3x mb-3 text-dark"></i>
+            <h5 class="card-title">GitHub連携</h5>
+            <p class="card-text">プロジェクト・コミット履歴で実績を可視化。</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 mb-3">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <i class="fas fa-pencil-alt fa-3x mb-3 text-warning"></i>
+            <h5 class="card-title">ストーリーPR</h5>
+            <p class="card-text">自分の物語をドラマティックに表現。</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 mb-3">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <i class="fas fa-comments fa-3x mb-3 text-success"></i>
+            <h5 class="card-title">コミュニティ交流</h5>
+            <p class="card-text">コメントで価値観やスキルを共有。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ポートフォリオ・ショーケースセクション -->
+  <section class="portfolio-showcase my-5">
+    <h2 class="text-center mb-4">私の矜持を表すポートフォリオ</h2>
+    <p class="text-center text-muted mb-4">
+      プロジェクトや実績が、あなたの未来への礎です。
+    </p>
+    <div class="row">
+      <%# 実際の画像ファイル "top1.jpg", "top2.jpg", "top3.png" を表示 %>
+      <div class="col-md-4 mb-3">
+        <div class="card h-100 shadow" style="border-color: #007bff;">
+          <%= image_tag "top1.jpg", class: "card-img-top", alt: "Project 1" %>
+          <div class="card-body">
+            <h5 class="card-title">プロジェクト 1</h5>
+            <p class="card-text">ここにプロジェクト概要を記載。あなたの情熱とクリエイティビティが際立ちます。</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <div class="card h-100 shadow" style="border-color: #007bff;">
+          <%= image_tag "top2.jpg", class: "card-img-top", alt: "Project 2" %>
+          <div class="card-body">
+            <h5 class="card-title">プロジェクト 2</h5>
+            <p class="card-text">ここにプロジェクト概要を記載。あなたの取り組みを印象づけます。</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <div class="card h-100 shadow" style="border-color: #007bff;">
+          <%= image_tag "top3.png", class: "card-img-top", alt: "Project 3" %>
+          <div class="card-body">
+            <h5 class="card-title">プロジェクト 3</h5>
+            <p class="card-text">ここにプロジェクト概要を記載。クリエイティブな挑戦が伝わります。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <%# 「もっと見る」ボタンは削除しています %>
+  </section>
+
+  <!-- コミュニティ／最新投稿／キャッチコピーセクション -->
+  <section class="community-section my-5">
+    <% if user_signed_in? && current_user.is_a?(User) %>
+      <h2 class="text-center mb-4">フォロー中ユーザーの最新投稿</h2>
+      <% if @posts.present? %>
+        <div class="row">
+          <% @posts.each do |post| %>
+            <div class="col-md-4 mb-3">
+              <div class="card shadow-sm">
+                <% if post.images.attached? %>
+                  <%= image_tag post.images.first.variant(resize_to_fit: [400,200]), class:"card-img-top", alt:"投稿画像" %>
+                <% else %>
+                  <%= image_tag "no_image.png", class:"card-img-top", alt:"No Image" %>
+                <% end %>
+                <div class="card-body">
+                  <h5 class="card-title"><%= post.title %></h5>
+                  <p class="card-text"><%= truncate(post.content, length:100) %></p>
+                </div>
+                <div class="card-footer text-muted small">
+                  投稿者: <%= link_to post.user.name, user_path(post.user) %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-center text-muted">フォロー中のユーザーの投稿はまだありません。</p>
+      <% end %>
     <% else %>
-      <p class="text-muted">フォローしているユーザーの投稿はまだありません。</p>
+      <div class="text-center">
+        <h2 class="mb-4">WAI to WAI の魅力を体験しよう</h2>
+        <p class="mb-4">会員登録すると、あなた専用のフィードや実績が見られます。</p>
+        <%= link_to "会員登録する", new_user_registration_path, class: "btn btn-success btn-lg" %>
+      </div>
     <% end %>
   </section>
-<% end %>
+
+  <!-- フッター／ナビゲーション -->
+  <div class="text-center my-4">
+    <%= link_to "About", about_path, class: "btn btn-outline-info mx-2" %>
+    <%= link_to "トップへ戻る", root_path, class: "btn btn-outline-secondary mx-2" %>
+  </div>
+</div>

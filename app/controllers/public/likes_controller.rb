@@ -4,20 +4,16 @@ class Public::LikesController < ApplicationController
 
   def create
     @like = @post.likes.create(user: current_user)
-
-    respond_to do |format|
-      format.js { render 'public/likes/create' } # 修正！
-    end
+    redirect_to request.referrer || posts_path, notice: "いいねしました！"
   end
-
-
+  
   def destroy
-    @like = @post.likes.find_by(user: current_user)
-    @like.destroy
-
-    respond_to do |format|
-      format.js { render 'public/likes/destroy' } # 修正！
-    end
+    @post = Post.find(params[:post_id])
+    @like = @post.likes.find_by(user_id: current_user.id)
+  
+    @like.destroy if @like.present?
+  
+    redirect_to request.referrer || posts_path, notice: "いいねを解除しました！"
   end
 
 

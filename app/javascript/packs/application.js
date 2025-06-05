@@ -69,49 +69,56 @@ document.addEventListener("DOMContentLoaded", function() {
   const fileInput = document.querySelector('input[type="file"]');
   const previewArea = document.getElementById('image-preview');
 
-  fileInput.addEventListener("change", function() {
-    previewArea.innerHTML = ""; // 既存のプレビューをクリア
-    const files = fileInput.files;
+  if (fileInput && previewArea) {
+    fileInput.addEventListener("change", function() {
+      previewArea.innerHTML = ""; // 既存のプレビューをクリア
+      const files = fileInput.files;
 
-    if (files.length > 0) {
-      Array.from(files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const img = document.createElement("img");
-          img.src = e.target.result;
-          img.classList.add("img-thumbnail", "m-2");
-          img.style.maxWidth = "200px";
-          previewArea.appendChild(img);
-        };
-        reader.readAsDataURL(file);
-      });
-    } else {
-      previewArea.innerHTML = "<p class='text-muted'>画像プレビューはここに表示されます</p>";
-    }
-  });
+      if (files.length > 0) {
+        Array.from(files).forEach(file => {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const img = document.createElement("img");
+            img.src = e.target.result;
+            img.classList.add("img-thumbnail", "m-2");
+            img.style.maxWidth = "200px";
+            previewArea.appendChild(img);
+          };
+          reader.readAsDataURL(file);
+        });
+      } else {
+        previewArea.innerHTML = "<p class='text-muted'>画像プレビューはここに表示されます</p>";
+      }
+    });
+  } else {
+    console.warn("ファイル入力またはプレビューエリアが見つかりませんでした。");
+  }
 
-  // 画像削除チェックボックスが選択されたらプレビューから非表示
   document.querySelectorAll('.remove-image-checkbox').forEach(checkbox => {
     checkbox.addEventListener("change", function() {
       const parent = this.closest('.existing-image');
-      parent.style.display = this.checked ? "none" : "block";
+      if (parent) {
+        parent.style.display = this.checked ? "none" : "block";
+      }
     });
   });
 });
 
-//  いいねボタンをでリロードなしに更新
-document.addEventListener("ajax:success", function(event) {
-  const [data, status, xhr] = event.detail;
+//  いいねボタンをでリロードなしに更新(現在うまく行っていない為リロードありで対応、将来用に残しています)
+// document.addEventListener("DOMContentLoaded", function () {
+//   console.log("ページ完全ロード完了 ");
   
-  // 投稿IDを取得
-  const postIdMatch = xhr.responseURL.match(/posts\/(\d+)\/likes/);
-  if (postIdMatch) {
-    const postId = postIdMatch[1];
-
-    // いいねボタンのDOMを更新
-    const likeButton = document.getElementById(`post-likes-${postId}`);
-    if (likeButton) {
-      likeButton.innerHTML = data;
-    }
-  }
-});
+//   var dropdownToggle = document.querySelector(".dropdown-toggle");
+  
+//   if (dropdownToggle) {
+//     dropdownToggle.addEventListener("click", function (event) {
+//       event.stopPropagation();
+//       var dropdownMenu = document.querySelector(".dropdown-menu");
+//       if (dropdownMenu) {
+//         dropdownMenu.classList.toggle("show");
+//       }
+//     });
+//   } else {
+//     console.warn("⚠️ `.dropdown-toggle` が見つかりません！");
+//   }
+// });
