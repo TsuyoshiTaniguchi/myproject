@@ -1,7 +1,7 @@
 <%= form_with(model: @daily_report, local: true) do |form| %>
   <% if @daily_report.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@daily_report.errors.count, "error") %> prohibited this daily_report from being saved:</h2>
+    <div class="alert alert-danger">
+      <h2><%= pluralize(@daily_report.errors.count, "エラー") %> が発生しました:</h2>
       <ul>
         <% @daily_report.errors.full_messages.each do |message| %>
           <li><%= message %></li>
@@ -10,23 +10,27 @@
     </div>
   <% end %>
 
-  <div class="form-group">
+  <div class="mb-3">
     <%= form.label :date, "日付" %>
     <%= form.date_field :date, class: "form-control" %>
   </div>
 
-  <div class="form-group">
-    <%= form.label :location, "場所" %>
+  <div class="mb-3">
+    <%= form.label :location, "都市名" %>
     <%= form.text_field :location, class: "form-control" %>
   </div>
 
-  <div class="form-group">
+  <div class="mb-3">
+    <label>現在地を取得:</label>
+    <button type="button" class="btn btn-info" onclick="getLocation()">位置情報取得</button>
+    <input type="hidden" name="daily_report[latitude]" id="latitude">
+    <input type="hidden" name="daily_report[longitude]" id="longitude">
+  </div>
+
+  <div class="mb-3">
     <%= form.label :content, "活動内容" %>
-    <%= form.text_area :content, class: "form-control" %>
+    <%= form.text_area :content, class: "form-control", rows: 5 %>
   </div>
 
-  <div class="actions">
   <%= form.submit @daily_report.new_record? ? "作成する" : "更新する", class: "btn btn-primary" %>
-  </div>
-
 <% end %>

@@ -1,0 +1,32 @@
+<h3>日報の影響度・成果</h3>
+
+<div class="row">
+  <!-- 技術的インパクト -->
+  <div class="col-md-4">
+    <h4>技術的な成果</h4>
+    <ul>
+      <% @daily_report.technologies.each do |tech| %>
+        <li><strong><%= tech.name %></strong> - <%= tech.impact_description %></li>
+      <% end %>
+    </ul>
+  </div>
+
+  <!-- 成果と学び -->
+  <div class="col-md-4">
+    <h4>学びと改善点</h4>
+    <ul>
+      <% @daily_report.learned_lessons.each do |lesson| %>
+        <li>✅ <%= lesson %></li>
+      <% end %>
+    </ul>
+  </div>
+
+  <!-- プロジェクトへの影響スコア -->
+  <div class="col-md-4">
+    <h4>影響スコア</h4>
+    <p>プロジェクトへの貢献度: <%= @daily_report.impact_score %>/10</p>
+    <div class="progress">
+      <div class="progress-bar progress-bar-striped" role="progressbar" style="width: <%= @daily_report.impact_score * 10 %>%;" aria-valuenow="<%= @daily_report.impact_score %>" aria-valuemin="0" aria-valuemax="10"></div>
+    </div>
+  </div>
+</div>

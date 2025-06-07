@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
 
+
+  get 'skill_tags/show'
   devise_for :users, controllers: {
     registrations: "public/registrations",
     sessions: "public/sessions"
@@ -22,9 +24,14 @@ Rails.application.routes.draw do
     post "/logout", to: "public/sessions#destroy", as: :logout  # `POST` のルート
   end
 
-  
+  get 'github_commits', to: 'github#default_commits'
+  get 'github_commits/:repo_full_name', to: 'github#commits'
+  get 'github_stats', to: 'github#stats'
+
   root to: "public/homes#top"
   get '/about' => 'public/homes#about', as: 'about'
+
+  get 'maps/show'
 
   resources :notifications, only: [:index, :update, :show] do
     member do
@@ -35,13 +42,19 @@ Rails.application.routes.draw do
     end
   end
   
+  resources :maps, only: [:show, :edit, :update] # 共通ルート
+
+  resources :skill_tags, only: [:index, :show]
 
 
   # 一般ユーザー関連
   scope module: :public do
     get '/users/mypage' => 'users#mypage', as: 'users_mypage'
+    get 'daily_reports/calendar_data', to: 'daily_reports#calendar_data'
 
     resources :daily_reports, only: [:index, :new, :create, :edit, :update, :destroy]
+
+   
     
     resources :posts do
       resources :comments, only: [:create, :destroy] do

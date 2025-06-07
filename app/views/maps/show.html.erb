@@ -1,0 +1,20 @@
+<h2>地図表示</h2>
+<div id="map" style="height: 400px;"></div>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=<%= ENV['GOOGLE_MAPS_API_KEY'] %>&callback=initMap" async defer></script>
+
+<script>
+  function initMap() {
+    var location = { lat: <%= @location[:lat] %>, lng: <%= @location[:lng] %> };
+    var map = new google.maps.Map(document.getElementById('map'), {
+      zoom: 10,
+      center: location
+    });
+    new google.maps.Marker({ position: location, map: map });
+  }
+</script>
+
+<!-- 管理者のみ編集ボタンを表示 -->
+<% if current_user.admin? %>
+  <%= link_to "地図を編集", edit_map_path, class: "btn btn-warning mt-3" %>
+<% end %>

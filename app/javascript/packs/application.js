@@ -8,11 +8,15 @@ import Turbolinks from "turbolinks"
 import * as ActiveStorage from "@rails/activestorage"
 import "channels"
 
+// Bootstrap & jQuery
 import "jquery";
 import "popper.js";
 import "bootstrap";
 import "../stylesheets/application"; 
 
+// 外部ファイルの読み込み
+import "packs/calendar";  // カレンダー機能
+import "packs/maps";      // Google Maps
 
 Rails.start();
 
@@ -34,7 +38,7 @@ document.addEventListener("turbo:load", function () {
   }
 });
 
-// ✅ Turboフレーム内の要素が読み込まれた時に再適用！
+// Turboフレーム内の要素が読み込まれた時に再適用
 document.addEventListener("turbo:frame-load", function () {
   var dropdownToggle = document.querySelector(".dropdown-toggle");
   var dropdownMenu = document.querySelector(".dropdown-menu");
@@ -104,6 +108,23 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 });
 
+// 位置情報
+function getLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      document.getElementById("latitude").value = position.coords.latitude;
+      document.getElementById("longitude").value = position.coords.longitude;
+      alert("位置情報を取得しました！");
+    }, function(error) {
+      alert("位置情報の取得に失敗しました：" + error.message);
+    });
+  } else {
+    alert("このブラウザでは位置情報の取得ができません。");
+  }
+}
+window.getLocation = getLocation; 
+
+
 //  いいねボタンをでリロードなしに更新(現在うまく行っていない為リロードありで対応、将来用に残しています)
 // document.addEventListener("DOMContentLoaded", function () {
 //   console.log("ページ完全ロード完了 ");
@@ -122,3 +143,4 @@ document.addEventListener("DOMContentLoaded", function() {
 //     console.warn("⚠️ `.dropdown-toggle` が見つかりません！");
 //   }
 // });
+

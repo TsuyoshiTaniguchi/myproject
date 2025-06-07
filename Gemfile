@@ -61,3 +61,8 @@ gem "enum_help"
 gem "mini_magick", "~> 5.2"
 gem 'kaminari','~> 1.2.1'
 gem 'octokit'
+gem 'google_maps_service_ruby', '~> 0.7.0'
+
+gem "faraday-retry", "~> 2.3"
+
+gem "faraday", "~> 2.13"

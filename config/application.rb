@@ -14,8 +14,16 @@ module WaiToWai
 
     config.i18n.default_locale = :ja
 
-    # 追加: images ディレクトリをアセットパイプラインに明示的に追加
+    # 画像ディレクトリをアセットパイプラインに追加
     config.assets.paths << Rails.root.join("app", "assets", "images")
+
+    # 環境変数のロード（Google Maps & GitHub API）
+    config.before_configuration do
+      Dotenv.load if defined?(Dotenv)
+
+      ENV["GOOGLE_MAPS_API_KEY"] ||= Rails.application.credentials.dig(:google_maps, :api_key)
+      ENV["GITHUB_API_KEY"] ||= Rails.application.credentials.dig(:github, :api_key)
+    end
 
     # Configuration for the application, engines, and railties goes here.
     #

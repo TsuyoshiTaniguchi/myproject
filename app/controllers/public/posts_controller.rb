@@ -5,12 +5,28 @@ class Public::PostsController < ApplicationController
 
   def index
     @query = params[:query]
+    @filter = params[:filter]
+    @category = params[:category]
+  
     # 初めに投稿全体のスコープを定義
     posts_scope = Post.visible_to(current_user).order(created_at: :desc)
-    
-    # キーワード検索（query があれば）
-    posts_scope = posts_scope.where("title LIKE ? OR content LIKE ?", "%#{@query}%", "%#{@query}%") if @query.present?
-    
+  
+    # フォローしている人の投稿のみ
+    if @filter == "following"
+      following_ids = current_user.following.pluck(:id)
+      posts_scope = posts_scope.where(user_id: following_ids)
+    end
+  
+    # カテゴリフィルター
+    if @category.present? && @category != "すべて"
+      posts_scope = posts_scope.where(category: @category)
+    end
+  
+    # キーワード検索
+    if @query.present?
+      posts_scope = posts_scope.where("title LIKE ? OR content LIKE ?", "%#{@query}%", "%#{@query}%")
+    end
+  
     @posts = posts_scope.page(params[:page]).per(6)
   end
 

@@ -1,0 +1,9 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  daily_report: one
+  skill_tag: one
+
+two:
+  daily_report: two
+  skill_tag: two

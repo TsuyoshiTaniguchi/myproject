@@ -1,0 +1,45 @@
+<h3>未来の成長予測</h3>
+
+<div class="row">
+  <!-- 長期的な技術ロードマップ -->
+  <div class="col-md-6">
+    <h4>技術強化プラン</h4>
+    <ul>
+      <% @daily_report.future_goals.each do |goal| %>
+        <li><strong><%= goal.period %></strong>: <%= goal.description %></li>
+      <% end %>
+    </ul>
+  </div>
+
+  <!-- 成長予測チャート -->
+  <div class="col-md-6">
+    <h4>技術の成長予測</h4>
+    <canvas id="futureGrowthChart"></canvas>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  let ctx = document.getElementById('futureGrowthChart');
+
+  if (ctx) {
+    fetch('/daily_reports/future_growth_data.json')
+      .then(response => response.json())
+      .then(data => {
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: data.future_dates,
+            datasets: [{
+              label: "予測成長度",
+              data: data.predicted_levels,
+              borderColor: "rgba(255, 159, 64, 1)",
+              fill: false
+            }]
+          },
+          options: { responsive: true }
+        });
+      });
+  }
+});
+</script>

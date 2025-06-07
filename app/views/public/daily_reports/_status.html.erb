@@ -1,0 +1,50 @@
+<h3>進行状況・達成度</h3>
+
+<div class="row">
+  <!-- 目標達成率 -->
+  <div class="col-md-6">
+    <h4>目標達成率</h4>
+    <p>目標: <%= @daily_report.growth_goal %></p>
+    <p>達成率: <%= @daily_report.completion_rate %>%</p>
+    <div class="progress">
+      <div class="progress-bar progress-bar-striped" role="progressbar" style="width: <%= @daily_report.completion_rate %>%;" aria-valuenow="<%= @daily_report.completion_rate %>" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+  </div>
+
+  <!-- 進行中・完了タスク -->
+  <div class="col-md-6">
+    <h4>タスク管理</h4>
+    <ul>
+      <% @daily_report.tasks.each do |task| %>
+        <li>
+          <% if task.completed? %>
+            ✅ <strong><%= task.title %></strong>
+          <% else %>
+            ⏳ <%= task.title %>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</div>
+
+<!-- 過去の成長との比較 -->
+<div class="mt-4">
+  <h4>過去の成果との比較</h4>
+  <% if @daily_report.previous_report.present? %>
+    <p>前回の達成率: <%= @daily_report.previous_report.completion_rate %>%</p>
+    <%= link_to "過去の日報を見る", daily_report_path(@daily_report.previous_report), class: "btn btn-outline-secondary btn-sm" %>
+  <% else %>
+    <p class="text-muted">比較できるデータがありません。</p>
+  <% end %>
+</div>
+
+<!-- 自己評価 -->
+<div class="mt-4">
+  <h4>自己評価</h4>
+  <p>今日の自己評価: <%= @daily_report.self_rating %>/5</p>
+  <%= form_with model: @daily_report, url: daily_report_path(@daily_report), method: :patch, local: true do |f| %>
+    <%= f.select :self_rating, [1, 2, 3, 4, 5], {}, { class: "form-select" } %>
+    <%= f.submit "変更", class: "btn btn-sm btn-primary" %>
+  <% end %>
+</div>

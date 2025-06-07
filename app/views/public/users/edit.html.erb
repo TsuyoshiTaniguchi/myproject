@@ -39,25 +39,28 @@
   </div>
 
   <script>
-    // 一度だけ input イベントリスナーを設定する形に変更
+  // 一度だけ input イベントリスナーを設定する形に
+  document.addEventListener("DOMContentLoaded", function() {
     const portfolioPlatform = document.getElementById("portfolio_platform");
     const usernameField = document.getElementById("portfolio_username_field");
     const urlField = document.getElementById("portfolio_url_field");
     const urlInput = document.querySelector("[name='user[portfolio_url]']");
     let portfolioUsernameInput = document.querySelector("[name='user[portfolio_username]']");
-
+  
     portfolioPlatform.addEventListener("change", function() {
       const selectedService = this.value;
-      if (selectedService === "github" || selectedService === "behance" || selectedService === "dribbble") {
-        usernameField.style.display = "block";
-        urlField.style.display = "none";
-      } else {
+  
+      if (selectedService === "custom") {
         usernameField.style.display = "none";
         urlField.style.display = "block";
+        urlInput.value = "";
+      } else if (selectedService === "github" || selectedService === "behance" || selectedService === "dribbble") {
+        usernameField.style.display = "block";
+        urlField.style.display = "none";
+        urlInput.value = "";
       }
     });
-
-    // イベントリスナーを一回だけ設定
+  
     if(portfolioUsernameInput) {
       portfolioUsernameInput.addEventListener("input", function() {
         const selectedService = portfolioPlatform.value;
@@ -70,6 +73,7 @@
         }
       });
     }
+  });
   </script>
 
   <div class="mb-3">

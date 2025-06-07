@@ -1,0 +1,33 @@
+<h3>スキル習熟度の推移</h3>
+<canvas id="skillChart"></canvas>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  let ctx = document.getElementById('skillChart');
+  if (ctx) {
+    fetch('/daily_reports/skill_data.json')  // ✅ スキル成長データを取得
+      .then(response => response.json())
+      .then(data => {
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: data.skills,
+            datasets: [{
+              label: "習熟度",
+              data: data.levels,
+              backgroundColor: "rgba(54, 162, 235, 0.6)"
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      });
+  }
+});
+</script>

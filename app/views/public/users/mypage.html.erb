@@ -1,76 +1,153 @@
 <h1>マイページ</h1>
 
-<!-- タブ切り替え（プロフィール・投稿一覧） -->
-<ul class="nav nav-tabs">
+<!-- タブ切り替え -->
+<ul class="nav nav-pills mb-3">
   <li class="nav-item">
     <%= link_to "プロフィール", "#profile", class: "nav-link active", data: { bs_toggle: "tab" } %>
   </li>
   <li class="nav-item">
     <%= link_to "投稿一覧", "#posts", class: "nav-link", data: { bs_toggle: "tab" } %>
   </li>
+  <li class="nav-item">
+    <%= link_to "日報管理", "#daily_reports", class: "nav-link", data: { bs_toggle: "tab" } %>
+  </li>
 </ul>
 
-<div class="tab-content mt-3">
-  <!-- プロフィールタブ -->
-  <div class="tab-pane fade show active" id="profile">
-    <!-- プロフィール部分を呼び出す際、current_user を渡し、show_actions: true にする -->
-    <%= render partial: "public/users/profile", locals: { user: current_user, show_actions: true } %>
-
-    <!-- GitHubの公開リポジトリ表示セクション -->
-    <h3 class="mb-3">GitHubの公開リポジトリ</h3>
-    <% if @github_repos.present? && @github_repos.any? %>
-      <div class="container">
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
-          <% @github_repos.each do |repo| %>
-            <div class="col">
-              <div class="card shadow-sm">
-                <div class="card-body">
-                  <h5 class="card-title"><%= repo.name %></h5>
-                  <p class="card-text"><%= repo.description || "説明なし" %></p>
-                  <p><strong>⭐️スター:</strong> <%= repo.stargazers_count %></p>
-                  <p><strong>🛠 言語:</strong> <span class="badge bg-secondary"><%= repo.language || "不明" %></span></p>
-                  <p><strong>📅 更新日:</strong> <%= repo.updated_at.strftime("%Y年%m月%d日") %></p>
-                  <%= link_to "リポジトリを見る", repo.html_url, target: "_blank", class: "btn btn-primary btn-sm" %>
-                </div>
-              </div>
-            </div>
-          <% end %>
-        </div>
-      </div>
-      <%= paginate @github_repos %>
-    <% else %>
-      <p class="text-muted">GitHubの情報がありません。</p>
-    <% end %>
-  </div>
-
-  <!-- 投稿一覧タブ -->
-  <div class="tab-pane fade" id="posts">
-    <%= render partial: "public/posts/post_list", locals: { user: current_user, show_create_button: true, show_edit_button: true } %>
-  </div>
+<!-- プロフィール情報を `_profile.html.erb` に統合 -->
+<div class="tab-pane fade show active" id="profile">
+  <%= render partial: "public/users/profile", locals: { user: current_user, show_actions: true } %>
 </div>
 
-<!-- フォローしているユーザーの最新投稿 -->
-<section class="recent-posts mt-4">
-  <h2>フォローしているユーザーの最新投稿</h2>
-  <% if @posts.present? %>
+<!-- 投稿一覧 (自分の投稿管理) -->
+<div class="tab-pane fade" id="posts">
+  <%= render partial: "public/posts/post_list", locals: { user: current_user, show_create_button: true, show_edit_button: true } %>
+</div>
+
+<!-- 日報管理 -->
+<div class="tab-pane fade" id="daily_reports">
+  <h3>日報一覧</h3>
+  <div id="calendar"></div> <!-- カレンダーを日報の近くに配置 -->
+
+  <div class="d-flex justify-content-between mb-3">
+    <%= link_to "新規日報作成", new_daily_report_path, class: "btn btn-primary px-4" %>
+    <%= link_to "日報一覧へ移動", daily_reports_path, class: "btn btn-outline-secondary px-4" %>
+  </div>
+
+  <table class="table mt-3">
+    <thead>
+      <tr>
+        <th>日付</th>
+        <th>内容</th>
+        <th>公開設定</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @daily_reports.each do |report| %>
+        <tr>
+          <td><%= report.date %></td>
+          <td><%= report.content.truncate(50) %></td>
+          <td>
+            <%= form_with model: report, url: daily_report_path(report), method: :patch, local: true do |f| %>
+              <%= f.select :visibility, DailyReport.visibilities.keys.map { |v| [v.capitalize, v] }, selected: report.visibility %>
+              <%= f.submit "変更", class: "btn btn-sm btn-outline-secondary" %>
+            <% end %>
+          </td>
+          <td>
+            <%= link_to "編集", edit_daily_report_path(report), class: "btn btn-sm btn-warning" %>
+            <%= link_to "削除", daily_report_path(report), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-sm btn-danger" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<!-- 技術スタック -->
+<h3>技術スタック</h3>
+<div class="skill-tags">
+  <% @daily_reports.flat_map(&:skill_tags).uniq.each do |tag| %>
+    <span class="badge bg-info"><%= tag.name %></span>
+  <% end %>
+</div>
+
+<!-- 技術活動データ -->
+<h3 class="mt-3">活動ハイライト</h3>
+<canvas id="activityChart"></canvas>
+
+<!-- GitHub のアクティビティ -->
+<h3>GitHubの公開リポジトリ</h3>
+<% if @github_repos.present? && @github_repos.any? %>
+  <div class="container">
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
-      <% @posts.each do |post| %>
+      <% @github_repos.each do |repo| %>
         <div class="col">
           <div class="card shadow-sm">
             <div class="card-body">
-              <h5 class="card-title"><%= post.title %></h5>
-              <p class="card-text"><%= post.content.truncate(100) %></p>
-              <p>投稿者: <%= link_to post.user.name, user_path(post.user) %></p>
-              <%= link_to "詳細を見る", post_path(post), class: "btn btn-primary btn-sm" %>
+              <h5 class="card-title"><%= repo.name %></h5>
+              <p><%= repo.description || "説明なし" %></p>
+              <p><strong>⭐️スター:</strong> <%= repo.stargazers_count %></p>
+              <%= link_to "リポジトリを見る", repo.html_url, target: "_blank", class: "btn btn-primary btn-sm" %>
             </div>
           </div>
         </div>
       <% end %>
     </div>
-  <% else %>
-    <p class="text-muted">フォローしているユーザーの投稿はまだありません。</p>
-  <% end %>
-</section>
+  </div>
+  <%= paginate @github_repos %>
+<% else %>
+  <p class="text-muted">GitHubの情報がありません。</p>
+<% end %>
+
+<!-- スキル成長データ -->
+<h3 class="mt-4">スキル成長の推移</h3>
+<canvas id="skillGrowthChart"></canvas>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  let activityCtx = document.getElementById('activityChart');
+  let skillCtx = document.getElementById('skillGrowthChart');
+
+  if (activityCtx) {
+    fetch('/users/activity_data.json')
+      .then(response => response.json())
+      .then(data => {
+        new Chart(activityCtx, {
+          type: 'bar',
+          data: {
+            labels: data.categories,
+            datasets: [{
+              label: "活動量",
+              data: data.values,
+              backgroundColor: "rgba(54, 162, 235, 0.6)"
+            }]
+          },
+          options: { responsive: true }
+        });
+      });
+  }
+
+  if (skillCtx) {
+    fetch('/users/skill_growth_data.json')
+      .then(response => response.json())
+      .then(data => {
+        new Chart(skillCtx, {
+          type: 'line',
+          data: {
+            labels: data.dates,
+            datasets: [{
+              label: "スキル進化",
+              data: data.levels,
+              borderColor: "rgba(255, 99, 132, 1)",
+              fill: false
+            }]
+          },
+          options: { responsive: true }
+        });
+      });
+  }
+});
+</script>
 
 <!-- ユーザー一覧ボタン -->
 <div class="text-center mt-4">

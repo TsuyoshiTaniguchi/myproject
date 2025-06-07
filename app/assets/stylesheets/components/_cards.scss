@@ -22,3 +22,96 @@
 .card:hover .overlay {
   opacity: 1;
 }
+
+//プロジェクトメイン
+
+.project-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.project-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  width: 300px;
+  text-align: center;
+}
+
+.project-thumbnail {
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+
+.search-form {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.styled-select {
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+
+//プロジェクト詳細
+
+.project-detail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+}
+
+.project-header {
+  text-align: center;
+}
+
+.project-thumbnail {
+  width: 100%;
+  max-width: 400px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.description {
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.tag-list {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tag-badge {
+  background-color: #007bff;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.tech-stack {
+  font-weight: bold;
+  color: #333;
+  margin-top: 10px;
+}
+
+.btn-container {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+

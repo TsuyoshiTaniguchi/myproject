@@ -1,0 +1,8 @@
+<h3><%= @skill_tag.name %> に関連する日報</h3>
+<ul>
+  <% @daily_reports.each do |report| %>
+    <li>
+      📝 <%= link_to report.date.strftime("%Y年%m月%d日"), daily_report_path(report) %>
+    </li>
+  <% end %>
+</ul>

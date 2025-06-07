@@ -3,14 +3,48 @@ class Public::DailyReportsController < ApplicationController
   before_action :set_daily_report, only: [:edit, :update, :destroy]
 
   def index
-    if params[:user_id]
-      @user = User.find_by(id: params[:user_id]) # 追加
-      @daily_reports = DailyReport.where(user_id: params[:user_id]).order(date: :desc)
-    else
-      @user = current_user # 追加
-      @daily_reports = current_user.daily_reports.order(date: :desc)
+    @user = params[:user_id] ? User.find_by(id: params[:user_id]) : current_user
+  
+    # 期間フィルタ（過去〇日間のデータ）
+    date_range = params[:date_range].present? ? Date.today - params[:date_range].to_i.days : nil
+  
+    # キーワード検索（例：「Rails」などを含む日報を取得）
+    keyword = params[:keyword].present? ? "%#{params[:keyword]}%" : nil
+  
+    @daily_reports = @user.daily_reports.order(date: :desc)
+    
+    @daily_reports = @daily_reports.where("date >= ?", date_range) if date_range
+    @daily_reports = @daily_reports.where("content LIKE ?", keyword) if keyword
+    @daily_reports = DailyReport.where(user_id: params[:user_id]).order(date: :desc).limit(30)
+    cache_key = "daily_reports/#{params[:user_id]}"
+    @daily_reports = Rails.cache.fetch(cache_key, expires_in: 24.hours) do
+      DailyReport.where(user_id: params[:user_id]).order(date: :desc).limit(30).to_a
+    end
+
+    @daily_reports = DailyReport.where(user_id: params[:user_id]).order(date: :desc).limit(30)
+
+    respond_to do |format|
+      format.html
+      format.json { render json: @daily_reports }
     end
   end
+
+  def index
+    @user = params[:user_id] ? User.find_by(id: params[:user_id]) : current_user
+  
+    # 管理者はすべての日報を閲覧可能
+    @daily_reports = if current_user.admin?
+                       DailyReport.order(date: :desc)
+                     else
+                       DailyReport.where(user_id: @user.id).where(visibility: :public).order(date: :desc)
+                     end
+  
+    respond_to do |format|
+      format.html
+      format.json { render json: @daily_reports }
+    end
+  end
+  
 
   def new
     @daily_report = current_user.daily_reports.build

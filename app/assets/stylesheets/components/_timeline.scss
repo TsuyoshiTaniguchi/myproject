@@ -1,0 +1,100 @@
+
+.timeline {
+  list-style: none;
+  padding: 0;
+}
+
+.timeline li {
+  padding: 10px;
+  border-left: 3px solid #007bff;
+  margin-bottom: 15px;
+}
+
+.timeline {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.timeline-item {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  background: #f9f9f9;
+  border-left: 4px solid #007bff;
+  border-radius: 8px;
+}
+
+.timeline-icon {
+  font-size: 24px;
+  margin-right: 10px;
+}
+
+.timeline-content {
+  flex-grow: 1;
+}
+
+.btn-container {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.filter-form {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.styled-select {
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.timeline-item {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  background: #f9f9f9;
+  border-left: 4px solid #007bff;
+  border-radius: 8px;
+  transition: all 0.3s ease-in-out;
+}
+
+.timeline-item:hover {
+  background: #e0f7ff;
+}
+
+.timeline-item {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  background: #f9f9f9;
+  border-left: 4px solid #ccc;
+  border-radius: 8px;
+  transition: all 0.3s ease-in-out;
+}
+
+.timeline-item.リリース {
+  border-left-color: #007bff;
+  background: #e3f2fd;
+}
+
+.timeline-item.バグ修正 {
+  border-left-color: #ff5722;
+  background: #ffe0b2;
+}
+
+.timeline-item.新機能追加 {
+  border-left-color: #4caf50;
+  background: #e8f5e9;
+}
+
+.timeline-icon {
+  font-size: 24px;
+  margin-right: 10px;
+}
