@@ -15,114 +15,107 @@ import "bootstrap";
 import "../stylesheets/application"; 
 
 // 外部ファイルの読み込み
-import "packs/calendar";  // カレンダー機能
-import "packs/maps";      // Google Maps
+import { initCalendar } from "packs/calendar"; // カレンダー機能
+import "packs/maps";                           // Google Maps
+import { Chart } from 'chart.js/auto';
+window.Chart = Chart;                          // HTML 直書き用に公開
 
+ 
 Rails.start();
+Turbolinks.start();
+ActiveStorage.start();
 
-document.addEventListener("turbo:load", function () {
-  var dropdownToggle = document.querySelector(".dropdown-toggle");
-  var dropdownMenu = document.querySelector(".dropdown-menu");
 
-  if (dropdownToggle && dropdownMenu) {
-    dropdownToggle.addEventListener("click", function (event) {
-      event.stopPropagation();
-      dropdownMenu.classList.toggle("show");
-    });
+/* ---------- ユーティリティ関数 ---------- */
+function initDropdown() {
+  const toggle = document.querySelector(".dropdown-toggle");
+  const menu   = document.querySelector(".dropdown-menu");
+  if (!toggle || !menu) return;
 
-    document.addEventListener("click", function (event) {
-      if (!dropdownToggle.contains(event.target) && !dropdownMenu.contains(event.target)) {
-        dropdownMenu.classList.remove("show");
-      }
-    });
-  }
-});
-
-// Turboフレーム内の要素が読み込まれた時に再適用
-document.addEventListener("turbo:frame-load", function () {
-  var dropdownToggle = document.querySelector(".dropdown-toggle");
-  var dropdownMenu = document.querySelector(".dropdown-menu");
-
-  if (dropdownToggle && dropdownMenu) {
-    dropdownToggle.addEventListener("click", function (event) {
-      event.stopPropagation();
-      dropdownMenu.classList.toggle("show");
-    });
-
-    document.addEventListener("click", function (event) {
-      if (!dropdownToggle.contains(event.target) && !dropdownMenu.contains(event.target)) {
-        dropdownMenu.classList.remove("show");
-      }
-    });
-  }
-});
-
-document.addEventListener("turbo:load", function () {
-  document.querySelectorAll(".delete-comment").forEach(button => {
-    button.addEventListener("click", event => {
-      event.preventDefault();
-      if (confirm("⚠️ 本当に削除しますか？この操作は取り消せません！")) {
-        window.location.href = button.getAttribute("href"); //  リダイレクトして削除
-      }
-    });
+  toggle.addEventListener("click",  e => { e.stopPropagation(); menu.classList.toggle("show"); });
+  document.addEventListener("click", e => {
+    if (!toggle.contains(e.target) && !menu.contains(e.target)) menu.classList.remove("show");
   });
-});
-
-// 画像アップロード時に リアルタイムでプレビュー表示 
-document.addEventListener("DOMContentLoaded", function() {
-  const fileInput = document.querySelector('input[type="file"]');
-  const previewArea = document.getElementById('image-preview');
-
-  if (fileInput && previewArea) {
-    fileInput.addEventListener("change", function() {
-      previewArea.innerHTML = ""; // 既存のプレビューをクリア
-      const files = fileInput.files;
-
-      if (files.length > 0) {
-        Array.from(files).forEach(file => {
-          const reader = new FileReader();
-          reader.onload = function(e) {
-            const img = document.createElement("img");
-            img.src = e.target.result;
-            img.classList.add("img-thumbnail", "m-2");
-            img.style.maxWidth = "200px";
-            previewArea.appendChild(img);
-          };
-          reader.readAsDataURL(file);
-        });
-      } else {
-        previewArea.innerHTML = "<p class='text-muted'>画像プレビューはここに表示されます</p>";
-      }
-    });
-  } else {
-    console.warn("ファイル入力またはプレビューエリアが見つかりませんでした。");
-  }
-
-  document.querySelectorAll('.remove-image-checkbox').forEach(checkbox => {
-    checkbox.addEventListener("change", function() {
-      const parent = this.closest('.existing-image');
-      if (parent) {
-        parent.style.display = this.checked ? "none" : "block";
-      }
-    });
-  });
-});
-
-// 位置情報
-function getLocation() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(function(position) {
-      document.getElementById("latitude").value = position.coords.latitude;
-      document.getElementById("longitude").value = position.coords.longitude;
-      alert("位置情報を取得しました！");
-    }, function(error) {
-      alert("位置情報の取得に失敗しました：" + error.message);
-    });
-  } else {
-    alert("このブラウザでは位置情報の取得ができません。");
-  }
 }
-window.getLocation = getLocation; 
+
+function initDeleteConfirm() {
+  document.querySelectorAll(".delete-comment").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.preventDefault();
+      if (confirm("⚠️ 本当に削除しますか？この操作は取り消せません！")) {
+        window.location.href = btn.href;
+      }
+    });
+  });
+}
+
+function initImagePreview() {
+  const fileInput   = document.querySelector('input[type="file"]');
+  const previewArea = document.getElementById("image-preview");
+  if (!fileInput || !previewArea) return;
+
+  previewArea.innerHTML ||= "<p class='text-muted'>画像プレビューはここに表示されます</p>";
+
+  fileInput.addEventListener("change", () => {
+    previewArea.innerHTML = "";
+    [...fileInput.files].forEach(file => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.src   = e.target.result;
+        img.className = "img-thumbnail m-2";
+        img.style.maxWidth = "200px";
+        previewArea.appendChild(img);
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+
+  document.querySelectorAll(".remove-image-checkbox").forEach(cb => {
+    cb.addEventListener("change", () => {
+      const wrap = cb.closest(".existing-image");
+      if (wrap) wrap.style.display = cb.checked ? "none" : "block";
+    });
+  });
+}
+
+/* ---------- turbolinks:load ---------- */
+function onLoad() {
+  initDropdown();
+  initDeleteConfirm();
+  initImagePreview();
+  initCalendar();  // カレンダーの初期化は問題ない前提
+
+  // mapコンテナと google オブジェクトが存在するなら初期化
+  if (document.getElementById("map") && typeof google !== "undefined") {
+    initMap();
+  } else {
+    console.warn("Google Maps API がまだ読み込まれていないか、マップコンテナが存在しません。");
+  }
+
+  // 他のタブハンドラなど
+  const dailyTab = document.querySelector('a[data-bs-toggle="tab"][href="#daily_reports"]');
+  if (dailyTab) dailyTab.addEventListener("shown.bs.tab", initCalendar);
+  if (document.querySelector("#daily_reports.show.active")) initCalendar();
+}
+
+/* ---------- 位置情報 ---------- */
+window.getLocation = function () {
+  if (!navigator.geolocation) {
+    alert("このブラウザでは位置情報の取得ができません。");
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      document.getElementById("latitude").value  = pos.coords.latitude;
+      document.getElementById("longitude").value = pos.coords.longitude;
+      alert("位置情報を取得しました！");
+    },
+    err => alert("位置情報の取得に失敗しました：" + err.message)
+  );
+};
+
+
 
 
 //  いいねボタンをでリロードなしに更新(現在うまく行っていない為リロードありで対応、将来用に残しています)

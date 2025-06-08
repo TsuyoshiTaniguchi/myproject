@@ -1,7 +1,5 @@
 Rails.application.routes.draw do
 
-
-  get 'skill_tags/show'
   devise_for :users, controllers: {
     registrations: "public/registrations",
     sessions: "public/sessions"
@@ -50,9 +48,18 @@ Rails.application.routes.draw do
   # 一般ユーザー関連
   scope module: :public do
     get '/users/mypage' => 'users#mypage', as: 'users_mypage'
-    get 'daily_reports/calendar_data', to: 'daily_reports#calendar_data'
 
-    resources :daily_reports, only: [:index, :new, :create, :edit, :update, :destroy]
+    get 'daily_reports/calendar_data', to: 'daily_reports#calendar_data'
+    get 'users/skill_growth_data', to: 'users#skill_growth_data'
+    get 'users/activity_data', to: 'users#activity_data'
+
+    resources :daily_reports, only: [:index, :show, :new, :create, :edit, :update, :destroy] do
+      collection do
+        get :calendar_data
+        get :growth_data
+        get :future_growth_data
+      end
+    end
 
    
     

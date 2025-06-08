@@ -11,17 +11,23 @@ class GithubController < ApplicationController
     render json: stats
   end
 
+  # エラーハンドリング付きの commits メソッドに統一
   def commits
     repo_full_name = params[:repo_full_name]
-    github_service = GithubService.new(ENV['GITHUB_USERNAME'])
+    # ENV['GITHUB_USERNAME'] を使う必要があれば、明示的に含めます：
+    # repo_full_name = "#{ENV['GITHUB_USERNAME']}/#{repo_full_name}"  のように調整できる場合もあります
+    
+    commits = GithubService.new(repo_full_name).fetch_commits(repo_full_name)
+    render json: commits
+  rescue StandardError => e
+    Rails.logger.error "GitHub commits error: #{e.message}"
+    render json: { error: e.message }, status: :internal_server_error
+  end
 
-    commits = github_service.fetch_commits(repo_full_name)
-
-    if commits.present?
-      render json: commits
-    else
-      render json: { error: "コミットデータが見つかりません" }, status: 404
-    end
+  def default_commits
+    # サンプルとして空の配列を返す。必要に応じて GithubService を利用できます。
+    commits = []
+    render json: commits
   end
 
 end

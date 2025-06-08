@@ -163,7 +163,19 @@ class Public::UsersController < ApplicationController
       end    # フロントエンド側でより多くの情報が扱えるように
     end
   end
-  
+
+  def skill_growth_data
+    # ここでは current_user が持つ、スキルの進捗履歴を JSON で返す例
+    skill_data = current_user.skill_progress.map { |s| { date: s.date.iso8601, level: s.level } } rescue []
+    render json: skill_data
+  end
+
+  def activity_data
+    # 現在のアクティビティデータを集計して返す
+    activities = current_user.activities.map { |a| { category: a.category, value: a.value } } rescue []
+    render json: activities
+  end
+
   private
 
   # ここで、投稿がグループ投稿の場合にフィルタする
@@ -196,7 +208,3 @@ class Public::UsersController < ApplicationController
   end
 
 end
-
-
-
-

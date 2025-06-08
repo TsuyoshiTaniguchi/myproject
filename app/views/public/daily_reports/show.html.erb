@@ -1,140 +1,56 @@
 <h1>日報詳細</h1>
 
-<!-- 成長データ & 技術トレンド -->
-<div class="row">
-  <div class="col-md-6">
-    <h3>成長の推移</h3>
-    <canvas id="growthChart"></canvas>
-  </div>
-
-  <h3>スキル習得タグ</h3>
-  <% @daily_report.skill_tags.each do |tag| %>
-    <span class="badge bg-info"><%= tag.name %></span>
-  <% end %>
-
-  <div class="col-md-6">
-    <h3>スキル習熟度</h3>
-    <div class="skill-tags">
-      <% @daily_report.skill_tags.each do |tag| %>
-        <span class="badge bg-info"><%= tag.name %></span>
-      <% end %>
-    </div>
-  </div>
+<div class="mb-3">
+  <%= link_to "日報一覧へ戻る", daily_reports_path, class: "btn btn-outline-secondary" %>
 </div>
 
-<!-- 日報の詳細 -->
-<div class="card mt-4">
+<!-- 基本情報 -->
+<div class="card mb-4">
+  <div class="card-header">
+    <strong><%= @daily_report.date.strftime("%Y年%m月%d日") %></strong> - <%= @daily_report.location %>
+  </div>
   <div class="card-body">
-    <h5 class="card-title"><%= @daily_report.date.strftime("%Y年%m月%d日") %></h5>
-    <p class="card-text"><strong>場所:</strong> <%= @daily_report.location %></p>
-    <p class="card-text"><%= @daily_report.content %></p>
-
-    <!-- 過去の類似日報との比較 -->
-    <% previous_report = @daily_report.previous_report %>
-    <% if previous_report %>
-      <h5 class="mt-3">以前の記録と比較</h5>
-      <p><strong>前回の日報:</strong> <%= previous_report.date.strftime("%Y年%m月%d日") %></p>
-      <p><%= previous_report.content.truncate(100) %></p>
-      <%= link_to "前回の日報を確認", daily_report_path(previous_report), class: "btn btn-outline-secondary btn-sm" %>
-    <% end %>
+    <p><%= @daily_report.content %></p>
   </div>
 </div>
 
-<!-- 影響度・成果 -->
-<div class="mt-4">
-  <h3>日報の影響度・成果</h3>
-  <div class="row">
-    <div class="col-md-4">
-      <h4>技術的な成果</h4>
-      <ul>
-        <% @daily_report.technologies.each do |tech| %>
-          <li><strong><%= tech.name %></strong> - <%= tech.impact_description %></li>
-        <% end %>
-      </ul>
-    </div>
-
-    <div class="col-md-4">
-      <h4>学びと改善点</h4>
-      <ul>
-        <% @daily_report.learned_lessons.each do |lesson| %>
-          <li>✅ <%= lesson %></li>
-        <% end %>
-      </ul>
-    </div>
-
-    <div class="col-md-4">
-      <h4>影響スコア</h4>
-      <p>プロジェクトへの貢献度: <%= @daily_report.impact_score %>/10</p>
-      <div class="progress">
-        <div class="progress-bar progress-bar-striped" role="progressbar" style="width: <%= @daily_report.impact_score * 10 %>%;" aria-valuenow="<%= @daily_report.impact_score %>" aria-valuemin="0" aria-valuemax="10"></div>
-      </div>
+<!-- 以前の記録との比較 -->
+<% if @daily_report.previous_report %>
+  <div class="card mb-4">
+    <div class="card-header">以前の記録との比較</div>
+    <div class="card-body">
+      <p>前回の日報: <%= @daily_report.previous_report.date.strftime("%Y年%m月%d日") %></p>
+      <p><%= truncate(@daily_report.previous_report.content, length: 100) %></p>
+      <%= link_to "前回の日報を確認", daily_report_path(@daily_report.previous_report), class: "btn btn-outline-secondary btn-sm" %>
     </div>
   </div>
+<% end %>
+
+<!-- 成長の推移（グラフ表示） -->
+<div class="mb-4">
+  <h3>成長の推移</h3>
+  <canvas id="growthChart" width="400" height="200"></canvas>
 </div>
 
-<!-- 未来の成長予測 -->
-<div class="mt-4">
+<!-- 未来の成長予測（グラフ表示） -->
+<div class="mb-4">
   <h3>未来の成長予測</h3>
-  <div class="row">
-    <div class="col-md-6">
-      <h4>技術強化プラン</h4>
-      <ul>
-        <% @daily_report.future_goals.each do |goal| %>
-          <li><strong><%= goal.period %></strong>: <%= goal.description %></li>
-        <% end %>
-      </ul>
-    </div>
-
-    <div class="col-md-6">
-      <h4>技術の成長予測</h4>
-      <canvas id="futureGrowthChart"></canvas>
-    </div>
-  </div>
+  <canvas id="futureGrowthChart" width="400" height="200"></canvas>
 </div>
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  let ctx = document.getElementById('growthChart');
-  let futureCtx = document.getElementById('futureGrowthChart');
+<!-- 影響度・成果（現状はデータがなければプレースホルダー表示） -->
+<div class="mb-4">
+  <h3>影響度・成果</h3>
+  <% if @daily_report.impact_score.present? %>
+    <p>影響スコア: <%= @daily_report.impact_score %>/10</p>
+    <div class="progress">
+      <div class="progress-bar progress-bar-striped" role="progressbar" style="width: <%= @daily_report.impact_score * 10 %>%;" aria-valuenow="<%= @daily_report.impact_score %>" aria-valuemin="0" aria-valuemax="10"></div>
+    </div>
+  <% else %>
+    <p>現在、評価データはありません。</p>
+  <% end %>
+</div>
 
-  if (ctx) {
-    fetch('/daily_reports/growth_data.json')
-      .then(response => response.json())
-      .then(data => {
-        new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: data.dates,
-            datasets: [{
-              label: "コード量 & 改善数",
-              data: data.stats,
-              borderColor: "rgba(75, 192, 192, 1)",
-              fill: false
-            }]
-          },
-          options: { responsive: true }
-        });
-      });
-  }
-
-  if (futureCtx) {
-    fetch('/daily_reports/future_growth_data.json')
-      .then(response => response.json())
-      .then(data => {
-        new Chart(futureCtx, {
-          type: 'line',
-          data: {
-            labels: data.future_dates,
-            datasets: [{
-              label: "予測成長度",
-              data: data.predicted_levels,
-              borderColor: "rgba(255, 159, 64, 1)",
-              fill: false
-            }]
-          },
-          options: { responsive: true }
-        });
-      });
-  }
-});
-</script>
+<div class="text-center mt-4">
+  <%= link_to "マイページに戻る", users_mypage_path, class: "btn btn-outline-secondary btn-lg" %>
+</div>

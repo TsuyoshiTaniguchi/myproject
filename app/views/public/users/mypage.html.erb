@@ -13,54 +13,55 @@
   </li>
 </ul>
 
-<!-- プロフィール情報を `_profile.html.erb` に統合 -->
-<div class="tab-pane fade show active" id="profile">
-  <%= render partial: "public/users/profile", locals: { user: current_user, show_actions: true } %>
-</div>
-
-<!-- 投稿一覧 (自分の投稿管理) -->
-<div class="tab-pane fade" id="posts">
-  <%= render partial: "public/posts/post_list", locals: { user: current_user, show_create_button: true, show_edit_button: true } %>
-</div>
-
-<!-- 日報管理 -->
-<div class="tab-pane fade" id="daily_reports">
-  <h3>日報一覧</h3>
-  <div id="calendar"></div> <!-- カレンダーを日報の近くに配置 -->
-
-  <div class="d-flex justify-content-between mb-3">
-    <%= link_to "新規日報作成", new_daily_report_path, class: "btn btn-primary px-4" %>
-    <%= link_to "日報一覧へ移動", daily_reports_path, class: "btn btn-outline-secondary px-4" %>
+<!-- タブパネルを tab-content でラップ -->
+<div class="tab-content">
+  <!-- プロフィール情報 -->
+  <div class="tab-pane fade show active" id="profile">
+    <%= render partial: "public/users/profile", locals: { user: current_user, show_actions: true } %>
   </div>
 
-  <table class="table mt-3">
-    <thead>
-      <tr>
-        <th>日付</th>
-        <th>内容</th>
-        <th>公開設定</th>
-        <th>操作</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @daily_reports.each do |report| %>
+  <!-- 投稿一覧 -->
+  <div class="tab-pane fade" id="posts">
+    <%= render partial: "public/posts/post_list", locals: { user: current_user, show_create_button: true, show_edit_button: true } %>
+  </div>
+
+  <!-- 日報管理 -->
+  <div class="tab-pane fade" id="daily_reports">
+    <h3>日報一覧</h3>
+    <div id="calendar"></div> <!-- カレンダーを日報の近くに配置 -->
+    <div class="d-flex justify-content-between mb-3">
+      <%= link_to "新規日報作成", new_daily_report_path, class: "btn btn-primary px-4" %>
+      <%= link_to "日報一覧へ移動", daily_reports_path, class: "btn btn-outline-secondary px-4" %>
+    </div>
+    <table class="table mt-3">
+      <thead>
         <tr>
-          <td><%= report.date %></td>
-          <td><%= report.content.truncate(50) %></td>
-          <td>
-            <%= form_with model: report, url: daily_report_path(report), method: :patch, local: true do |f| %>
-              <%= f.select :visibility, DailyReport.visibilities.keys.map { |v| [v.capitalize, v] }, selected: report.visibility %>
-              <%= f.submit "変更", class: "btn btn-sm btn-outline-secondary" %>
-            <% end %>
-          </td>
-          <td>
-            <%= link_to "編集", edit_daily_report_path(report), class: "btn btn-sm btn-warning" %>
-            <%= link_to "削除", daily_report_path(report), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-sm btn-danger" %>
-          </td>
+          <th>日付</th>
+          <th>内容</th>
+          <th>公開設定</th>
+          <th>操作</th>
         </tr>
-      <% end %>
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        <% @daily_reports.each do |report| %>
+          <tr>
+            <td><%= report.date %></td>
+            <td><%= report.content.truncate(50) %></td>
+            <td>
+              <%= form_with model: report, url: daily_report_path(report), method: :patch, local: true do |f| %>
+                <%= f.select :visibility, DailyReport.visibilities.keys.map { |v| [v.capitalize, v] }, selected: report.visibility %>
+                <%= f.submit "変更", class: "btn btn-sm btn-outline-secondary" %>
+              <% end %>
+            </td>
+            <td>
+              <%= link_to "編集", edit_daily_report_path(report), class: "btn btn-sm btn-warning" %>
+              <%= link_to "削除", daily_report_path(report), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-sm btn-danger" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <!-- 技術スタック -->

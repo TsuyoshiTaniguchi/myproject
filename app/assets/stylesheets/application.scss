@@ -29,8 +29,11 @@
  @import "components/header";
  @import "components/footer";
  @import "components/forms";
- @import "components/timeline";
  @import "components/posts";
 
  /* その他グローバルなスタイルがあれば追記 */
  
+ #calendar, #chart {
+  border: 1px solid red;
+  min-height: 300px;
+}
