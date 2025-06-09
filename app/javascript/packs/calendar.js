@@ -1,21 +1,19 @@
+// app/javascript/packs/calendar.js
 import { Calendar } from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 
 export async function initCalendar() {
   const el = document.getElementById("calendar");
-  if (!el || el.dataset.initialized) return; // 対象要素が存在しないまたは既に初期化済みなら中断
+  if (!el || el.dataset.initialized) return;
   el.dataset.initialized = "true";
 
   try {
-    // APIから日報データを取得
     const response = await fetch("/daily_reports/calendar_data.json");
     if (!response.ok) {
       throw new Error(`HTTPエラー: ${response.status}`);
     }
     const reports = await response.json();
-
-    // 取得した日報データからFullCalendar用のイベントオブジェクトに変換
     const events = reports.map(r => ({
       id: r.id,
       title: r.title,
@@ -24,11 +22,10 @@ export async function initCalendar() {
       backgroundColor: "#66ccff"
     }));
 
-    // FullCalendar のインスタンスを生成し、設定を適用
     const calendar = new Calendar(el, {
       plugins: [dayGridPlugin, interactionPlugin],
       initialView: "dayGridMonth",
-      height: "auto",
+      height: 400, // 固定値（px）により表示サイズを調整
       events: events,
       eventClick(info) {
         info.jsEvent.preventDefault();
@@ -38,8 +35,25 @@ export async function initCalendar() {
       }
     });
 
+    // カレンダーをレンダリングし、グローバル変数に保持
     calendar.render();
+    window.fullCalendarInstance = calendar;
+
+    // 表示状態になったタイミングで updateSize を呼ぶためのリトライ処理
+    let attempts = 10;
+    const interval = setInterval(() => {
+      if (el.offsetWidth > 0 && el.offsetHeight > 0) {
+        calendar.updateSize();
+        clearInterval(interval);
+      }
+      attempts--;
+      if (attempts <= 0) clearInterval(interval);
+    }, 300);
   } catch (err) {
     console.error("カレンダーデータ取得に失敗:", err);
   }
 }
+
+document.addEventListener("turbolinks:load", () => {
+  initCalendar();
+});

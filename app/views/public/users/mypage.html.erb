@@ -29,7 +29,12 @@
   <div class="tab-pane fade" id="daily_reports">
     <h3>ライフログ</h3>
     <!-- マイページ内のカレンダー表示部分 -->
-<div id="calendar" style="min-height: 400px; width: 100%; margin-bottom: 20px;"></div> <!-- カレンダーを日報の近くに配置 -->
+    <div id="calendar-wrapper" style="min-height: 450px; width: 100%;">
+      <div id="calendar" style="min-height: 400px; width: 100%;"></div>
+    </div>
+  
+
+    <!-- カレンダーを日報の近くに配置 -->
     <div class="d-flex justify-content-between mb-3">
       <%= link_to "新規日報作成", new_daily_report_path, class: "btn btn-primary px-4" %>
       <%= link_to "日報一覧へ移動", daily_reports_path, class: "btn btn-outline-secondary px-4" %>

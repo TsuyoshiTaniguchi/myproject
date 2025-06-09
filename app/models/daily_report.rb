@@ -2,6 +2,8 @@
 class DailyReport < ApplicationRecord
   belongs_to :user
 
+  has_many :tasks, dependent: :destroy
+
   # 公開／非公開の設定
   enum visibility: { public_report: 0, private_report: 1 }
 

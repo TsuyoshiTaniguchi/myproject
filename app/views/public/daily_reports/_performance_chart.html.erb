@@ -1,30 +1,28 @@
 <!-- app/views/public/daily_reports/_performance_chart.html.erb -->
-
 <div class="mb-4">
   <h3>パフォーマンスの推移</h3>
-  <canvas id="performanceChart" style="width:100%; height:300px;"></canvas>
+  <div style="width:400px; height:300px; margin:0 auto;">
+    <canvas id="performanceChart" style="width:100%; height:100%;"></canvas>
+  </div>
 </div>
 
-<div class="chart-container" style="position: relative; height:400px; width:100%;">
-  <!-- 成長データチャート -->
-  <canvas id="growthChart" width="400" height="200"></canvas>
-</div>
-
-<div class="chart-container" style="position: relative; height:400px; width:100%;">
-  <!-- 将来成長予測チャート -->
-  <canvas id="futureGrowthChart" width="400" height="200"></canvas>
-</div>
-
+<!-- 他のグラフの HTML（growthChart, futureGrowthChart など）もそのままで大丈夫です -->
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("turbolinks:load", function() {
   let ctx = document.getElementById('performanceChart');
   if (!ctx) return;
-
+  
+  // キャンバスに既に関連付けられている Chart インスタンスがあれば破棄する
+  let existingChart = Chart.getChart(ctx);
+  if (existingChart) {
+    existingChart.destroy();
+  }
+  
   fetch('/daily_reports/performance_data.json')
     .then(res => res.json())
     .then(data => {
-      new Chart(ctx, {
+      window.performanceChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
           labels: data.dates,

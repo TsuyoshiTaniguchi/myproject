@@ -139,6 +139,30 @@ window.getLocation = function () {
 // turbolinksのロードイベントに確実に onLoad 関数を登録
 document.addEventListener("turbolinks:load", onLoad);
 
+// ページ遷移前に、キャンバスに紐づいた Chart インスタンスを破棄する
+document.addEventListener("turbolinks:before-cache", function() {
+  const canvas = document.getElementById("performanceChart");
+  if (canvas) {
+    // キャンバスに紐づいている Chart インスタンスを取得して破棄する
+    const existingChart = Chart.getChart(canvas);
+    if (existingChart) {
+      existingChart.destroy();
+    }
+  }
+});
+
+document.addEventListener("turbolinks:before-cache", function() {
+  const canvas = document.getElementById("performanceChart");
+  if (canvas) {
+    const existingChart = Chart.getChart(canvas);
+    if (existingChart) {
+      existingChart.destroy();
+    }
+  }
+  window.performanceChartInitialized = false; // 次回の初期化を許可
+});
+
+
 
 //  いいねボタンをでリロードなしに更新(現在うまく行っていない為リロードありで対応、将来用に残しています)
 // document.addEventListener("DOMContentLoaded", function () {

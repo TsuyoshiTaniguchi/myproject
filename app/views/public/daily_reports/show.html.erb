@@ -1,15 +1,59 @@
-<h1>日報詳細</h1>
+<!-- app/views/public/daily_reports/show.html.erb -->
 
-<!-- 日報一覧へのリンク -->
-<div class="mb-3">
-  <%= link_to "日報一覧へ戻る", daily_reports_path, class: "btn btn-outline-secondary" %>
+<h1 class="mb-4">日報詳細</h1>
+
+<div class="alert alert-info mb-3">
+  <h4>グラフと指標の説明</h4>
+  <ul>
+    <li><strong>目標値:</strong> 将来に向けた目標の数値。ここに設定した値が指標となり、達成率のベースになります。</li>
+    <li><strong>達成率:</strong> 現在のタスク達成度が目標値に対してどれだけ達成されているかの割合です。</li>
+    <li><strong>パフォーマンススコア:</strong> タスク達成度と自己評価の平均値で、総合的な成績を示します。</li>
+  </ul>
 </div>
 
-<canvas id="futureGrowthChart" width="400" height="200"></canvas>
-<!-- 基本情報 -->
+
+<div class="d-flex justify-content-between mb-4">
+  <%= link_to "← 日報一覧に戻る", daily_reports_path, class: "btn btn-outline-secondary" %>
+  <%= link_to "マイページへ", users_mypage_path, class: "btn btn-outline-secondary" %>
+</div>
+
+<!-- =====================================
+     1. パフォーマンス推移 & 予測
+   ===================================== -->
 <div class="card mb-4">
   <div class="card-header">
-    <strong><%= @daily_report.date.strftime("%Y年%m月%d日") %></strong>
+    <h3 class="mb-0">パフォーマンス推移</h3>
+  </div>
+  <div class="card-body text-center">
+    <!-- Chart.js 用キャンバス -->
+    <div style="position: relative; height:300px; width:100%;">
+      <canvas
+        id="performanceChart"
+        data-goal-value="<%= @daily_report.future_goal_value.to_i %>"
+        data-goal-days ="<%= @daily_report.future_goal_days.to_i %>"
+      ></canvas>
+    </div>
+
+    <% if @daily_report.future_goal_value.present? && @daily_report.future_goal_days.present? %>
+      <% days_passed     = (Date.current - @daily_report.date).to_i %>
+      <% remaining_days  = [@daily_report.future_goal_days - days_passed, 0].max %>
+      <% last_value      = @daily_report.task_achievement.to_i %>
+      <% required_per_day= ((@daily_report.future_goal_value - last_value).to_f / @daily_report.future_goal_days).round(1) %>
+
+      <div class="mt-3">
+        <span class="me-4">残り日数：<strong><%= remaining_days %>日</strong></span>
+        <span>１日あたり▲<strong><%= required_per_day %>ポイント</strong></span>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- =====================================
+     2. 日報の基本情報
+   ===================================== -->
+<div class="card mb-4">
+  <div class="card-header">
+    <strong><%= @daily_report.date.strftime("%Y年%-m月%-d日") %></strong>
     &nbsp;–&nbsp;<%= @daily_report.location %>
   </div>
   <div class="card-body">
@@ -17,53 +61,49 @@
   </div>
 </div>
 
-<!-- 以前の記録との比較 -->
-<% if @daily_report.previous_report.present? %>
-  <div class="card mb-4">
-    <div class="card-header">
-      以前の記録との比較
-    </div>
-    <div class="card-body">
-      <p>
-        前回の日報:
-        <%= @daily_report.previous_report.date.strftime("%Y年%m月%d日") %>
-      </p>
-      <p><%= truncate(@daily_report.previous_report.content, length: 100) %></p>
-      <%= link_to "前回の日報を確認",
-                  daily_report_path(@daily_report.previous_report),
-                  class: "btn btn-outline-secondary btn-sm" %>
-    </div>
+<!-- 日報詳細ページ内（show.html.erb）の適当な位置に追加 -->
+<%= render "tasks", daily_report: @daily_report %>
+
+
+<!-- 将来の目標値と目標日数 -->
+<div class="card mb-3">
+  <div class="card-header">
+    <h4>将来の目標設定</h4>
   </div>
-<% end %>
-
-<!-- パフォーマンス推移グラフ -->
-<%= render 'performance_chart' %>
-
-<!-- 将来の成長予測 -->
-<%= render 'future', daily_report: @daily_report %>
-
-<!-- パフォーマンススコア -->
-<div class="mb-4">
-  <h3>パフォーマンススコア</h3>
-  <% if @daily_report.performance_score.present? %>
-    <p>パフォーマンス: <%= @daily_report.performance_score %>/10</p>
-    <div class="progress">
-      <div class="progress-bar progress-bar-striped"
-           role="progressbar"
-           style="width: <%= @daily_report.performance_score * 10 %>%;"
-           aria-valuenow="<%= @daily_report.performance_score %>"
-           aria-valuemin="0"
-           aria-valuemax="10">
-      </div>
-    </div>
-  <% else %>
-    <p class="text-muted">評価データがありません。</p>
-  <% end %>
+  <div class="card-body">
+    <p><strong>将来の目標値:</strong> <%= @daily_report.future_goal_value.presence || "未設定" %></p>
+    <p><strong>目標達成日数:</strong> <%= @daily_report.future_goal_days.presence || "未設定" %> 日</p>
+  </div>
 </div>
 
-<!-- マイページへのリンク -->
-<div class="text-center mt-4">
-  <%= link_to "マイページに戻る",
-              users_mypage_path,
-              class: "btn btn-outline-secondary btn-lg" %>
+<!-- =====================================
+     3. 進行状況・達成度 (status partial)
+   ===================================== -->
+<%= render "status", daily_report: @daily_report %>
+
+
+<!-- =====================================
+     4. パフォーマンススコア
+   ===================================== -->
+<div class="card mb-4">
+  <div class="card-header">
+    <h3 class="mb-0">パフォーマンススコア</h3>
+  </div>
+  <div class="card-body">
+    <% if @daily_report.performance_score.present? %>
+      <p>パフォーマンス: <strong><%= @daily_report.performance_score %>/10</strong></p>
+      <div class="progress">
+        <div
+          class="progress-bar progress-bar-striped"
+          role="progressbar"
+          style="width: <%= @daily_report.performance_score * 10 %>%;"
+          aria-valuenow="<%= @daily_report.performance_score %>"
+          aria-valuemin="0"
+          aria-valuemax="10">
+        </div>
+      </div>
+    <% else %>
+      <p class="text-muted">評価データがありません。</p>
+    <% end %>
+  </div>
 </div>

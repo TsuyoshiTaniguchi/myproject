@@ -48,14 +48,15 @@ Rails.application.routes.draw do
     # 日報 (DailyReports)
     resources :daily_reports, only: [:index, :show, :new, :create, :edit, :update, :destroy] do
       collection do
-        get :calendar_data
+        get :calendar_data      # /daily_reports/calendar_data(.:format)
+        get :performance_data   # /daily_reports/performance_data(.:format)
         get :growth_data
         get :future_growth_data
       end
+      resources :tasks, only: %i[create update destroy] # タスクはあくまで日報詳細の中で CRUD させるだけ
     end
 
-   
-    
+
     resources :posts do
       resources :comments, only: [:create, :destroy] do
         member do

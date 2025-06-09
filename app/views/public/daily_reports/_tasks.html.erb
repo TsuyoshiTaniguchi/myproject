@@ -1,0 +1,32 @@
+<h4>タスク管理</h4>
+
+<% if daily_report.tasks.any? %>
+  <ul class="list-group mb-3">
+    <% daily_report.tasks.each do |task| %>
+      <li class="list-group-item d-flex align-items-center justify-content-between">
+        <div>
+          <%= form_with model: [daily_report, task], local: true do |f| %>
+            <!-- チェックボックスで完了状態を更新（変更時に自動送信） -->
+            <%= f.check_box :completed, onchange: "this.form.submit();" %>
+            <!-- タスクタイトル（編集フォームとしても利用） -->
+            <%= f.text_field :title, value: task.title, class: 'form-control d-inline-block', style: "width: 200px;" %>
+          <% end %>
+        </div>
+        <div>
+          <!-- 削除ボタン -->
+          <%= button_to '削除', daily_report_task_path(daily_report, task), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
+        </div>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p class="text-muted">登録されたタスクはありません。</p>
+<% end %>
+
+<h5>新しいタスクを追加</h5>
+<%= form_with model: [daily_report, Task.new], local: true do |f| %>
+  <div class="input-group mb-3">
+    <%= f.text_field :title, placeholder: "タスク名を入力", class: "form-control" %>
+    <button class="btn btn-primary" type="submit">追加</button>
+  </div>
+<% end %>
