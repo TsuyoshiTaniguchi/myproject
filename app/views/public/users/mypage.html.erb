@@ -27,8 +27,9 @@
 
   <!-- 日報管理 -->
   <div class="tab-pane fade" id="daily_reports">
-    <h3>日報一覧</h3>
-    <div id="calendar"></div> <!-- カレンダーを日報の近くに配置 -->
+    <h3>ライフログ</h3>
+    <!-- マイページ内のカレンダー表示部分 -->
+<div id="calendar" style="min-height: 400px; width: 100%; margin-bottom: 20px;"></div> <!-- カレンダーを日報の近くに配置 -->
     <div class="d-flex justify-content-between mb-3">
       <%= link_to "新規日報作成", new_daily_report_path, class: "btn btn-primary px-4" %>
       <%= link_to "日報一覧へ移動", daily_reports_path, class: "btn btn-outline-secondary px-4" %>
@@ -61,94 +62,10 @@
         <% end %>
       </tbody>
     </table>
+    <!-- ここで最新のパフォーマンス推移やスキル成長のグラフを含める -->
+    <%= render 'public/daily_reports/performance_chart' %>
   </div>
 </div>
-
-<!-- 技術スタック -->
-<h3>技術スタック</h3>
-<div class="skill-tags">
-  <% @daily_reports.flat_map(&:skill_tags).uniq.each do |tag| %>
-    <span class="badge bg-info"><%= tag.name %></span>
-  <% end %>
-</div>
-
-<!-- 技術活動データ -->
-<h3 class="mt-3">活動ハイライト</h3>
-<canvas id="activityChart"></canvas>
-
-<!-- GitHub のアクティビティ -->
-<h3>GitHubの公開リポジトリ</h3>
-<% if @github_repos.present? && @github_repos.any? %>
-  <div class="container">
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
-      <% @github_repos.each do |repo| %>
-        <div class="col">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h5 class="card-title"><%= repo.name %></h5>
-              <p><%= repo.description || "説明なし" %></p>
-              <p><strong>⭐️スター:</strong> <%= repo.stargazers_count %></p>
-              <%= link_to "リポジトリを見る", repo.html_url, target: "_blank", class: "btn btn-primary btn-sm" %>
-            </div>
-          </div>
-        </div>
-      <% end %>
-    </div>
-  </div>
-  <%= paginate @github_repos %>
-<% else %>
-  <p class="text-muted">GitHubの情報がありません。</p>
-<% end %>
-
-<!-- スキル成長データ -->
-<h3 class="mt-4">スキル成長の推移</h3>
-<canvas id="skillGrowthChart"></canvas>
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  let activityCtx = document.getElementById('activityChart');
-  let skillCtx = document.getElementById('skillGrowthChart');
-
-  if (activityCtx) {
-    fetch('/users/activity_data.json')
-      .then(response => response.json())
-      .then(data => {
-        new Chart(activityCtx, {
-          type: 'bar',
-          data: {
-            labels: data.categories,
-            datasets: [{
-              label: "活動量",
-              data: data.values,
-              backgroundColor: "rgba(54, 162, 235, 0.6)"
-            }]
-          },
-          options: { responsive: true }
-        });
-      });
-  }
-
-  if (skillCtx) {
-    fetch('/users/skill_growth_data.json')
-      .then(response => response.json())
-      .then(data => {
-        new Chart(skillCtx, {
-          type: 'line',
-          data: {
-            labels: data.dates,
-            datasets: [{
-              label: "スキル進化",
-              data: data.levels,
-              borderColor: "rgba(255, 99, 132, 1)",
-              fill: false
-            }]
-          },
-          options: { responsive: true }
-        });
-      });
-  }
-});
-</script>
 
 <!-- ユーザー一覧ボタン -->
 <div class="text-center mt-4">

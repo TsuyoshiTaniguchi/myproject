@@ -1,3 +1,4 @@
+<!-- app/views/daily_reports/index.html.erb -->
 <h1>ライフログ＜日報一覧＞</h1>
 
 <!-- 新規日報作成ボタン -->
@@ -5,76 +6,62 @@
   <%= link_to "新規日報作成", new_daily_report_path, class: "btn btn-primary px-4" %>
 </div>
 
-<!-- カレンダーと成長グラフを統合 -->
 <div class="row mb-4">
   <div class="col-md-6">
-    <h3>カレンダー & 成長の推移</h3>
+    <h3>カレンダー & パフォーマンスの推移</h3>
     <div id="calendar"></div>
-    <canvas id="growthChart"></canvas>
+    
+    <!-- パフォーマンス推移グラフ部分テンプレート呼び出し -->
+    <%= render 'performance_chart' %>
   </div>
-  
+
   <div class="col-md-6">
     <h3>位置情報</h3>
-    <!-- 地図を表示するための DIV 要素を必ず用意する -->
-    <div id="map" style="width: 100%; height: 400px;"></div>
+    <div id="map" style="width:100%; height:400px;"></div>
   </div>
 </div>
 
-<!-- スキルタグのフィルタリング -->
+<!-- フィルタリングフォーム -->
 <form action="<%= daily_reports_path %>" method="get" class="mb-4">
   <div class="row">
     <div class="col-md-4">
       <label>期間で検索:</label>
       <select name="date_range" class="form-select">
-        <option value="7">過去7日間</option>
-        <option value="30">過去30日間</option>
-        <option value="90">過去3ヶ月</option>
+        <option value="7"  <%= 'selected' if params[:date_range]=='7'  %>>過去7日間</option>
+        <option value="30" <%= 'selected' if params[:date_range]=='30' %>>過去30日間</option>
+        <option value="90" <%= 'selected' if params[:date_range]=='90' %>>過去3ヶ月</option>
       </select>
     </div>
-
-    <div class="col-md-4">
-      <label>スキルタグで検索:</label>
-      <select name="skill_tag" class="form-select">
-        <% SkillTag.all.each do |tag| %>
-          <option value="<%= tag.id %>"><%= tag.name %></option>
-        <% end %>
-      </select>
-    </div>
-
     <div class="col-md-4">
       <label>キーワード検索:</label>
       <%= text_field_tag :keyword, params[:keyword], class: "form-control", placeholder: "キーワード入力" %>
     </div>
   </div>
-
   <button type="submit" class="btn btn-primary mt-3">検索</button>
 </form>
 
-<!-- 時系列タイムライン表示 -->
+<!-- 日報タイムライン -->
 <h3>日報履歴（タイムライン）</h3>
 <div class="timeline">
-  <% unless @daily_reports.empty? %>
-    <% @daily_reports.sort_by { |report| report.date }.reverse.each do |report| %>
+  <% if @daily_reports.any? %>
+    <% @daily_reports.each do |report| %>
       <div class="timeline-item">
-        <div class="timeline-icon">
-          <i class="fas fa-code"></i>
-        </div>
+        <div class="timeline-icon"><i class="fas fa-file-alt"></i></div>
         <div class="timeline-content">
           <h5>
             <%= report.date.strftime("%Y年%m月%d日") %>
-            <% if report.public_report? %>
-              <span class="badge bg-success">公開</span>
-            <% else %>
-              <span class="badge bg-secondary">非公開</span>
-            <% end %>
+            <% badge = report.public_report? ? '公開' : '非公開' %>
+            <span class="badge <%= report.public_report? ? 'bg-success' : 'bg-secondary' %>">
+              <%= badge %>
+            </span>
           </h5>
           <p><strong>場所:</strong> <%= report.location %></p>
           <p><%= truncate(report.content, length: 100) %></p>
           <%= link_to "詳細を見る", daily_report_path(report), class: "btn btn-sm btn-outline-primary" %>
-          <% if @user == current_user %>
+          <% if report.user == current_user %>
             <div class="d-flex justify-content-between mt-2">
-              <%= link_to '編集', edit_daily_report_path(report), class: "btn btn-warning btn-sm" %>
-              <%= link_to '削除', daily_report_path(report), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
+              <%= link_to "編集", edit_daily_report_path(report), class: "btn btn-warning btn-sm" %>
+              <%= link_to "削除", report, method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
             </div>
           <% end %>
         </div>
@@ -84,8 +71,6 @@
     <p class="text-center text-muted">まだ日報がありません。新規作成してください。</p>
   <% end %>
 </div>
-
-
 
 <div class="text-center mt-4">
   <%= link_to "マイページに戻る", users_mypage_path, class: "btn btn-outline-secondary btn-lg px-4" %>

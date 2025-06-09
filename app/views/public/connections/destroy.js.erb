@@ -1,8 +1,8 @@
 const userId = "<%= params[:id] %>";
 
-// ✅ フォロー一覧リストから削除
+// フォロー一覧リストから削除
 $("#user-" + userId).fadeOut(300, function() { $(this).remove(); });
 
-// ✅ フォロー一覧とフォロワー一覧を最新データで更新
+// フォロー一覧とフォロワー一覧を最新データで更新
 $("#following-list").html("<%= j(render partial: 'following_list', locals: { users: @users }) %>");
 $("#followers-list").html("<%= j(render partial: 'followers_list', locals: { users: @users }) %>");

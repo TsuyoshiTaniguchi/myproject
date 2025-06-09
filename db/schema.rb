@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_06_07_111542) do
+ActiveRecord::Schema.define(version: 2025_06_09_062929) do
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -38,19 +38,6 @@ ActiveRecord::Schema.define(version: 2025_06_07_111542) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
-  end
-
-  create_table "activity_logs", force: :cascade do |t|
-    t.integer "project_id", null: false
-    t.string "event"
-    t.text "description"
-    t.datetime "date"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.string "commit_hash"
-    t.string "tech_stack"
-    t.string "deliverable_url"
-    t.index ["project_id"], name: "index_activity_logs_on_project_id"
   end
 
   create_table "admin_logs", force: :cascade do |t|
@@ -101,15 +88,6 @@ ActiveRecord::Schema.define(version: 2025_06_07_111542) do
     t.index ["follower_id"], name: "index_connections_on_follower_id"
   end
 
-  create_table "daily_report_skill_tags", force: :cascade do |t|
-    t.integer "daily_report_id", null: false
-    t.integer "skill_tag_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["daily_report_id"], name: "index_daily_report_skill_tags_on_daily_report_id"
-    t.index ["skill_tag_id"], name: "index_daily_report_skill_tags_on_skill_tag_id"
-  end
-
   create_table "daily_reports", force: :cascade do |t|
     t.integer "user_id", null: false
     t.date "date", null: false
@@ -120,6 +98,11 @@ ActiveRecord::Schema.define(version: 2025_06_07_111542) do
     t.decimal "latitude", precision: 9, scale: 6
     t.decimal "longitude", precision: 9, scale: 6
     t.integer "visibility", default: 1
+    t.integer "task_achievement"
+    t.integer "self_evaluation"
+    t.text "learning"
+    t.integer "future_goal_value"
+    t.integer "future_goal_days"
     t.index ["user_id"], name: "index_daily_reports_on_user_id"
   end
 
@@ -189,39 +172,6 @@ ActiveRecord::Schema.define(version: 2025_06_07_111542) do
     t.index ["user_id"], name: "index_posts_on_user_id"
   end
 
-  create_table "project_tags", force: :cascade do |t|
-    t.integer "project_id", null: false
-    t.integer "tag_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["project_id"], name: "index_project_tags_on_project_id"
-    t.index ["tag_id"], name: "index_project_tags_on_tag_id"
-  end
-
-  create_table "projects", force: :cascade do |t|
-    t.string "title"
-    t.text "description"
-    t.string "github_url"
-    t.string "image_url"
-    t.string "tech_stack"
-    t.integer "user_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["user_id"], name: "index_projects_on_user_id"
-  end
-
-  create_table "skill_tags", force: :cascade do |t|
-    t.string "name"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-  end
-
-  create_table "tags", force: :cascade do |t|
-    t.string "name"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-  end
-
   create_table "user_groups", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "group_id", null: false
@@ -255,14 +205,11 @@ ActiveRecord::Schema.define(version: 2025_06_07_111542) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "activity_logs", "projects"
   add_foreign_key "admin_logs", "admins"
   add_foreign_key "comments", "posts"
   add_foreign_key "comments", "users"
   add_foreign_key "connections", "users", column: "followed_id"
   add_foreign_key "connections", "users", column: "follower_id"
-  add_foreign_key "daily_report_skill_tags", "daily_reports"
-  add_foreign_key "daily_report_skill_tags", "skill_tags"
   add_foreign_key "daily_reports", "users"
   add_foreign_key "groups", "users", column: "owner_id"
   add_foreign_key "likes", "posts", column: "likeable_id"
@@ -272,9 +219,6 @@ ActiveRecord::Schema.define(version: 2025_06_07_111542) do
   add_foreign_key "notifications", "users"
   add_foreign_key "posts", "groups"
   add_foreign_key "posts", "users"
-  add_foreign_key "project_tags", "projects"
-  add_foreign_key "project_tags", "tags"
-  add_foreign_key "projects", "users"
   add_foreign_key "user_groups", "groups"
   add_foreign_key "user_groups", "users"
 end

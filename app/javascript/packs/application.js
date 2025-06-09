@@ -25,16 +25,20 @@ Rails.start();
 Turbolinks.start();
 ActiveStorage.start();
 
-
 /* ---------- ユーティリティ関数 ---------- */
 function initDropdown() {
   const toggle = document.querySelector(".dropdown-toggle");
   const menu   = document.querySelector(".dropdown-menu");
   if (!toggle || !menu) return;
 
-  toggle.addEventListener("click",  e => { e.stopPropagation(); menu.classList.toggle("show"); });
+  toggle.addEventListener("click",  e => { 
+    e.stopPropagation(); 
+    menu.classList.toggle("show"); 
+  });
   document.addEventListener("click", e => {
-    if (!toggle.contains(e.target) && !menu.contains(e.target)) menu.classList.remove("show");
+    if (!toggle.contains(e.target) && !menu.contains(e.target)) {
+      menu.classList.remove("show");
+    }
   });
 }
 
@@ -54,6 +58,7 @@ function initImagePreview() {
   const previewArea = document.getElementById("image-preview");
   if (!fileInput || !previewArea) return;
 
+  // 初期表示が無ければ追加
   previewArea.innerHTML ||= "<p class='text-muted'>画像プレビューはここに表示されます</p>";
 
   fileInput.addEventListener("change", () => {
@@ -62,7 +67,7 @@ function initImagePreview() {
       const reader = new FileReader();
       reader.onload = e => {
         const img = new Image();
-        img.src   = e.target.result;
+        img.src = e.target.result;
         img.className = "img-thumbnail m-2";
         img.style.maxWidth = "200px";
         previewArea.appendChild(img);
@@ -74,29 +79,41 @@ function initImagePreview() {
   document.querySelectorAll(".remove-image-checkbox").forEach(cb => {
     cb.addEventListener("change", () => {
       const wrap = cb.closest(".existing-image");
-      if (wrap) wrap.style.display = cb.checked ? "none" : "block";
+      if (wrap) {
+        wrap.style.display = cb.checked ? "none" : "block";
+      }
     });
   });
 }
 
 /* ---------- turbolinks:load ---------- */
 function onLoad() {
+  // 共通の初期化処理
   initDropdown();
   initDeleteConfirm();
   initImagePreview();
-  initCalendar();  // カレンダーの初期化は問題ない前提
 
-  // mapコンテナと google オブジェクトが存在するなら初期化
+  // カレンダーの初期化（※ initCalendar 内で二重初期化も防いでいます）
+  initCalendar();
+
+  // mapコンテナと Google オブジェクトが存在するなら初期化
   if (document.getElementById("map") && typeof google !== "undefined") {
     initMap();
   } else {
     console.warn("Google Maps API がまだ読み込まれていないか、マップコンテナが存在しません。");
   }
 
-  // 他のタブハンドラなど
+  // タブ切替時のカレンダー再初期化
   const dailyTab = document.querySelector('a[data-bs-toggle="tab"][href="#daily_reports"]');
-  if (dailyTab) dailyTab.addEventListener("shown.bs.tab", initCalendar);
-  if (document.querySelector("#daily_reports.show.active")) initCalendar();
+  if (dailyTab) {
+    dailyTab.addEventListener("shown.bs.tab", () => {
+      initCalendar();
+    });
+  }
+  // 初期表示時のカレンダー初期化（該当要素が存在する場合）
+  if (document.querySelector("#daily_reports.show.active")) {
+    initCalendar();
+  }
 }
 
 /* ---------- 位置情報 ---------- */
@@ -107,15 +124,20 @@ window.getLocation = function () {
   }
   navigator.geolocation.getCurrentPosition(
     pos => {
-      document.getElementById("latitude").value  = pos.coords.latitude;
-      document.getElementById("longitude").value = pos.coords.longitude;
-      alert("位置情報を取得しました！");
+      const latEl = document.getElementById("latitude");
+      const lngEl = document.getElementById("longitude");
+      if (latEl && lngEl) {
+        latEl.value  = pos.coords.latitude;
+        lngEl.value = pos.coords.longitude;
+        alert("位置情報を取得しました！");
+      }
     },
     err => alert("位置情報の取得に失敗しました：" + err.message)
   );
 };
 
-
+// turbolinksのロードイベントに確実に onLoad 関数を登録
+document.addEventListener("turbolinks:load", onLoad);
 
 
 //  いいねボタンをでリロードなしに更新(現在うまく行っていない為リロードありで対応、将来用に残しています)

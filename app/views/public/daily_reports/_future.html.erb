@@ -1,27 +1,29 @@
 <h3>未来の成長予測</h3>
 
 <div class="row">
-  <!-- 長期的な技術ロードマップ -->
+  <!-- 将来の目標 -->
   <div class="col-md-6">
-    <h4>技術強化プラン</h4>
-    <ul>
-      <% @daily_report.future_goals.each do |goal| %>
-        <li><strong><%= goal.period %></strong>: <%= goal.description %></li>
-      <% end %>
-    </ul>
+    <h4>将来の目標</h4>
+    <% if @daily_report.future_goal_value.present? && @daily_report.future_goal_days.present? %>
+      <p>
+        将来の目標値は <strong><%= @daily_report.future_goal_value %></strong> で、
+        <strong><%= @daily_report.future_goal_days %></strong> 日後を目標としています。
+      </p>
+    <% else %>
+      <p class="text-muted">将来的な目標は設定されていません。</p>
+    <% end %>
   </div>
 
   <!-- 成長予測チャート -->
   <div class="col-md-6">
-    <h4>技術の成長予測</h4>
-    <canvas id="futureGrowthChart"></canvas>
+    <h4>パフォーマンスの将来予測</h4>
+    <canvas id="futureGrowthChart" style="width:100%; height:300px;"></canvas>
   </div>
 </div>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   let ctx = document.getElementById('futureGrowthChart');
-
   if (ctx) {
     fetch('/daily_reports/future_growth_data.json')
       .then(response => response.json())
@@ -29,17 +31,34 @@ document.addEventListener("DOMContentLoaded", function () {
         new Chart(ctx, {
           type: 'line',
           data: {
-            labels: data.future_dates,
+            labels: data.future_dates, // 例: ["2025-06-10", "2025-06-11", "2025-06-12"]
             datasets: [{
-              label: "予測成長度",
-              data: data.predicted_levels,
+              label: "予測パフォーマンス",
+              data: data.predicted_levels, // 例: [7, 9, 10]
               borderColor: "rgba(255, 159, 64, 1)",
-              fill: false
+              backgroundColor: "rgba(255, 159, 64, 0.2)",
+              tension: 0.4,
+              fill: true
             }]
           },
-          options: { responsive: true }
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'top' },
+              tooltip: { mode: 'index', intersect: false }
+            },
+            interaction: { mode: 'nearest', intersect: false },
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: { stepSize: 1 }
+              }
+            }
+          }
         });
-      });
+      })
+      .catch(error => console.error("グラフデータの取得に失敗しました:", error));
   }
 });
 </script>

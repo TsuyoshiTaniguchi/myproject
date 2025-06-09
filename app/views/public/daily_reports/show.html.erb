@@ -1,56 +1,69 @@
 <h1>日報詳細</h1>
 
+<!-- 日報一覧へのリンク -->
 <div class="mb-3">
   <%= link_to "日報一覧へ戻る", daily_reports_path, class: "btn btn-outline-secondary" %>
 </div>
 
+<canvas id="futureGrowthChart" width="400" height="200"></canvas>
 <!-- 基本情報 -->
 <div class="card mb-4">
   <div class="card-header">
-    <strong><%= @daily_report.date.strftime("%Y年%m月%d日") %></strong> - <%= @daily_report.location %>
+    <strong><%= @daily_report.date.strftime("%Y年%m月%d日") %></strong>
+    &nbsp;–&nbsp;<%= @daily_report.location %>
   </div>
   <div class="card-body">
-    <p><%= @daily_report.content %></p>
+    <%= simple_format(@daily_report.content) %>
   </div>
 </div>
 
 <!-- 以前の記録との比較 -->
-<% if @daily_report.previous_report %>
+<% if @daily_report.previous_report.present? %>
   <div class="card mb-4">
-    <div class="card-header">以前の記録との比較</div>
+    <div class="card-header">
+      以前の記録との比較
+    </div>
     <div class="card-body">
-      <p>前回の日報: <%= @daily_report.previous_report.date.strftime("%Y年%m月%d日") %></p>
+      <p>
+        前回の日報:
+        <%= @daily_report.previous_report.date.strftime("%Y年%m月%d日") %>
+      </p>
       <p><%= truncate(@daily_report.previous_report.content, length: 100) %></p>
-      <%= link_to "前回の日報を確認", daily_report_path(@daily_report.previous_report), class: "btn btn-outline-secondary btn-sm" %>
+      <%= link_to "前回の日報を確認",
+                  daily_report_path(@daily_report.previous_report),
+                  class: "btn btn-outline-secondary btn-sm" %>
     </div>
   </div>
 <% end %>
 
-<!-- 成長の推移（グラフ表示） -->
-<div class="mb-4">
-  <h3>成長の推移</h3>
-  <canvas id="growthChart" width="400" height="200"></canvas>
-</div>
+<!-- パフォーマンス推移グラフ -->
+<%= render 'performance_chart' %>
 
-<!-- 未来の成長予測（グラフ表示） -->
-<div class="mb-4">
-  <h3>未来の成長予測</h3>
-  <canvas id="futureGrowthChart" width="400" height="200"></canvas>
-</div>
+<!-- 将来の成長予測 -->
+<%= render 'future', daily_report: @daily_report %>
 
-<!-- 影響度・成果（現状はデータがなければプレースホルダー表示） -->
+<!-- パフォーマンススコア -->
 <div class="mb-4">
-  <h3>影響度・成果</h3>
-  <% if @daily_report.impact_score.present? %>
-    <p>影響スコア: <%= @daily_report.impact_score %>/10</p>
+  <h3>パフォーマンススコア</h3>
+  <% if @daily_report.performance_score.present? %>
+    <p>パフォーマンス: <%= @daily_report.performance_score %>/10</p>
     <div class="progress">
-      <div class="progress-bar progress-bar-striped" role="progressbar" style="width: <%= @daily_report.impact_score * 10 %>%;" aria-valuenow="<%= @daily_report.impact_score %>" aria-valuemin="0" aria-valuemax="10"></div>
+      <div class="progress-bar progress-bar-striped"
+           role="progressbar"
+           style="width: <%= @daily_report.performance_score * 10 %>%;"
+           aria-valuenow="<%= @daily_report.performance_score %>"
+           aria-valuemin="0"
+           aria-valuemax="10">
+      </div>
     </div>
   <% else %>
-    <p>現在、評価データはありません。</p>
+    <p class="text-muted">評価データがありません。</p>
   <% end %>
 </div>
 
+<!-- マイページへのリンク -->
 <div class="text-center mt-4">
-  <%= link_to "マイページに戻る", users_mypage_path, class: "btn btn-outline-secondary btn-lg" %>
+  <%= link_to "マイページに戻る",
+              users_mypage_path,
+              class: "btn btn-outline-secondary btn-lg" %>
 </div>

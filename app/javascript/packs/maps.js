@@ -14,3 +14,24 @@ document.addEventListener("turbolinks:load", function() {
   
   new google.maps.Marker({ position: tokyo, map: map });
 });
+
+// ※ Google Maps API が正常に読み込まれている場合のみ実行してください。
+export function initMap() {
+  const mapContainer = document.getElementById("map");
+  if (!mapContainer) {
+    console.warn("Map container element not found.");
+    return;
+  }
+  
+  // マップのオプション（適宜調整）
+  const options = {
+    center: { lat: 35.6895, lng: 139.6917 }, // 例：東京の中心
+    zoom: 12
+  };
+  
+  // マップの初期化
+  new google.maps.Map(mapContainer, options);
+}
+
+// google.maps が読み込まれていれば自動で初期化するように
+window.initMap = initMap;
