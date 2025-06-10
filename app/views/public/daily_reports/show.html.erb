@@ -1,56 +1,75 @@
-<!-- app/views/public/daily_reports/show.html.erb -->
-
 <h1 class="mb-4">日報詳細</h1>
 
-<div class="alert alert-info mb-3">
+<!-- ナビゲーション -->
+<div class="sticky-top bg-white py-2" style="z-index: 1000;">
+  <div class="container d-flex justify-content-between">
+    <%= link_to "← 日報一覧に戻る", daily_reports_path, class: "btn btn-outline-secondary" %>
+    <%= link_to "マイページへ", users_mypage_path, class: "btn btn-outline-secondary" %>
+  </div>
+</div>
+
+<!-- インフォボックス：グラフと指標の説明 -->
+<div class="alert alert-info mb-4">
   <h4>グラフと指標の説明</h4>
   <ul>
-    <li><strong>目標値:</strong> 将来に向けた目標の数値。ここに設定した値が指標となり、達成率のベースになります。</li>
-    <li><strong>達成率:</strong> 現在のタスク達成度が目標値に対してどれだけ達成されているかの割合です。</li>
-    <li><strong>パフォーマンススコア:</strong> タスク達成度と自己評価の平均値で、総合的な成績を示します。</li>
+    <li>
+      <strong>目標パフォーマンス:</strong> 
+      あなたが将来的に目指す理想のスコアです。フォームでは「将来の目標値」として入力されます。
+    </li>
+    <li>
+      <strong>達成率:</strong> 
+      現在のタスク達成度が目標パフォーマンスに対してどの程度達成されているかの割合です。
+    </li>
+    <li>
+      <strong>パフォーマンススコア:</strong> 
+      タスク達成度と自己評価の平均値で、現在の総合的なパフォーマンスを示します。
+    </li>
+    <li>
+      <strong>予測推移:</strong> 
+      現在の実績と目標パフォーマンスのギャップを、目標達成日数で補完した線が、将来の成長・改善のペースを示しています。
+    </li>
   </ul>
 </div>
 
-
-<div class="d-flex justify-content-between mb-4">
-  <%= link_to "← 日報一覧に戻る", daily_reports_path, class: "btn btn-outline-secondary" %>
-  <%= link_to "マイページへ", users_mypage_path, class: "btn btn-outline-secondary" %>
-</div>
-
-<!-- =====================================
-     1. パフォーマンス推移 & 予測
-   ===================================== -->
+<!-- 日報詳細ページ内のグラフカード -->
 <div class="card mb-4">
   <div class="card-header">
     <h3 class="mb-0">パフォーマンス推移</h3>
   </div>
   <div class="card-body text-center">
-    <!-- Chart.js 用キャンバス -->
+    <!-- Chart.js 用キャンバスに直接 data 属性で詳細データを埋め込む -->
     <div style="position: relative; height:300px; width:100%;">
       <canvas
         id="performanceChart"
         data-goal-value="<%= @daily_report.future_goal_value.to_i %>"
-        data-goal-days ="<%= @daily_report.future_goal_days.to_i %>"
+        data-goal-days="<%= @daily_report.future_goal_days.to_i %>"
+        data-dates='<%= [@daily_report.date].to_json.html_safe %>'
+        data-values='<%= [@daily_report.task_achievement].to_json.html_safe %>'
       ></canvas>
     </div>
-
+    <!-- 以下、詳細ページの補足情報 -->
     <% if @daily_report.future_goal_value.present? && @daily_report.future_goal_days.present? %>
       <% days_passed     = (Date.current - @daily_report.date).to_i %>
       <% remaining_days  = [@daily_report.future_goal_days - days_passed, 0].max %>
-      <% last_value      = @daily_report.task_achievement.to_i %>
-      <% required_per_day= ((@daily_report.future_goal_value - last_value).to_f / @daily_report.future_goal_days).round(1) %>
-
+      <% current_value   = @daily_report.task_achievement.to_i %>
+      <% required_per_day = ((@daily_report.future_goal_value - current_value).to_f / @daily_report.future_goal_days).round(1) %>
       <div class="mt-3">
-        <span class="me-4">残り日数：<strong><%= remaining_days %>日</strong></span>
-        <span>１日あたり▲<strong><%= required_per_day %>ポイント</strong></span>
+        <span class="me-4">
+          残り日数：<strong><%= remaining_days %>日</strong>
+        </span>
+        <span>
+          1日あたり必要な改善：<strong><%= required_per_day %>ポイント</strong>
+        </span>
       </div>
+    <% else %>
+      <p class="text-muted mt-3">
+        ※ 将来の目標設定が未入力です。フォームで目標パフォーマンスと目標達成日数を入力してください。
+      </p>
     <% end %>
   </div>
 </div>
 
-<!-- =====================================
-     2. 日報の基本情報
-   ===================================== -->
+<!-- 日報の基本情報 -->
 <div class="card mb-4">
   <div class="card-header">
     <strong><%= @daily_report.date.strftime("%Y年%-m月%-d日") %></strong>
@@ -61,49 +80,77 @@
   </div>
 </div>
 
-<!-- 日報詳細ページ内（show.html.erb）の適当な位置に追加 -->
+<!--  タスク管理  -->
+
 <%= render "tasks", daily_report: @daily_report %>
 
+<!-- 将来の目標設定 -->
 
-<!-- 将来の目標値と目標日数 -->
 <div class="card mb-3">
   <div class="card-header">
     <h4>将来の目標設定</h4>
   </div>
   <div class="card-body">
-    <p><strong>将来の目標値:</strong> <%= @daily_report.future_goal_value.presence || "未設定" %></p>
-    <p><strong>目標達成日数:</strong> <%= @daily_report.future_goal_days.presence || "未設定" %> 日</p>
+    <p>
+      <strong>目標パフォーマンス:</strong>
+      <%= @daily_report.future_goal_value.presence || "未設定" %>
+      <small class="text-muted">(※将来の目標値として入力)</small>
+    </p>
+    <p>
+      <strong>目標達成日数:</strong>
+      <%= @daily_report.future_goal_days.presence || "未設定" %> 日
+    </p>
+    <p class="text-muted">
+      ※ この設定値をもとに、グラフの「予測推移」が算出され、今後の必要改善量が計算されます。
+    </p>
   </div>
 </div>
 
-<!-- =====================================
-     3. 進行状況・達成度 (status partial)
-   ===================================== -->
+<!-- 進行状況・達成度 (status partial) -->
 <%= render "status", daily_report: @daily_report %>
 
-
-<!-- =====================================
-     4. パフォーマンススコア
-   ===================================== -->
+<!-- パフォーマンススコア & 自己評価 -->
 <div class="card mb-4">
   <div class="card-header">
     <h3 class="mb-0">パフォーマンススコア</h3>
   </div>
   <div class="card-body">
     <% if @daily_report.performance_score.present? %>
-      <p>パフォーマンス: <strong><%= @daily_report.performance_score %>/10</strong></p>
-      <div class="progress">
-        <div
-          class="progress-bar progress-bar-striped"
-          role="progressbar"
-          style="width: <%= @daily_report.performance_score * 10 %>%;"
-          aria-valuenow="<%= @daily_report.performance_score %>"
-          aria-valuemin="0"
-          aria-valuemax="10">
+      <p>
+        パフォーマンススコア: <strong><%= @daily_report.performance_score %>/10</strong>
+        <small class="text-muted">(タスク達成度と自己評価の平均値)</small>
+      </p>
+      <div class="progress mb-2">
+        <div class="progress-bar progress-bar-striped"
+             role="progressbar"
+             style="width: <%= @daily_report.performance_score * 10 %>%;" 
+             aria-valuenow="<%= @daily_report.performance_score %>"
+             aria-valuemin="0"
+             aria-valuemax="10">
         </div>
       </div>
     <% else %>
       <p class="text-muted">評価データがありません。</p>
     <% end %>
+
+    <!-- 自己評価編集フォーム -->
+    <div>
+      <p class="mb-1">
+        自己評価:
+        <strong>
+          <%= @daily_report.self_evaluation.presence || "―" %>/5
+        </strong>
+      </p>
+      <%= form_with model: @daily_report, local: true do |f| %>
+        <div class="d-flex align-items-center">
+          <%= f.select :self_evaluation, (1..5).to_a, {},
+                class: "form-select me-2", prompt: "自己評価を選択" %>
+          <%= f.submit "変更", class: "btn btn-sm btn-primary" %>
+        </div>
+      <% end %>
+      <p class="text-muted mt-2">
+        ※ 毎日の自己評価入力が、パフォーマンススコアの更新に影響します。
+      </p>
+    </div>
   </div>
 </div>

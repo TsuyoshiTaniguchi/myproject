@@ -1,4 +1,3 @@
-# app/controllers/public/daily_reports_controller.rb
 class Public::DailyReportsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_user
@@ -6,30 +5,34 @@ class Public::DailyReportsController < ApplicationController
 
   # GET /daily_reports
   def index
-    # 管理者または対象ユーザー自身であれば、全件取得
-    if current_user.admin? || current_user == @user
-      reports = DailyReport.where(user: @user)
-    else
-      # 一般ユーザーの場合は、公開のみ取得
-      reports = DailyReport.where(
-        user:       @user,
-        visibility: DailyReport.visibilities[:public_report]
-      )
-    end
-
-    reports = reports.order(date: :desc)
-
+    # @user がまだセットされていない場合は、current_user を使う
+    @user ||= current_user
+  
+    # トップレベルの DailyReport を明示的に取得する
+    dr = Object.const_get('DailyReport')
+  
+    # 管理者または対象ユーザー自身ならそのユーザーの日報を全件取得、
+    # 一般ユーザーなら公開設定の日報のみ取得
+    reports = if current_user.admin? || current_user == @user
+                dr.where(user: @user)
+              else
+                dr.where(
+                  user: @user,
+                  visibility: dr.visibilities[:public_report]
+                )
+              end.order(date: :desc)
+  
     # 期間フィルタ
     if params[:date_range].present?
       start_date = Date.today - params[:date_range].to_i.days
       reports = reports.where('date >= ?', start_date)
     end
-
+  
     # キーワード検索
     if params[:keyword].present?
       reports = reports.where('content LIKE ?', "%#{params[:keyword]}%")
     end
-
+  
     # 一般ユーザーかつフィルタ無しの場合はキャッシュ利用（24時間）
     if !current_user.admin? && params.slice(:date_range, :keyword).empty?
       cache_key = "daily_reports/#{@user.id}"
@@ -39,7 +42,7 @@ class Public::DailyReportsController < ApplicationController
     else
       @daily_reports = reports
     end
-
+  
     respond_to do |format|
       format.html
       format.json { render json: @daily_reports }
@@ -74,11 +77,13 @@ class Public::DailyReportsController < ApplicationController
 
   # PATCH/PUT /daily_reports/:id
   def update
+    @daily_report = current_user.daily_reports.find(params[:id])
     if @daily_report.update(daily_report_params)
-      Rails.cache.delete("daily_reports/#{@user.id}")
-      redirect_to daily_reports_path, notice: '日報が更新されました。'
+      Rails.cache.delete("daily_reports/#{current_user.id}")
+      flash[:notice] = "公開設定が更新されました。"
+      redirect_to daily_reports_path
     else
-      flash.now[:alert] = '更新に失敗しました。'
+      flash.now[:alert] = "更新に失敗しました。"
       render :edit
     end
   end
@@ -108,22 +113,22 @@ class Public::DailyReportsController < ApplicationController
     reports = current_user.daily_reports.order(:date)
     render json: {
       dates:       reports.map { |r| r.date.strftime('%Y-%m-%d') },
-      performance: reports.map { |r|
+      performance: reports.map do |r|
         if r.task_achievement.present? && r.self_evaluation.present?
           ((r.task_achievement + r.self_evaluation) / 2.0).round(1)
         else
           nil
         end
-      }
+      end
     }
   end
 
   # GET /daily_reports/future_growth_data.json
   def future_growth_data
-    last_report   = @user.daily_reports.order(:date).last
-    today_val     = last_report&.task_achievement.to_i
-    goal_val      = last_report&.future_goal_value.to_i
-    days_ahead    = last_report&.future_goal_days.to_i
+    last_report = @user.daily_reports.order(:date).last
+    today_val   = last_report&.task_achievement.to_i
+    goal_val    = last_report&.future_goal_value.to_i
+    days_ahead  = last_report&.future_goal_days.to_i
 
     unless goal_val.positive? && days_ahead.positive?
       dates  = (1..5).map { |i| (Date.today + i).strftime('%Y-%m-%d') }
@@ -131,7 +136,7 @@ class Public::DailyReportsController < ApplicationController
       return render json: { future_dates: dates, predicted_levels: levels }
     end
 
-    future_dates     = (1..days_ahead).map { |i| (Date.today + i).strftime('%Y-%m-%d') }
+    future_dates = (1..days_ahead).map { |i| (Date.today + i).strftime('%Y-%m-%d') }
     predicted_levels = future_dates.each_with_index.map do |_, idx|
       ratio = (idx + 1).to_f / days_ahead
       (today_val + (goal_val - today_val) * ratio).round(1)
@@ -156,9 +161,8 @@ class Public::DailyReportsController < ApplicationController
   end
 
   def set_daily_report
-    # Object.const_get を用いることで、トップレベルの DailyReport を明示的に取得する
-    dr_klass = Object.const_get('DailyReport')
-    scope = current_user.admin? ? dr_klass.all : current_user.daily_reports
+    # トップレベルの DailyReport を明示的に参照する
+    scope = current_user.admin? ? ::DailyReport.all : current_user.daily_reports
     @daily_report = scope.find(params[:id])
   rescue ActiveRecord::RecordNotFound
     redirect_to daily_reports_path, alert: '日報が見つかりませんでした。'
@@ -169,8 +173,7 @@ class Public::DailyReportsController < ApplicationController
       :date, :location, :content,
       :task_achievement, :self_evaluation, :learning,
       :future_goal_value, :future_goal_days,
-      :latitude, :longitude
+      :latitude, :longitude, :visibility
     )
   end
-  
 end

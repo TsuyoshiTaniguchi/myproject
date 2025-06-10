@@ -26,7 +26,7 @@
 <h5>新しいタスクを追加</h5>
 <%= form_with model: [daily_report, Task.new], local: true do |f| %>
   <div class="input-group mb-3">
-    <%= f.text_field :title, placeholder: "タスク名を入力", class: "form-control" %>
+    <%= f.text_field :title, placeholder: "タスク内容を入力", required: true, class: "form-control" %>
     <button class="btn btn-primary" type="submit">追加</button>
   </div>
 <% end %>

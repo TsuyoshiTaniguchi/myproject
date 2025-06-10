@@ -1,7 +1,5 @@
-# app/models/daily_report.rb
 class DailyReport < ApplicationRecord
   belongs_to :user
-
   has_many :tasks, dependent: :destroy
 
   # 公開／非公開の設定
@@ -17,7 +15,7 @@ class DailyReport < ApplicationRecord
   validates :self_evaluation,  numericality: { greater_than_or_equal_to: 1, less_than_or_equal_to: 10 }, allow_nil: true
 
   # 将来成長予測用の属性（DBにカラムがある前提）
-  validates :future_goal_value, numericality: true, allow_nil: true
+  validates :future_goal_value, numericality: { allow_nil: true, greater_than: 0, less_than_or_equal_to: 100 }
   validates :future_goal_days, numericality: { only_integer: true, greater_than: 0 }, allow_nil: true
 
   # 前回の日報を取得するメソッド

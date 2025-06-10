@@ -5,35 +5,72 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+
+    <!-- FontAwesome -->
     <script src="https://kit.fontawesome.com/e1acaa1ac8.js" crossorigin="anonymous"></script>
+
+    <!-- アプリケーション用スタイルシート -->
     <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
-    <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
-    <!-- Bootstrapを確実に読み込む -->
+
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Chart.js を先に読み込む -->
+
+    <!-- Chart.js (CDN) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Google Maps API  -->
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= ENV['GOOGLE_MAPS_API_KEY'] %>"></script>
-    <%= javascript_pack_tag 'daily_reports' %>
+
+    <!--
+      ※ まず、initMap 関数をグローバル（window）に定義しておく
+      これにより、Google Maps API のコールバックで必ず参照できます
+    -->
+    <script>
+      window.initMap = function() {
+        // ここで、ページ内に id="map" の要素が存在するか確認
+        var mapDiv = document.getElementById("map");
+        if (!mapDiv) {
+          console.warn("initMap: Map container element with id 'map' is not found. Skipping map initialization.");
+          return;
+        }
+        // 例として、東京の中心付近をマップの中心に設定
+        var centerCoords = { lat: 35.6895, lng: 139.6917 };
+        var mapObj = new google.maps.Map(mapDiv, {
+          center: centerCoords,
+          zoom: 12
+        });
+        // マーカーの追加（※現時点では google.maps.Marker を使用）
+        new google.maps.Marker({
+          position: centerCoords,
+          map: mapObj
+        });
+      }
+    </script>
+
+    <!-- Google Maps API を async/defer で読み込む。callback は initMap -->
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=<%= ENV['GOOGLE_MAPS_API_KEY'] %>&callback=initMap"
+      async defer>
+    </script>
+
+    <!-- Webpacker パックの読み込み（必ずこれ以降に配置） -->
+    <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_pack_tag 'daily_reports', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_pack_tag 'calendar', 'data-turbolinks-track': 'reload' %>
   </head>
 
-  <!-- calendar.js の読み込みは Chart.js の後にする -->
-  <%= javascript_pack_tag 'calendar' %>
-
   <body class="d-flex flex-column vh-100" style="background-color: #F0F0F0">
-    <!-- ヘッダー部分 -->
+    <!-- ヘッダー -->
     <%= render 'layouts/user_header' %>
 
-    <!-- メイン部分 -->
+    <!-- メインコンテンツ -->
     <main class="mb-auto">
       <p class="text-success"><%= flash[:notice] %></p>
       <p class="text-danger"><%= flash[:alert] %></p>
-
       <%= yield %>
     </main>
 
-    <!-- フッター部分 -->
+    <!-- フッター -->
     <%= render "layouts/footer" %>
   </body>
 </html>

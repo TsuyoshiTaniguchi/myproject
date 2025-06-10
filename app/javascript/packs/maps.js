@@ -1,37 +1,24 @@
-// turbolinks:load イベント内でのみ実行
-document.addEventListener("turbolinks:load", function() {
+// app/javascript/packs/maps.js
+
+// グローバル関数として定義 → API の callback で必ず起動
+window.initMap = function() {
   const mapDiv = document.getElementById("map");
   if (!mapDiv) {
-    console.error("Map container element with id 'map' not found.");
+    console.warn("initMap: #map が見つかりません。");
     return;
   }
-  
-  const tokyo = { lat: 35.6764225, lng: 139.650027 };
-  const map = new google.maps.Map(mapDiv, {
-    zoom: 10,
-    center: tokyo
+  const centerCoords = { lat: 35.6895, lng: 139.6917 };
+  const mapOptions = { center: centerCoords, zoom: 12 };
+  const map = new google.maps.Map(mapDiv, mapOptions);
+  new google.maps.Marker({
+    position: centerCoords,
+    map: map,
   });
-  
-  new google.maps.Marker({ position: tokyo, map: map });
-});
+};
 
-// ※ Google Maps API が正常に読み込まれている場合のみ実行してください。
-export function initMap() {
-  const mapContainer = document.getElementById("map");
-  if (!mapContainer) {
-    console.warn("Map container element not found.");
-    return;
+// Turbolinksのロード時、API が未読み込みの場合はログ出力のみ
+document.addEventListener("turbolinks:load", function() {
+  if (typeof google === "undefined") {
+    console.warn("Google Maps API is not loaded yet.");
   }
-  
-  // マップのオプション（適宜調整）
-  const options = {
-    center: { lat: 35.6895, lng: 139.6917 }, // 例：東京の中心
-    zoom: 12
-  };
-  
-  // マップの初期化
-  new google.maps.Map(mapContainer, options);
-}
-
-// google.maps が読み込まれていれば自動で初期化するように
-window.initMap = initMap;
+});

@@ -1,117 +1,130 @@
 // app/javascript/packs/daily_reports.js
 
-import { Chart } from "chart.js/auto";
+function buildChart(canvas, dates, values, goalValue, goalDays) {
+  let rawMax = Math.max(...values);
+  rawMax = (!isFinite(rawMax) || rawMax <= 0) ? 10 : rawMax;
+  const suggestedMax = Math.min(rawMax, 50) * 1.2;
 
-function initPerformanceChart() {
-  const canvas = document.getElementById("performanceChart");
-  if (!canvas) return;
+  const labels = [...dates];
+  const predict = [];
+  if (goalValue > 0 && goalDays > 0) {
+    const last = values.at(-1);
+    const inc = (goalValue - last) / goalDays;
+    for (let i = 1; i <= goalDays; i++) {
+      const d = new Date(dates.at(-1));
+      d.setDate(d.getDate() + i);
+      labels.push(d.toISOString().slice(0, 10));
+      predict.push(+(last + inc * i).toFixed(1));
+    }
+  }
+  const goalLine = labels.map(() => goalValue);
 
-  // — 重複初期化ガード（Turbolinks で二重実行を防ぐ）
-  if (window.performanceChartInitialized) return;
-  window.performanceChartInitialized = true;
-
-  // — 既存インスタンスがあれば破棄
-  const existing = Chart.getChart(canvas);
-  if (existing) existing.destroy();
-
-  // — data-* 属性から目標値／日数を取得
-  const goalValue = +canvas.dataset.goalValue || 0;
-  const goalDays  = +canvas.dataset.goalDays  || 0;
-
-  fetch("/daily_reports/performance_data.json")
-    .then(res => {
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    })
-    .then(data => {
-      const dates  = data.dates || [];
-      const values = (data.performance || []).map(n => +n);
-
-      if (!dates.length || !values.length) {
-        console.error("パフォーマンスデータがありません。");
-        return;
-      }
-
-      // — 元々の閾値ロジックで y 軸の suggestedMax を計算
-      let rawMax = Math.max(...values);
-      if (!isFinite(rawMax) || rawMax <= 0) rawMax = 10;
-      const threshold   = 50;
-      const cappedMax   = rawMax > threshold ? threshold : rawMax;
-      const suggestedMax = cappedMax * 1.2;
-
-      // — 予測ライン用のラベル／値を作成
-      const allLabels     = [...dates];
-      const predictValues = [];
-
-      if (goalValue > 0 && goalDays > 0 && values.length) {
-        const lastValue = values[values.length - 1];
-        const dailyInc  = (goalValue - lastValue) / goalDays;
-
-        for (let i = 1; i <= goalDays; i++) {
-          const d = new Date(dates[dates.length - 1]);
-          d.setDate(d.getDate() + i);
-          allLabels.push(d.toISOString().slice(0, 10));
-          predictValues.push(+(lastValue + dailyInc * i).toFixed(1));
-        }
-      }
-
-      // — ゴールライン（全ラベル分 goalValue を並べる）
-      const goalLine = allLabels.map(() => goalValue);
-
-      // — チャート生成
-      new Chart(canvas, {
-        type: "line",
-        data: {
-          labels: allLabels,
-          datasets: [
-            {
-              label: "実績",
-              data: values.concat(new Array(allLabels.length - values.length).fill(null)),
-              borderColor: "rgba(75,192,192,1)",
-              backgroundColor: "rgba(75,192,192,0.2)",
-              fill: false
-            },
-            {
-              label: "予測ペース",
-              data: new Array(values.length).fill(null).concat(predictValues),
-              borderColor: "rgba(255,159,64,0.8)",
-              borderDash: [5, 5],
-              fill: false
-            },
-            {
-              label: "目標ライン",
-              data: goalLine,
-              borderColor: "rgba(255,99,132,0.8)",
-              borderDash: [2, 2],
-              fill: false
-            }
-          ]
+  new Chart(canvas, {
+    type: "line",
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: "実績",
+          data: values.concat(Array(labels.length - values.length).fill(null)),
+          borderColor: "rgba(75,192,192,1)",
+          backgroundColor: "rgba(75,192,192,0.2)",
+          fill: false,
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            x: { display: true },
-            y: {
-              beginAtZero: true,
-              suggestedMax: suggestedMax
-            }
-          }
-        }
-      });
-    })
-    .catch(err => console.error("パフォーマンスデータ取得エラー:", err));
+        {
+          label: "予測ペース",
+          data: Array(values.length).fill(null).concat(predict),
+          borderColor: "rgba(255,159,64,0.8)",
+          borderDash: [5, 5],
+          fill: false,
+        },
+        {
+          label: "目標ライン",
+          data: goalLine,
+          borderColor: "rgba(255,99,132,0.8)",
+          borderDash: [2, 2],
+          fill: false,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          suggestedMax: suggestedMax,
+        },
+      },
+    },
+  });
 }
 
-// Turbolinks イベントに登録
-document.addEventListener("turbolinks:load", initPerformanceChart);
+function initPerformanceChart() {
+  const Chart = window.Chart;
+  if (!Chart) return;
 
-// ページキャッシュ前にインスタンス破棄＆初期化フラグリセット
-document.addEventListener("turbolinks:before-cache", () => {
-  const canvas = document.getElementById("performanceChart");
-  if (canvas) {
-    const existing = Chart.getChart(canvas);
-    if (existing) existing.destroy();
+  let canvas;
+  const container = document.getElementById("performanceChartContainer");
+  if (container) {
+    // 一覧ページの場合
+    container.innerHTML = "";
+    canvas = document.createElement("canvas");
+    canvas.id = "performanceChart";
+    canvas.dataset.goalValue = container.dataset.goalValue;
+    canvas.dataset.goalDays = container.dataset.goalDays;
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
+    container.appendChild(canvas);
+  } else {
+    // 詳細ページの場合：canvas が直接配置されている
+    canvas = document.getElementById("performanceChart");
   }
-  window.performanceChartInitialized = false;
+  if (!canvas) return;
+
+  const goalValue = +canvas.dataset.goalValue || 0;
+  const goalDays = +canvas.dataset.goalDays || 0;
+  let dates = [];
+  let values = [];
+
+  if (canvas.dataset.dates && canvas.dataset.values) {
+    try {
+      dates = JSON.parse(canvas.dataset.dates);
+      values = JSON.parse(canvas.dataset.values);
+    } catch (e) {
+      console.error("Embedded data parse error:", e);
+      return;
+    }
+    if (!dates.length || !values.length) {
+      console.warn("Embedded performance data is empty.");
+      return;
+    }
+    buildChart(canvas, dates, values, goalValue, goalDays);
+  } else {
+    // 一覧ページの場合、fetch API から取得
+    fetch("/daily_reports/performance_data.json")
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        dates = data.dates || [];
+        values = data.performance || [];
+        if (!dates.length || !values.length) {
+          console.warn("Performance data is empty.");
+          return;
+        }
+        buildChart(canvas, dates, values, goalValue, goalDays);
+      })
+      .catch(err => console.error("Performance data fetch error:", err));
+  }
+}
+
+document.addEventListener("turbolinks:load", initPerformanceChart);
+document.addEventListener("turbolinks:before-cache", () => {
+  const Chart = window.Chart;
+  const canvas = document.getElementById("performanceChart");
+  if (!canvas || !Chart) return;
+  const existing = Chart.getChart(canvas);
+  if (existing) existing.destroy();
 });

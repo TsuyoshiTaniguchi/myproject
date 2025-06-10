@@ -7,17 +7,27 @@
   <%= link_to "新規日報作成", new_daily_report_path, class: "btn btn-primary px-4" %>
 </div>
 
-<!-- 説明エリア：グラフと指標の説明 -->
+<!-- 総合説明エリア：グラフと指標の全体概要 -->
 <div class="alert alert-info mb-4">
   <h4>グラフと指標の説明</h4>
   <ul>
-    <li><strong>目標値:</strong> 将来に向けた目標の数値。ここに設定した値が指標となり、達成率のベースになります。</li>
-    <li><strong>達成率:</strong> 現在のタスク達成度が目標値に対してどれだけ達成されているかの割合です。</li>
-    <li><strong>パフォーマンススコア:</strong> タスク達成度と自己評価の平均値で、総合的な成績を示します。</li>
+    <li>
+      <strong>目標値:</strong> 将来に向けた目標パフォーマンスの数値。これをもとに達成率が算出され、改善目標が設定されます。
+    </li>
+    <li>
+      <strong>達成率:</strong> 現在の日報に基づくタスク達成度が、目標値に対してどの程度達成されているかの割合。
+    </li>
+    <li>
+      <strong>パフォーマンススコア:</strong> タスク達成度と自己評価を平均して算出された、全体的なパフォーマンス指標です。
+    </li>
+    <li>
+      <strong>予測推移:</strong> 現在の実績から目標値まで、目標日数にわたる推移を線形補完で示した予測ラインです。
+    </li>
   </ul>
+  <p class="mb-0 text-muted">
+    ※ 各グラフはマウスオーバーすると詳細が確認できる場合があります。
+  </p>
 </div>
-
-
 
 <!-- 上段：カレンダー＆パフォーマンス、位置情報 -->
 <div class="row mb-4">
@@ -30,20 +40,40 @@
       </div>
       <div class="card-body">
         <div id="calendar" style="height:300px;"></div>
+        <p class="small text-muted mt-2">
+          ※ 登録した日報がカレンダーに表示されます。日付をクリックするとその日の詳細が見られます。
+        </p>
       </div>
     </div>
 
     <!-- パフォーマンス推移グラフ用カード -->
-    <div class="card mb-3">
-      <div class="card-header">
-        <h3 class="mb-0">パフォーマンスの推移</h3>
-      </div>
-      <div class="card-body">
-        <%= render 'performance_chart' %>
+    <div class="row">
+      <div class="col-12">
+        <div class="card mb-3">
+          <div class="card-header">
+            <h3 class="mb-0">
+              パフォーマンスの推移
+              <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right"
+                 title="グラフ上には、今日の実績（タスク達成度×自己評価の平均値）と、設定した目標値に向かう予測推移が表示されます。"></i>
+            </h3>
+          </div>
+          <div class="card-body">
+            <!-- 一覧ページ用グラフのラッパー -->
+            <div id="performanceChartContainer"
+                 data-goal-value="<%= @daily_reports.last&.future_goal_value.to_i %>"
+                 data-goal-days="<%= @daily_reports.last&.future_goal_days.to_i %>"
+                 style="position: relative; width:100%; max-width:800px; height:300px; margin:0 auto;">
+              <!-- ここに daily_reports.js がキャンバスを生成します -->
+            </div>
+            <p class="small text-muted mt-2">
+              ※ グラフには、日々の記録に基づく実績と、目標に向けた推移が示されています。
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-  
+
   <!-- 右カラム：地図 -->
   <div class="col-md-6">
     <div class="card">
@@ -52,6 +82,9 @@
       </div>
       <div class="card-body">
          <div id="map" style="width:100%; height:400px;"></div>
+         <p class="small text-muted mt-2">
+           ※ 各日報の登録された位置情報が地図上に表示されます。
+         </p>
       </div>
     </div>
   </div>
@@ -68,13 +101,13 @@
         <div class="col-md-4">
           <label for="date_range" class="form-label">期間で検索:</label>
           <select name="date_range" id="date_range" class="form-select">
-            <option value="7"  <%= 'selected' if params[:date_range]=='7'  %>>過去7日間</option>
+            <option value="7" <%= 'selected' if params[:date_range]=='7' %>>過去7日間</option>
             <option value="30" <%= 'selected' if params[:date_range]=='30' %>>過去30日間</option>
             <option value="90" <%= 'selected' if params[:date_range]=='90' %>>過去3ヶ月</option>
           </select>
         </div>
         <div class="col-md-4">
-          <label for="keyword" class="form-label">キーワード検索:</label>
+          <label for="keyword" class="form-label">キーワード検索</label>
           <%= text_field_tag :keyword, params[:keyword], id: "keyword", class: "form-control", placeholder: "キーワード入力" %>
         </div>
       </div>
@@ -83,43 +116,61 @@
   </div>
 </div>
 
-<!-- タイムライン：日報履歴 -->
+<!-- タイムライン：日報履歴（List Group 方式に変更） -->
 <div class="card mb-4">
   <div class="card-header">
     <h3 class="mb-0">日報履歴（タイムライン）</h3>
   </div>
   <div class="card-body">
-    <div class="timeline">
+    <ul class="list-group">
       <% if @daily_reports.any? %>
         <% @daily_reports.each do |report| %>
-          <div class="timeline-item mb-3">
-            <div class="timeline-icon text-primary"><i class="fas fa-file-alt"></i></div>
-            <div class="timeline-content">
-              <h5>
-                <%= report.date.strftime("%Y年%m月%d日") %>
-                <% badge = report.public_report? ? '公開' : '非公開' %>
-                <span class="badge <%= report.public_report? ? 'bg-success' : 'bg-secondary' %>">
-                  <%= badge %>
-                </span>
-              </h5>
-              <p><strong>場所:</strong> <%= report.location %></p>
-              <p><%= truncate(report.content, length: 100) %></p>
-              <div class="d-flex">
-                <%= link_to "詳細を見る", daily_report_path(report), class: "btn btn-sm btn-outline-primary me-2" %>
+          <li class="list-group-item">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <!-- 日付アイコンと表示 -->
+                <i class="fas fa-calendar-alt me-2"></i>
+                <strong><%= report.date.strftime("%Y年%m月%d日") %></strong>
+                <!-- 公開／非公開の切替フォーム -->
+                <%= form_with model: report,
+                              url: daily_report_path(report),
+                              method: :patch,
+                              local: true,
+                              class: "d-inline" do |f| %>
+                  <div class="input-group input-group-sm">
+                    <%= f.select :visibility,
+                    [["公開", "public_report"], ["非公開", "private_report"]],
+                        { selected: report.visibility },
+                        class: "form-select" %>
+                    <button type="submit" class="btn btn-outline-secondary">
+                      <i class="fas <%= report.visibility == 'public_report' ? 'fa-toggle-on text-success' : 'fa-toggle-off text-muted' %>"></i>
+                    </button>
+                  </div>
+                <% end %>
+              </div>
+              <div>
+                <%= link_to "詳細", daily_report_path(report), class: "btn btn-sm btn-outline-primary me-2" %>
                 <% if report.user == current_user %>
                   <%= link_to "編集", edit_daily_report_path(report), class: "btn btn-warning btn-sm me-2" %>
                   <%= link_to "削除", report, method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
                 <% end %>
               </div>
             </div>
-          </div>
+            <div class="mt-2">
+              <!-- 場所と内容の表示（アイコン付き） -->
+              <p><i class="fas fa-map-marker-alt me-1"></i><strong>場所:</strong> <%= report.location %></p>
+              <p><i class="fas fa-align-left me-1"></i><%= truncate(report.content, length: 100) %></p>
+            </div>
+          </li>
         <% end %>
       <% else %>
-        <p class="text-center text-muted">まだ日報がありません。新規作成してください。</p>
+        <li class="list-group-item text-center text-muted">まだ日報がありません。新規作成してください。</li>
       <% end %>
-    </div>
+    </ul>
   </div>
 </div>
+
+
 
 <!-- フッターリンク：マイページへ -->
 <div class="text-center mt-4">
