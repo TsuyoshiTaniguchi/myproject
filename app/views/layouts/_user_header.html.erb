@@ -1,53 +1,71 @@
-<!-- app/views/layouts/_user_header.html.erb -->
 <header class="user-header navbar navbar-expand-lg">
   <div class="container">
-    <!-- ロゴ（クリックでホームへ） -->
-    <a class="navbar-brand logo" href="<%= root_path %>">
-      <%= image_tag("main.jpg", alt: "Brand Logo", class: "logo-img") %>
+    <!-- ロゴ -->
+    <a class="navbar-brand" href="<%= root_path %>">
+      <%= image_tag "main.jpg", alt: "Brand Logo", class: "logo-img" %>
     </a>
 
-    <!-- ハンバーガーメニュー（スマホ対応） -->
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#userNavbar" 
+    <!-- ハンバーガーメニュー -->
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#userNavbar"
             aria-controls="userNavbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <!-- ナビゲーションメニュー -->
     <div class="collapse navbar-collapse" id="userNavbar">
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+      <ul class="navbar-nav ml-auto">
         <% if user_signed_in? %>
-          <li class="nav-item d-flex align-items-center">
-            <span class="navbar-text welcome-message">ようこそ、<%= current_user.name %>さん！</span>
-          </li>
           <% unless current_user.guest? %>
             <li class="nav-item">
               <%= render "public/shared/notifications" %>
             </li>
           <% end %>
-          <li class="nav-item">
-            <%= link_to "マイページ", users_mypage_path, class: "nav-link" %>
+          <li class="nav-item d-flex align-items-center">
+            <span class="navbar-text welcome-message">
+              ようこそ、<%= current_user.name %>さん！
+            </span>
           </li>
+          <!-- マイページ -->
           <li class="nav-item">
-            <%= link_to "ユーザー一覧", users_path, class: "nav-link" %>
+            <%= link_to "#{content_tag(:i, '', class: 'fas fa-user-circle')} マイページ".html_safe,
+                        users_mypage_path, class: "nav-link" %>
           </li>
+          <!-- 投稿一覧 -->
           <li class="nav-item">
-            <%= link_to "グループ一覧", user_groups_path(current_user), class: "nav-link" %>
+            <%= link_to "#{content_tag(:i, '', class: 'fas fa-edit')} 投稿一覧".html_safe,
+                        posts_path, class: "nav-link" %>
           </li>
+          <!-- ユーザー一覧 -->
           <li class="nav-item">
-            <%= link_to "投稿一覧", posts_path, class: "nav-link" %>
+            <%= link_to "#{content_tag(:i, '', class: 'fas fa-address-book')} ユーザー一覧".html_safe,
+                        users_path, class: "nav-link" %>
           </li>
+          <!-- グループ一覧 -->
           <li class="nav-item">
-            <%= button_to "ログアウト", logout_path, method: :post, class: "nav-link logout" %>
+            <%= link_to "#{content_tag(:i, '', class: 'fas fa-layer-group')} グループ一覧".html_safe,
+                        user_groups_path(current_user), class: "nav-link" %>
+          </li>
+          <!-- ログアウト -->
+          <li class="nav-item">
+            <%= button_to logout_path, method: :post, class: "nav-link logout", form: { class: "d-inline" } do %>
+              <i class="fas fa-sign-out-alt"></i>
+            <% end %>
           </li>
         <% else %>
           <li class="nav-item">
-            <%= link_to "新規登録", new_user_registration_path, class: "nav-link" %>
+            <%= link_to new_user_registration_path, class: "nav-link" do %>
+              <i class="fas fa-user-plus"></i> 新規登録
+            <% end %>
           </li>
           <li class="nav-item">
-            <%= link_to "About", about_path, class: "nav-link" %>
+            <%= link_to about_path, class: "nav-link" do %>
+              <i class="fas fa-info-circle"></i> About
+            <% end %>
           </li>
           <li class="nav-item">
-            <%= link_to "ログイン", new_user_session_path, class: "nav-link" %>
+            <%= link_to new_user_session_path, class: "nav-link" do %>
+              <i class="fas fa-sign-in-alt"></i> ログイン
+            <% end %>
           </li>
         <% end %>
       </ul>

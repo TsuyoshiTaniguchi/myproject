@@ -1,4 +1,4 @@
-<h3>投稿一覧</h3>
+<h3 class="mb-4">投稿一覧</h3>
 
 <% if show_create_button %>
   <%= link_to "新規投稿", new_post_path, class: "btn btn-success mb-3" %>
@@ -7,13 +7,13 @@
 <% if user.posts.exists? %>
   <div class="timeline">
     <% user.posts.order(created_at: :desc).limit(10).each do |post| %>
-      <div class="timeline-item mb-4 p-3 border rounded">
+      <div class="timeline-item d-flex mb-4 p-3 border rounded">
         <!-- アイコン部分 -->
-        <div class="timeline-icon float-left mr-3" style="font-size: 2rem; color: #007bff;">
+        <div class="timeline-icon mr-3" style="font-size: 2rem; color: #007bff;">
           <i class="fas fa-pen"></i>
         </div>
         <!-- 投稿内容部分 -->
-        <div class="timeline-content">
+        <div class="timeline-content flex-grow-1">
           <h5 class="mb-1">
             <%= link_to post.title, post_path(post), class: "text-dark font-weight-bold" %>
           </h5>
@@ -21,7 +21,25 @@
             <%= time_ago_in_words(post.created_at) %>
             (<%= post.created_at.strftime("%Y年%m月%d日 %H:%M") %>)
           </p>
-
+          
+          <%# カテゴリー表示 %>
+          <% if post.category.present? %>
+            <p class="mb-1">
+              <strong>カテゴリ:</strong>
+              <span class="badge badge-primary ml-1"><%= post.category %></span>
+            </p>
+          <% end %>
+          
+          <%# タグ表示（ActsAsTaggableOn を使用した tag_list） %>
+          <% if post.tag_list.present? %>
+            <p class="mb-1">
+              <strong>タグ:</strong>
+              <% post.tag_list.each do |tag| %>
+                <%= link_to tag, posts_path(tag: tag), class: "badge badge-info mr-1" %>
+              <% end %>
+            </p>
+          <% end %>
+          
           <% visible_text = post.content.truncate(50) %>
           <p><%= visible_text %></p>
           <% if post.content.length > 50 %>
@@ -36,18 +54,16 @@
             <% end %>
           </div>
         </div>
-        <div class="clearfix"></div>
       </div>
     <% end %>
   </div>
-  
+
   <!-- 投稿件数が10件を超える場合の「もっと読む」リンク -->
   <% if user.posts.count > 10 %>
     <div class="text-center">
       <%= link_to "もっと読む", posts_user_path(user), class: "btn btn-outline-primary" %>
     </div>
   <% end %>
-  
 <% else %>
   <p class="text-muted">投稿がありません。</p>
 <% end %>

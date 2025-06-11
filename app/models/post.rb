@@ -10,6 +10,9 @@ class Post < ApplicationRecord
 
   has_many_attached :images # 複数画像アップロードを可能に！
 
+  acts_as_taggable_on :tags
+
+
 
   # スコープ（アクティブユーザーのみの投稿）
   scope :active_users_posts, -> { joins(:user).where(users: { status: "active" }) }

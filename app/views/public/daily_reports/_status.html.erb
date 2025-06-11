@@ -84,7 +84,7 @@
 
   <%= form_with model: @daily_report, local: true do |f| %>
     <div class="d-flex align-items-center">
-      <%= f.select :self_evaluation, (1..5).to_a, { prompt: "自己評価を選択" }, class: "form-select me-2" %>
+      <%= f.select :self_evaluation, (1..5).to_a, { prompt: "自己評価を選択" }, class: "form-control mr-2" %>
       <%= f.submit "変更", class: "btn btn-sm btn-primary" %>
     </div>
   <% end %>

@@ -1,4 +1,4 @@
-<h1 class="mb-4 text-center fw-bold">新規グループ作成</h1>
+<h1 class="mb-4 text-center font-weight-bold">新規グループ作成</h1>
 
 <div class="card p-4 mb-4">
   <%= form_with model: @group, url: user_groups_path(current_user), local: true do |f| %>
@@ -7,6 +7,11 @@
       <%= f.text_field :name, class: "form-control" %>
     </div>
     
+    <div class="form-group mb-3">
+      <%= f.label :description, "グループ情報" %>
+      <%= f.text_area :description, rows: 5, placeholder: "グループの目的、概要、ルールなどを書いてください", class: "form-control" %>
+    </div>
+
     <div class="form-group mb-3">
       <%= f.label :group_image, "グループ画像" %>
       <%= f.file_field :group_image, class: "form-control", onchange: "previewImage(event)" %>
@@ -26,17 +31,7 @@
       <%= f.label :join_policy, "参加ルール" %>
       <%= f.select :join_policy, [["誰でも参加可能", "open"], ["承認制", "invite_only"]], {}, class: "form-control" %>
     </div>
-    
-    <div class="form-group mb-3">
-      <%= f.label :location, "グループの場所" %>
-      <%= f.text_field :location, placeholder: "例: 東京", class: "form-control" %>
-    </div>
-    
-    <div class="form-group mb-3">
-      <%= f.label :description, "グループのルール" %>
-      <%= f.text_area :description, rows: 5, placeholder: "ルールやグループの趣旨を書いてください", class: "form-control" %>
-    </div>
-    
+
     <div class="d-flex justify-content-between">
       <%= f.submit "作成", class: "btn btn-primary" %>
       <%= link_to "キャンセル", user_groups_path(current_user), class: "btn btn-light" %>

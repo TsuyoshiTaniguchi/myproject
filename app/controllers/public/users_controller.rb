@@ -51,12 +51,19 @@ class Public::UsersController < ApplicationController
   def show
     @user = User.find(params[:id])
     @following_users = @user.following
-
+  
     # 投稿のフィルタリング
     own_posts = filter_posts(@user.posts.to_a)
     followed_user_ids = current_user.following.pluck(:id)
     followed_posts = filter_posts(Post.where(user_id: followed_user_ids).to_a)
     @posts = (own_posts + followed_posts).sort_by(&:created_at).reverse
+  
+    if @user.daily_reports_public?
+      @daily_reports = @user.daily_reports.public_report.order(date: :desc)
+    else
+      @daily_reports = [] # もしくは別メッセージを表示
+      flash.now[:alert] = "このユーザーは日報を公開していません。"
+    end
   end
 
   # 退会確認
@@ -83,6 +90,9 @@ class Public::UsersController < ApplicationController
   def search
     @query = params[:query]
     @users = User.where("name LIKE ?", "%#{@query}%")
+                 .where.not(id: current_user.id)
+                 .where.not(role: "admin")
+                 .where.not(email: "guest@example.com")
     render :index
   end
 
@@ -136,7 +146,7 @@ class Public::UsersController < ApplicationController
   end
 
   def user_params
-    params.require(:user).permit(:name, :email, :personal_statement, :growth_story, :portfolio_url, :portfolio_file, :profile_image)
+    params.require(:user).permit(:name, :email, :personal_statement, :growth_story, :portfolio_url, :portfolio_file, :profile_image, :daily_reports_public)
   end
 
   def ensure_guest_user

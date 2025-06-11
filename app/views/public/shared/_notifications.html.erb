@@ -1,45 +1,49 @@
 <li class="nav-item">
-  <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-turbo="false">
-    📩 未読通知 <span class="badge badge-danger"><%= current_user.notifications.where(read: false).count %></span>
-  </button>
-  <div class="dropdown-menu" data-turbo="false">
-    <% 
-      # 未読通知をすべて配列で取得
-      unread_notifications = current_user.notifications.where(read: false).to_a 
-      # 自分自身による Like 通知を除外する
-      filtered_notifications = unread_notifications.reject do |notification|
-         notification.source_type == "Like" &&
-         notification.source.present? &&
-         notification.source.user.present? &&
-         notification.source.user.id == current_user.id
-      end 
-    %>
-    <% if filtered_notifications.any? %>
-      <% filtered_notifications.first(5).each do |notification| %>
-        <% message = case notification.source_type
-          when "Comment"
-            if notification.source && notification.source.user
-              "#{notification.source.user.name} さんがあなたの投稿にコメントしました！"
-            else
-              "コメントが投稿されました（詳細不明）"
-            end
-          when "Like"
-            if notification.source && notification.source.user
-              "#{notification.source.user.name} さんがあなたの投稿をいいねしました！"
-            else
-              "投稿にいいねがありました（詳細不明）"
-            end
-          else
-            "新しい通知があります！"
-        end %>
-        <%= link_to message, notification_path(notification), method: :patch, data: { turbo: false }, class: "dropdown-item" %>
+  <div class="dropdown">
+    <button class="btn notification-toggle dropdown-toggle" type="button" id="unreadNotifications" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-turbo="false">
+      <i class="fas fa-bell"></i> 未読通知 
+      <span class="badge badge-danger">
+        <%= current_user.notifications.where(read: false).count %>
+      </span>
+    </button>
+    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="unreadNotifications" data-turbo="false">
+      <% 
+         # 未読通知を取得
+         unread_notifications = current_user.notifications.where(read: false).to_a 
+         # 自分自身による "Like" 通知は除外
+         filtered_notifications = unread_notifications.reject do |notification|
+           notification.source_type == "Like" &&
+           notification.source.present? &&
+           notification.source.user.present? &&
+           notification.source.user.id == current_user.id
+         end 
+      %>
+      <% if filtered_notifications.any? %>
+        <% filtered_notifications.first(5).each do |notification| %>
+          <% message = case notification.source_type
+             when "Comment"
+               if notification.source && notification.source.user
+                 "#{notification.source.user.name} さんがあなたの投稿にコメントしました！"
+               else
+                 "コメントが投稿されました（詳細不明）"
+               end
+             when "Like"
+               if notification.source && notification.source.user
+                 "#{notification.source.user.name} さんがあなたの投稿をいいねしました！"
+               else
+                 "投稿にいいねがありました（詳細不明）"
+               end
+             else
+               "新しい通知があります！"
+          end %>
+          <%= link_to message, notification_path(notification), method: :patch, data: { turbo: false }, class: "dropdown-item" %>
+        <% end %>
+      <% else %>
+        <span class="dropdown-item disabled">未読の通知はありません</span>
       <% end %>
-    <% else %>
-      <span class="dropdown-item disabled">未読の通知はありません</span>
-    <% end %>
+    </div>
   </div>
 </li>
 
-<li class="nav-item">
-  <%= link_to "通知一覧を見る", notifications_path, class: "btn btn-info", data: { turbo: false } %>
-</li>
+<%# フォールバック：呼び出し側で notifications 変数が必要な場合の定義 %>
+<% notifications = current_user.notifications.where(read: false).to_a.reject { |n| n.source_type == "Like" && n.source&.user&.id == current_user.id } %>

@@ -1,4 +1,4 @@
-<h1>投稿を編集</h1>
+<h1 class="text-center mb-4">投稿を編集</h1>
 
 <%= form_with model: @post, local: true, class: "card p-4 shadow-sm" do |f| %>
   <% if @post.errors.any? %>
@@ -49,8 +49,9 @@
 
   <!-- タグ入力 -->
   <div class="mb-3">
-    <%= f.label :tags, "タグ（カンマ区切り）", class: "form-label" %>
-    <%= f.text_field :tags, class: "form-control", placeholder: "例: Ruby, Rails, API" %>
+    <%= f.label :tag_list, "タグ（カンマ区切り）", class: "form-label" %>
+    <%= f.text_field :tag_list, value: @post.tag_list.join(', '), class: "form-control", placeholder: "例: Ruby, Rails, API" %>
+    <small class="form-text text-muted">各タグはカンマで区切って入力してください。</small>
   </div>
 
   <!-- 更新ボタン -->

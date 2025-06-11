@@ -6,24 +6,6 @@
   }
 }
 
-/* ユーザー用ヘッダー */
-.user-header {
-  background-color: #ffffff;  // 明るくクリーンな背景
-  border-bottom: 2px solid #E0E0E0;
-
-  .nav-menu .nav-link {
-    color: #1ABC9C;  // ターコイズブルー
-    transition: color 0.3s;
-    
-    &:hover {
-      color: darken(#1ABC9C, 10%);
-    }
-  }
-  .logout {
-    color: red;
-  }
-}
-
 /* 管理者用ヘッダー */
 .admin-header {
   background-color: #002B36;  // 深みある背景
@@ -43,5 +25,47 @@
   
   .welcome {
     font-weight: bold;
+  }
+}
+
+.admin-header {
+  background-color: #002B36;  // 深みある背景
+
+  // ロゴの高さ調整
+  .logo-img {
+    max-height: 60px;
+    cursor: pointer;
+    transition: transform 0.3s;
+    &:hover { transform: scale(1.05); }
+  }
+
+  // 各リンクの色
+  .nav-link {
+    color: #1ABC9C;           // 統一感のあるシアン系
+    transition: color 0.3s;
+
+    &:hover,
+    &:focus {
+      color: lighten(#1ABC9C, 10%);
+      text-decoration: none;
+    }
+  }
+
+  // ログアウトだけ強調色（お好みで調整）
+  .logout {
+    color: #FF6B6B !important;
+    &:hover { color: #FFA8A8 !important; }
+  }
+
+  // 「ようこそ…」の太字
+  .welcome .nav-link {
+    color: #F0F0F0 !important; // 少し明るめの白
+    font-weight: bold;
+    cursor: default;           // 非活性っぽく
+  }
+
+  // 小画面のトグルアイコン色調整
+  .navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.5);
   }
 }

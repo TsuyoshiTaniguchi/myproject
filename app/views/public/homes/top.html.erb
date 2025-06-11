@@ -1,11 +1,10 @@
-<%# app/views/home/index.html.erb %>
 
-<!-- ヒーローセクション（サイトのメインビジュアル＋シンプルなCTA） -->
 <div class="hero-section text-center bg-dark text-white py-5">
   <div class="container">
-    <h1 class="display-3">WAI to WAI</h1>
-    <p class="lead">あなたの過去・現在・未来を記録し、自己成長の軌跡を創るコミュニティ</p>
-    <!-- キャッチコピーを強調して追加 -->
+    <h1 class="display-3 text-white">WAI to WAI</h1>
+    <p class="lead">
+      あなたの過去・現在・未来を記録し、自己成長の軌跡を創るコミュニティ
+    </p>
     <blockquote class="blockquote mt-3">
       <p class="h4">Who Am I to Who Am I — 「私は誰なのか？」から「私は何者なのか？」へ</p>
     </blockquote>
@@ -26,6 +25,7 @@
   </div>
 </div>
 
+<!-- サイトコンテンツ -->
 <div class="container my-5">
   <!-- サイト機能紹介セクション -->
   <section class="features text-center my-5">
@@ -40,12 +40,13 @@
           </div>
         </div>
       </div>
+      <!-- GitHub連携→ プロジェクト実績に変更 -->
       <div class="col-md-3 mb-3">
         <div class="card h-100 shadow-sm">
           <div class="card-body">
-            <i class="fab fa-github fa-3x mb-3 text-dark"></i>
-            <h5 class="card-title">GitHub連携</h5>
-            <p class="card-text">プロジェクト・コミット履歴で実績を可視化。</p>
+            <i class="fas fa-clipboard-list fa-3x mb-3 text-dark"></i>
+            <h5 class="card-title">プロジェクト実績</h5>
+            <p class="card-text">各プロジェクトの成果を直感的に管理・閲覧できます。</p>
           </div>
         </div>
       </div>
@@ -77,73 +78,48 @@
       プロジェクトや実績が、あなたの未来への礎です。
     </p>
     <div class="row">
-      <%# 実際の画像ファイル "top1.jpg", "top2.jpg", "top3.png" を表示 %>
-      <div class="col-md-4 mb-3">
-        <div class="card h-100 shadow" style="border-color: #007bff;">
-          <%= image_tag "top1.jpg", class: "card-img-top", alt: "Project 1" %>
-          <div class="card-body">
-            <h5 class="card-title">プロジェクト 1</h5>
-            <p class="card-text">ここにプロジェクト概要を記載。あなたの情熱とクリエイティビティが際立ちます。</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4 mb-3">
-        <div class="card h-100 shadow" style="border-color: #007bff;">
-          <%= image_tag "top2.jpg", class: "card-img-top", alt: "Project 2" %>
-          <div class="card-body">
-            <h5 class="card-title">プロジェクト 2</h5>
-            <p class="card-text">ここにプロジェクト概要を記載。あなたの取り組みを印象づけます。</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4 mb-3">
-        <div class="card h-100 shadow" style="border-color: #007bff;">
-          <%= image_tag "top3.png", class: "card-img-top", alt: "Project 3" %>
-          <div class="card-body">
-            <h5 class="card-title">プロジェクト 3</h5>
-            <p class="card-text">ここにプロジェクト概要を記載。クリエイティブな挑戦が伝わります。</p>
-          </div>
+    <div class="col-md-4 mb-3">
+      <div class="card h-100 shadow" style="border-color: #007bff;">
+        <%= image_tag "top1.jpg", class: "card-img-top", alt: "Project 1" %>
+        <div class="card-body">
+          <h5 class="card-title">プロジェクト 1</h5>
+          <p class="card-text">
+            このプロジェクトは、革新的なデザインと先進技術を融合させ、一歩先を行くユーザー体験を創出する試みです。細部にわたるこだわりが、創造性と実用性の両立を実現しています。
+            <br>
+            <small class="text-muted">※これはサンプル／イメージです</small>
+          </p>
         </div>
       </div>
     </div>
-    <%# 「もっと見る」ボタンは削除しています %>
-  </section>
-
-  <!-- コミュニティ／最新投稿／キャッチコピーセクション -->
-  <section class="community-section my-5">
-    <% if user_signed_in? && current_user.is_a?(User) %>
-      <h2 class="text-center mb-4">フォロー中ユーザーの最新投稿</h2>
-      <% if @posts.present? %>
-        <div class="row">
-          <% @posts.each do |post| %>
-            <div class="col-md-4 mb-3">
-              <div class="card shadow-sm">
-                <% if post.images.attached? %>
-                  <%= image_tag post.images.first.variant(resize_to_fit: [400,200]), class:"card-img-top", alt:"投稿画像" %>
-                <% else %>
-                  <%= image_tag "no_image.png", class:"card-img-top", alt:"No Image" %>
-                <% end %>
-                <div class="card-body">
-                  <h5 class="card-title"><%= post.title %></h5>
-                  <p class="card-text"><%= truncate(post.content, length:100) %></p>
-                </div>
-                <div class="card-footer text-muted small">
-                  投稿者: <%= link_to post.user.name, user_path(post.user) %>
-                </div>
-              </div>
-            </div>
-          <% end %>
+    
+    <div class="col-md-4 mb-3">
+      <div class="card h-100 shadow" style="border-color: #007bff;">
+        <%= image_tag "top2.jpg", class: "card-img-top", alt: "Project 2" %>
+        <div class="card-body">
+          <h5 class="card-title">プロジェクト 2</h5>
+          <p class="card-text">
+            このプロジェクトは、シンプルで直感的なインターフェースを通じて、日常の中に新たな価値をもたらします。堅実な設計と洗練されたデザインが、使いやすさと美しさを両立させています。
+            <br>
+            <small class="text-muted">※これはサンプル／イメージです</small>
+          </p>
         </div>
-      <% else %>
-        <p class="text-center text-muted">フォロー中のユーザーの投稿はまだありません。</p>
-      <% end %>
-    <% else %>
-      <div class="text-center">
-        <h2 class="mb-4">WAI to WAI の魅力を体験しよう</h2>
-        <p class="mb-4">会員登録すると、あなた専用のフィードや実績が見られます。</p>
-        <%= link_to "会員登録する", new_user_registration_path, class: "btn btn-success btn-lg" %>
       </div>
-    <% end %>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+      <div class="card h-100 shadow" style="border-color: #007bff;">
+        <%= image_tag "top3.png", class: "card-img-top", alt: "Project 3" %>
+        <div class="card-body">
+          <h5 class="card-title">プロジェクト 3</h5>
+          <p class="card-text">
+            このプロジェクトは、独自のコンセプトと革新的なアイディアに基づき、従来の枠を超えた表現を追求しています。クリエイティブな挑戦の結晶として、唯一無二の価値を提示します。
+            <br>
+            <small class="text-muted">※これはサンプル／イメージです</small>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
   </section>
 
   <!-- フッター／ナビゲーション -->

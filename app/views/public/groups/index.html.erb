@@ -1,29 +1,25 @@
-<h1 class="mt-4 text-center fw-bold">グループ一覧</h1>
+<h1 class="mt-5 mt-4">グループ一覧</h1>
 
-<%= form_with url: groups_path, method: :get, local: true, html: { class: "d-inline" } do %>
-  <div class="input-group">
-    <%= text_field_tag :query, params[:query], placeholder: "グループを検索...", class: "form-control" %>
-    <div class="input-group-append">
-      <%= submit_tag "検索", class: "btn btn-outline-secondary" %>
-    </div>
-  </div>
-<% end %>
+<form action="/groups" accept-charset="UTF-8" method="get" style="display: flex; align-items: center;">
+  <input type="text" name="query" id="query" placeholder="グループを検索..." class="form-control" style="flex: 1; max-width: 400px; margin-right: 5px;">
+  <input type="submit" name="commit" value="検索" class="btn btn-primary">
+</form>
 
 <% unless current_user.guest? %>
   <div class="d-flex justify-content-end mt-4">
-    <%= link_to "➕ 新しいグループを作成", new_group_path, class: "btn btn-success fw-bold" %>
+    <%= link_to "➕ 新しいグループを作成", new_group_path, class: "btn btn-success font-weight-bold" %>
   </div>
 <% end %>
 
 <ul class="nav nav-pills nav-justified mt-3">
   <li class="nav-item">
-    <a class="nav-link active fw-bold" data-bs-toggle="tab" href="#search_results">🔍 検索結果</a>
+    <a class="nav-link active font-weight-bold" data-toggle="tab" href="#search_results">🔍 検索結果</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link fw-bold" data-bs-toggle="tab" href="#popular_groups">⭐ 人気グループ</a>
+    <a class="nav-link font-weight-bold" data-toggle="tab" href="#popular_groups">⭐ 人気グループ</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link fw-bold" data-bs-toggle="tab" href="#joined_groups">👥 参加中</a>
+    <a class="nav-link font-weight-bold" data-toggle="tab" href="#joined_groups">👥 参加中</a>
   </li>
 </ul>
 
@@ -31,7 +27,7 @@
   <!-- 🔍 検索結果タブ -->
   <div class="tab-pane fade show active" id="search_results">
     <% if @query.present? %>
-      <div class="alert alert-info fw-bold">
+      <div class="alert alert-info font-weight-bold">
         <h2>「<%= @query %>」の検索結果</h2>
       </div>
       <% if @groups.any? %>

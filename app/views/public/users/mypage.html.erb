@@ -1,133 +1,146 @@
-<h1>マイページ</h1>
+<div class="container mt-4">
+  <h1 class="mb-4">マイページ</h1>
 
-<!-- タブ切り替え -->
-<ul class="nav nav-pills mb-3" id="mypageTab" role="tablist">
-  <li class="nav-item">
-    <a class="nav-link active"
-       id="profile-tab"
-       data-toggle="tab"
-       href="#profile"
-       role="tab"
-       aria-controls="profile"
-       aria-selected="true">
-      プロフィール
-    </a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link"
-       id="posts-tab"
-       data-toggle="tab"
-       href="#posts"
-       role="tab"
-       aria-controls="posts"
-       aria-selected="false">
-      投稿一覧
-    </a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link"
-       id="daily_reports-tab"
-       data-toggle="tab"
-       href="#daily_reports"
-       role="tab"
-       aria-controls="daily_reports"
-       aria-selected="false">
-      日報管理
-    </a>
-  </li>
-</ul>
+  <!-- タブ切り替え -->
+  <ul class="nav nav-pills mb-3" id="mypageTab" role="tablist">
+    <li class="nav-item">
+      <a class="nav-link active"
+         id="profile-tab"
+         data-toggle="tab"
+         href="#profile"
+         role="tab"
+         aria-controls="profile"
+         aria-selected="true">
+        プロフィール
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link"
+         id="posts-tab"
+         data-toggle="tab"
+         href="#posts"
+         role="tab"
+         aria-controls="posts"
+         aria-selected="false">
+        投稿一覧
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link"
+         id="daily_reports-tab"
+         data-toggle="tab"
+         href="#daily_reports"
+         role="tab"
+         aria-controls="daily_reports"
+         aria-selected="false">
+        ライフログ＜日報管理＞
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link"
+         id="notifications-tab"
+         data-toggle="tab"
+         href="#notifications"
+         role="tab"
+         aria-controls="notifications"
+         aria-selected="false">
+        通知一覧
+      </a>
+    </li>
+  </ul>
 
-<!-- タブパネル -->
-<div class="tab-content" id="mypageTabContent">
-  <!-- プロフィール -->
-  <div class="tab-pane fade show active"
-       id="profile"
-       role="tabpanel"
-       aria-labelledby="profile-tab">
-    <%= render partial: "public/users/profile",
-               locals: { user: current_user, show_actions: true } %>
-  </div>
-
-  <!-- 投稿一覧 -->
-  <div class="tab-pane fade"
-       id="posts"
-       role="tabpanel"
-       aria-labelledby="posts-tab">
-    <%= render partial: "public/posts/post_list",
-               locals: { user: current_user,
-                         show_create_button: true,
-                         show_edit_button: true } %>
-  </div>
-
-  <!-- 日報管理 -->
-  <div class="tab-pane fade"
-       id="daily_reports"
-       role="tabpanel"
-       aria-labelledby="daily_reports-tab">
-    <h3>ライフログ</h3>
-
-    <!-- カレンダー -->
-    <div id="calendar-wrapper" class="mb-3" style="min-height:450px;">
-      <div id="calendar" style="min-height:400px;"></div>
+  <!-- タブパネル -->
+  <div class="tab-content" id="mypageTabContent">
+    <!-- プロフィール -->
+    <div class="tab-pane fade show active"
+         id="profile"
+         role="tabpanel"
+         aria-labelledby="profile-tab">
+      <%= render partial: "public/users/profile", locals: { user: current_user, show_actions: true } %>
     </div>
 
-    <!-- アクションボタン -->
-    <div class="d-flex justify-content-between mb-3">
-      <%= link_to "新規日報作成",
-                  new_daily_report_path,
-                  class: "btn btn-primary px-4" %>
-      <%= link_to "日報一覧へ移動",
-                  daily_reports_path,
-                  class: "btn btn-outline-secondary px-4" %>
+    <!-- 投稿一覧 -->
+    <div class="tab-pane fade"
+         id="posts"
+         role="tabpanel"
+         aria-labelledby="posts-tab">
+      <%= render partial: "public/posts/post_list",
+                  locals: { user: current_user, show_create_button: true, show_edit_button: true } %>
     </div>
 
-    <!-- 日報テーブル -->
-    <div class="table-responsive">
-      <table class="table mb-3">
-        <thead class="thead-light">
-          <tr>
-            <th>日付</th>
-            <th>内容</th>
-            <th>公開設定</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @daily_reports.each do |report| %>
+    <!-- 日報管理 -->
+    <div class="tab-pane fade"
+         id="daily_reports"
+         role="tabpanel"
+         aria-labelledby="daily_reports-tab">
+      <h3>ライフログ</h3>
+      <!-- カレンダー -->
+      <div id="calendar-wrapper" class="mb-3" style="min-height:450px;">
+        <div id="calendar" style="min-height:400px;"></div>
+      </div>
+      <!-- アクションボタン -->
+      <div class="d-flex justify-content-between mb-3">
+        <%= link_to "新規日報作成", new_daily_report_path, class: "btn btn-primary px-4" %>
+        <%= link_to "日報一覧へ移動", daily_reports_path, class: "btn btn-outline-secondary px-4" %>
+      </div>
+      <!-- 日報テーブル -->
+      <div class="table-responsive">
+        <table class="table mb-3">
+          <thead class="thead-light">
             <tr>
-              <td><%= report.date %></td>
-              <td><%= report.content.truncate(50) %></td>
-              <td>
-                <% if report.visibility == "public_report" %>
-                  <span class="badge badge-success">公開</span>
-                <% else %>
-                  <span class="badge badge-secondary">非公開</span>
-                <% end %>
-              </td>
-              <td>
-                <%= link_to "編集",
-                            edit_daily_report_path(report),
-                            class: "btn btn-sm btn-warning me-1" %>
-                <%= link_to "削除",
-                            daily_report_path(report),
-                            method: :delete,
-                            data: { confirm: "本当に削除しますか？" },
-                            class: "btn btn-sm btn-danger" %>
-              </td>
+              <th>日付</th>
+              <th>内容</th>
+              <th>公開設定</th>
+              <th>操作</th>
             </tr>
-          <% end %>
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            <% @daily_reports.each do |report| %>
+              <tr>
+                <td><%= report.date %></td>
+                <td><%= report.content.truncate(50) %></td>
+                <td>
+                  <% if report.visibility == "public_report" %>
+                    <span class="badge badge-success">公開</span>
+                  <% else %>
+                    <span class="badge badge-secondary">非公開</span>
+                  <% end %>
+                </td>
+                <td>
+                  <%= link_to "編集", edit_daily_report_path(report), class: "btn btn-sm btn-warning mr-1" %>
+                  <%= link_to "削除", daily_report_path(report),
+                              method: :delete,
+                              data: { confirm: "本当に削除しますか？" },
+                              class: "btn btn-sm btn-danger" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <!-- グラフ -->
+      <%= render 'public/daily_reports/performance_chart' %>
     </div>
 
-    <!-- グラフ -->
-    <%= render 'public/daily_reports/performance_chart' %>
+    <!-- 通知一覧 -->
+    <div class="tab-pane fade"
+         id="notifications"
+         role="tabpanel"
+         aria-labelledby="notifications-tab">
+      <h3>未読通知一覧</h3>
+      <%# ユーザーの未読通知を取得し、Like の自分自身に関する通知は除外 %>
+      <% notifications = current_user.notifications.where(read: false).to_a.reject do |notification|
+           notification.source_type == "Like" &&
+           notification.source.present? &&
+           notification.source.user.present? &&
+           notification.source.user.id == current_user.id
+         end %>
+      <%= render 'public/shared/notification_list', notifications: notifications %>
+    </div>
   </div>
-</div>
 
-<!-- ユーザー一覧ボタン -->
-<div class="text-center mt-4">
-  <%= link_to "ユーザー一覧",
-              users_path,
-              class: "btn btn-lg btn-outline-secondary px-4" %>
+  <!-- ユーザー一覧ボタン -->
+  <div class="text-center mt-4">
+    <%= link_to "ユーザー一覧", users_path, class: "btn btn-lg btn-outline-secondary px-4" %>
+  </div>
 </div>

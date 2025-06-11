@@ -9,7 +9,7 @@
                     width: 100, height: 100 %>
     <% end %>
 
-    <h4 class="fw-bold">
+    <h4 class="font-weight-bold">
       <%= link_to group.name, group_path(group), class: "text-primary" %>
     </h4>
     <p class="text-muted">
@@ -18,7 +18,7 @@
 
     <!-- メンバー数の表示 -->
     <p>
-      <span class="badge bg-secondary">
+      <span class="badge badge-secondary">
         メンバー数: <%= group.memberships.where(role: "member").count %>人
       </span>
     </p>
@@ -27,13 +27,13 @@
       🔑 参加ルール:
       <% case group.join_policy %>
         <% when "open" %>
-          <span class="badge bg-success">誰でも自由に参加できます。</span>
+          <span class="badge badge-success">誰でも自由に参加できます。</span>
         <% when "admin_approval" %>
-          <span class="badge bg-warning">管理者の承認が必要です。</span>
+          <span class="badge badge-warning">管理者の承認が必要です。</span>
         <% when "invite_only" %>
-          <span class="badge bg-danger">招待制のグループです。</span>
+          <span class="badge badge-danger">招待制のグループです。</span>
         <% else %>
-          <span class="badge bg-secondary">未設定</span>
+          <span class="badge badge-secondary">未設定</span>
       <% end %>
     </p>
 

@@ -4,43 +4,48 @@ class Public::PostsController < ApplicationController
   before_action :restrict_guest_access, only: [:new, :create, :report]
 
   def index
-    @query = params[:query]
-    @filter = params[:filter]
+    @query    = params[:query]
+    @filter   = params[:filter]
     @category = params[:category]
-  
+    @tag      = params[:tag]
+
     # 初めに投稿全体のスコープを定義
     posts_scope = Post.visible_to(current_user).order(created_at: :desc)
-  
+
     # フォローしている人の投稿のみ
     if @filter == "following"
       following_ids = current_user.following.pluck(:id)
       posts_scope = posts_scope.where(user_id: following_ids)
     end
-  
-    # カテゴリフィルター
+
+    # カテゴリフィルター（"すべて" 以外の場合のみ）
     if @category.present? && @category != "すべて"
       posts_scope = posts_scope.where(category: @category)
     end
-  
+
     # キーワード検索
     if @query.present?
       posts_scope = posts_scope.where("title LIKE ? OR content LIKE ?", "%#{@query}%", "%#{@query}%")
     end
-  
+
+    # タグ検索（ActsAsTaggableOn の tagged_with を使用）
+    if @tag.present?
+      posts_scope = posts_scope.tagged_with(@tag)
+    end
+
     @posts = posts_scope.page(params[:page]).per(6)
   end
 
-
   def show
-    @post = Post.find_by(id: params[:id]) # `find_by` を使用し、削除済みの投稿に対応
-  
+    @post = Post.find_by(id: params[:id]) # 存在しない投稿（削除済み等）に対応
+
     if @post.nil?
       flash[:alert] = "投稿が見つかりませんでした。"
-      redirect_to group_posts_path(params[:group_id]) #  削除済みなら投稿一覧へリダイレクト
+      redirect_to group_posts_path(params[:group_id])
       return
     end
-  
-    # 意図したページから来た場合のみ `session[:return_to]` をセット
+
+    # 意図したページから来た場合のみ、リダイレクト先をセッションにセット
     if request.referer.present? && !request.referer.include?("/posts/")
       session[:return_to] = request.referer
     end
@@ -51,7 +56,7 @@ class Public::PostsController < ApplicationController
       flash[:alert] = "ゲストユーザーは投稿できません。"
       return redirect_to posts_path
     end
-    
+
     if params[:group_id].present?
       @group = Group.find_by(id: params[:group_id])
       unless @group
@@ -65,37 +70,30 @@ class Public::PostsController < ApplicationController
   end
 
   def create
-    # `group_id` がリクエストに含まれている場合、そのグループを取得。なければ `nil`
     @group = params[:group_id].present? ? Group.find_by(id: params[:group_id]) : nil
-  
-    # `@group` が存在する場合、そのグループに紐づく投稿を作成。なければ、個人投稿として作成
-    @post = @group ? @group.posts.build(post_params) : current_user.posts.build(post_params)
-    
-    # 投稿したユーザーを設定（明示的に `current_user` をセット）
+    @post  = @group ? @group.posts.build(post_params) : current_user.posts.build(post_params)
     @post.user = current_user
-  
-    # 投稿を保存し、成功した場合はリダイレクト
+
     if @post.save
-      session[:return_to] = @group ? group_posts_path(@group) : posts_path # 新規投稿後は投稿一覧へ戻れるようセット
-      redirect_to @group ? group_post_path(@group, @post) : post_path(@post), notice: "投稿が作成されました" 
+      session[:return_to] = @group ? group_posts_path(@group) : posts_path
+      redirect_to (@group ? group_post_path(@group, @post) : post_path(@post)), notice: "投稿が作成されました"
     else
-      # エラーが発生した場合、エラーメッセージを `flash[:alert]` に保存し、新規投稿フォームを再表示
       flash[:alert] = @post.errors.full_messages.join(", ")
       render :new
     end
   end
-  
+
   def update
     @post = current_user.posts.find(params[:id])
-  
+
     # 画像を削除する処理
     if params[:remove_image].present?
       params[:remove_image].each do |image_id|
         image = @post.images.find(image_id)
-        image.purge # 画像を削除
+        image.purge
       end
     end
-  
+
     if @post.update(post_params)
       redirect_to post_path(@post), notice: "投稿が更新されました"
     else
@@ -109,14 +107,11 @@ class Public::PostsController < ApplicationController
   end
 
   def destroy
-    @post = current_user.posts.find_by(id: params[:id]) #  `find_by` を使い、エラーを防ぐ
-  
+    @post = current_user.posts.find_by(id: params[:id])
     if @post
-      @group = @post.group # 投稿が属するグループを取得
+      @group = @post.group
       @post.destroy
-  
-      # 削除後は投稿一覧ページへリダイレクト
-      redirect_to @group ? group_posts_path(@group) : posts_path, notice: "投稿が削除されました！"
+      redirect_to (@group ? group_posts_path(@group) : posts_path), notice: "投稿が削除されました！"
     else
       flash[:alert] = "投稿が見つかりませんでした！"
       redirect_to posts_path
@@ -125,18 +120,15 @@ class Public::PostsController < ApplicationController
 
   def report
     @post = Post.find(params[:id])
-  
     if @post.update(reported: true)
-      # 通報時に管理者へ通知 (`user_id` を使用)
       Notification.create!(
-        recipient_id: Admin.first.id, # 管理者宛の通知
-        user_id: current_user.id, # `sender_id` の代わりに `user_id` を使用！
+        recipient_id: Admin.first.id,
+        user_id: current_user.id,
         notification_type: "post_report",
         source_id: @post.id,
         source_type: "Post",
         read: false
       )
-  
       redirect_to post_path(@post), notice: "投稿を通報しました"
     else
       redirect_to post_path(@post), alert: "この投稿はすでに通報されています"
@@ -150,10 +142,11 @@ class Public::PostsController < ApplicationController
                  .page(params[:page]).per(6)
     render :index
   end
+
   private
 
   def post_params
-    params.require(:post).permit(:title, :content, :group_id, images: [])
+    params.require(:post).permit(:title, :content, :group_id, :category, :tag_list, images: [])
   end
 
   def correct_user
@@ -167,5 +160,4 @@ class Public::PostsController < ApplicationController
       redirect_back(fallback_location: posts_path)
     end
   end
-  
 end

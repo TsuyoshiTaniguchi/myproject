@@ -1,3 +1,4 @@
+<!-- タブナビ -->
 <ul class="nav nav-tabs" id="userProfileTab" role="tablist">
   <li class="nav-item" role="presentation">
     <button class="nav-link active" id="profile-tab" data-toggle="tab" data-target="#profile-content" type="button" role="tab" aria-controls="profile-content" aria-selected="true">
@@ -14,8 +15,14 @@
       自己PR詳細
     </button>
   </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="daily-reports-tab" data-toggle="tab" data-target="#daily-reports-content" type="button" role="tab" aria-controls="daily-reports-content" aria-selected="false">
+      ライフログ＜日報管理＞＞
+    </button>
+  </li>
 </ul>
 
+<!-- タブコンテンツ -->
 <div class="tab-content mt-3" id="userProfileTabContent">
   <!-- プロフィールタブ -->
   <div class="tab-pane fade show active" id="profile-content" role="tabpanel" aria-labelledby="profile-tab">
@@ -30,10 +37,9 @@
   <!-- 自己PR詳細タブ（成長ストーリーとして） -->
   <div class="tab-pane fade" id="selfpr-content" role="tabpanel" aria-labelledby="selfpr-tab">
     <h3>成長ストーリー</h3>
-    
     <% if @user.growth_story.present? %>
       <div class="mb-3">
-        <p><%= simple_format @user.growth_story %></p>
+        <p><%= simple_format(@user.growth_story) %></p>
       </div>
     <% else %>
       <p class="text-muted">
@@ -44,8 +50,59 @@
       </p>
     <% end %>
   </div>
-  
+    <!-- 日報管理タブ -->
+    <div class="tab-pane fade" id="daily-reports-content" role="tabpanel" aria-labelledby="daily-reports-tab">
+      <h3>ライフログ＜日報管理＞</h3>
+      <% if @user.daily_reports_public? %>
+        <!-- ここで、日報一覧をテーブル形式などで表示 -->
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead class="thead-light">
+              <tr>
+                <th>日付</th>
+                <th>内容</th>
+                <th>公開状態</th>
+                <%# 現在のユーザーが対象ユーザーの場合のみ操作リンクを表示 %>
+                <% if current_user == @user %>
+                  <th>操作</th>
+                <% end %>
+              </tr>
+            </thead>
+            <tbody>
+              <% @user.daily_reports.order(date: :desc).each do |report| %>
+                <tr>
+                  <td><%= report.date %></td>
+                  <td><%= truncate(report.content, length: 50) %></td>
+                  <td>
+                    <% if report.public_report? %>
+                      <span class="badge badge-success">公開</span>
+                    <% else %>
+                      <span class="badge badge-secondary">非公開</span>
+                    <% end %>
+                  </td>
+                  <% if current_user == @user %>
+                    <td>
+                      <%= link_to "編集", edit_daily_report_path(report), class: "btn btn-sm btn-warning mr-1" %>
+                      <%= link_to "削除", daily_report_path(report), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-sm btn-danger" %>
+                    </td>
+                  <% end %>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+        <!-- Optional: 新規作成ボタン -->
+        <% if current_user == @user %>
+          <%= link_to "新規日報作成", new_daily_report_path, class: "btn btn-primary" %>
+        <% end %>
+      <% else %>
+        <p class="alert alert-info">このユーザーはライフログを公開していません。</p>
+      <% end %>
+    </div>
+  </div>
+</div>
 
+<!-- 下部アクション -->
 <div class="actions mt-3">
   <%= link_to "ユーザー一覧へ戻る", users_path, class: "btn btn-outline-secondary" %>
 </div>

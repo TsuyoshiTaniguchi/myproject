@@ -1,33 +1,52 @@
-<header class="admin-header py-3">
-  <nav class="container d-flex align-items-center justify-content-between">
-    <!-- ロゴ（クリックで管理者ダッシュボードへ） -->
-    <div class="logo">
-      <%= link_to image_tag("main.jpg", alt: "Dashboard Logo", class: "logo-img"), admin_dashboard_path %>
+<header class="admin-header navbar navbar-expand-lg navbar-dark">
+  <div class="container">
+    <!-- ロゴ -->
+    <%= link_to admin_dashboard_path, class: "navbar-brand" do %>
+      <%= image_tag "main.jpg", alt: "Dashboard Logo", class: "logo-img" %>
+    <% end %>
+
+    <!-- ハンバーガーメニュー（スマホ用トグル） -->
+    <button class="navbar-toggler" type="button"
+            data-toggle="collapse" data-target="#adminNavbar"
+            aria-controls="adminNavbar" aria-expanded="false"
+            aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- メニュー本体 -->
+    <div class="collapse navbar-collapse" id="adminNavbar">
+      <ul class="navbar-nav ml-auto align-items-center">
+        <li class="nav-item welcome">
+          <!-- disabled link でカーソル非活性 -->
+          <a class="nav-link disabled">ようこそ、管理者さん！</a>
+        </li>
+        <li class="nav-item">
+          <%= link_to "ダッシュボード", admin_dashboard_path,
+                      class: "nav-link" %>
+        </li>
+        <li class="nav-item">
+          <%= link_to "ユーザー管理", admin_users_path,
+                      class: "nav-link" %>
+        </li>
+        <li class="nav-item">
+          <%= link_to "グループ管理", admin_groups_path,
+                      class: "nav-link" %>
+        </li>
+        <li class="nav-item">
+          <%= link_to "投稿管理", admin_posts_path,
+                      class: "nav-link" %>
+        </li>
+        <li class="nav-item">
+          <%= link_to "コメント管理", admin_comments_path,
+                      class: "nav-link" %>
+        </li>
+        <li class="nav-item">
+          <%= link_to "ログアウト", destroy_admin_session_path,
+                      method: :delete,
+                      data: { turbo_method: :delete },
+                      class: "nav-link logout" %>
+        </li>
+      </ul>
     </div>
-    
-    <!-- ナビゲーションメニュー -->
-    <ul class="nav-menu d-flex align-items-center gap-3">
-      <li class="nav-item welcome">
-        <span>ようこそ、管理者さん！</span>
-      </li>
-      <li class="nav-item">
-        <%= link_to "ダッシュボード", admin_dashboard_path, class: "nav-link" %>
-      </li>
-      <li class="nav-item">
-        <%= link_to "ユーザー管理", admin_users_path, class: "nav-link" %>
-      </li>
-      <li class="nav-item">
-        <%= link_to "グループ管理", admin_groups_path, class: "nav-link" %>
-      </li>
-      <li class="nav-item">
-        <%= link_to "投稿管理", admin_posts_path, class: "nav-link" %>
-      </li>
-      <li class="nav-item">
-        <%= link_to "コメント管理", admin_comments_path, class: "nav-link" %>
-      </li>
-      <li class="nav-item">
-        <%= link_to "ログアウト", destroy_admin_session_path, method: :delete, class: "nav-link logout" %>
-      </li>
-    </ul>
-  </nav>
+  </div>
 </header>

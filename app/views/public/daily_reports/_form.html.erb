@@ -43,7 +43,7 @@
 
   <div class="mb-3">
     <%= form.label :self_evaluation, "自己評価 (1～5)" %>
-    <%= form.select :self_evaluation, options_for_select((1..5).map { |n| [n, n] }, @daily_report.self_evaluation), {}, class: "form-control" %>
+    <%= form.select :self_evaluation, options_for_select((1..5).map { |n| [n.to_s, n] }, @daily_report.self_evaluation), {}, class: "form-control" %>
     <small class="form-text text-muted">
       数値が大きいほど、あなたの主観的な評価が高いことを示します。
     </small>
@@ -59,7 +59,7 @@
     <%= form.label :future_goal_value, "将来の目標値（数値・目標パフォーマンス）" %>
     <%= form.number_field :future_goal_value, class: "form-control", placeholder: "例：10", min: 1, max: 100 %>
     <small class="form-text text-muted">
-      これは、将来的に目指す理想のパフォーマンススコアです。［例：10点満点を目指す］
+      これは、将来的に目指す理想のパフォーマンススコアです。（例：10点満点を目指す）
     </small>
   </div>
 

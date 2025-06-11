@@ -66,3 +66,5 @@ gem 'google_maps_service_ruby', '~> 0.7.0'
 gem "faraday-retry", "~> 2.3"
 
 gem "faraday", "~> 2.13"
+gem 'acts-as-taggable-on'
+

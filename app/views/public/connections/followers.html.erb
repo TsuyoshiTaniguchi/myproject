@@ -1,21 +1,23 @@
-<h1><%= @user.name %>さんのフォロワー一覧</h1>
+<h1 class="mb-4 text-center font-weight-bold"><%= @user.name %>さんのフォロワー一覧</h1>
 
-<div id="followers-list">
-  <% @users.each do |user| %>
-    <li id="user-<%= user.id %>">
-      <%= link_to user.name, user_path(user) %>
-      <% if @user == current_user %> <!-- 自分のマイページなら解除ボタンを表示 -->
-        <% connection = Connection.find_by(followed_id: @user.id, follower_id: user.id) %>
-        <% if connection %>
-          <%= button_to "フォロー解除", connection_path(connection), method: :delete, remote: true, class: "btn btn-danger" %>
+<div id="followers-list" class="mb-4">
+  <ul class="list-group">
+    <% @users.each do |user| %>
+      <li id="user-<%= user.id %>" class="list-group-item d-flex justify-content-between align-items-center">
+        <%= link_to user.name, user_path(user), class: "text-decoration-none" %>
+        <% if @user == current_user %> 
+          <!-- 自分のマイページなら解除ボタンを表示 -->
+          <% connection = Connection.find_by(followed_id: @user.id, follower_id: user.id) %>
+          <% if connection %>
+            <%= button_to "フォロー解除", connection_path(connection), method: :delete, remote: true, class: "btn btn-danger btn-sm" %>
+          <% end %>
         <% end %>
-      <% end %>
-    </li>
-  <% end %>
+      </li>
+    <% end %>
+  </ul>
 </div>
 
-<!-- マイページに戻るボタン -->
-<%= link_to "マイページに戻る", user_path(current_user), class: "btn btn-secondary mt-3" %>
-<!-- ユーザー詳細に戻るボタン -->
-<%= link_to "ユーザー詳細に戻る", user_path(@user), class: "btn btn-secondary mt-3" %>
-
+<div class="d-flex justify-content-center">
+  <%= link_to "マイページに戻る", user_path(current_user), class: "btn btn-secondary me-2" %>
+  <%= link_to "ユーザー詳細に戻る", user_path(@user), class: "btn btn-secondary" %>
+</div>

@@ -1,29 +1,35 @@
-<h1>オーナー管理画面</h1>
+<div class="container my-4">
+  <h1 class="text-center font-weight-bold mb-4">オーナー管理画面</h1>
 
-<table class="table table-striped">
-  <thead class="table-dark"> 
-    <tr>
-      <th>グループ名</th>
-      <th>承認待ちメンバー数</th>
-      <th>操作</th> 
-    </tr>
-  </thead>
-  <tbody>
-    <% @owned_groups.each do |group| %>
+  <table class="table table-striped">
+    <thead class="table-dark">
       <tr>
-        <td><%= link_to group.name, admin_group_path(group), class: "fw-bold text-primary" %></td>
-        <td class="text-center"><%= group.memberships.where(status: "pending").count %> 人</td>
-        <td>
-          <% if group.memberships.where(status: "pending").count > 0 %>
-            <%= link_to "🛠 参加リクエスト管理", manage_group_group_membership_path(group), class: "btn btn-primary btn-sm mb-1" %><br>
-          <% end %>
-          <%= link_to "⚙️ グループ編集", edit_group_path(group), class: "btn btn-outline-warning btn-sm" %>
-        </td>
+        <th>グループ名</th>
+        <th class="text-center">承認待ちメンバー数</th>
+        <th>操作</th>
       </tr>
-    <% end %>
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      <% @owned_groups.each do |group| %>
+        <tr>
+          <td>
+            <%= link_to group.name, admin_group_path(group), class: "font-weight-bold text-primary" %>
+          </td>
+          <td class="text-center">
+            <%= group.memberships.where(status: "pending").count %> 人
+          </td>
+          <td>
+            <% if group.memberships.where(status: "pending").count > 0 %>
+              <%= link_to "🛠 参加リクエスト管理", manage_group_group_membership_path(group), class: "btn btn-primary btn-sm mb-1" %><br>
+            <% end %>
+            <%= link_to "⚙️ グループ編集", edit_group_path(group), class: "btn btn-outline-warning btn-sm" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
 
-<div class="text-center mt-4">
-  <%= link_to "🔙 グループ一覧へ戻る", groups_path, class: "btn btn-secondary mx-2" %>
+  <div class="text-center mt-4">
+    <%= link_to "🔙 グループ一覧へ戻る", groups_path, class: "btn btn-secondary mx-2" %>
+  </div>
 </div>

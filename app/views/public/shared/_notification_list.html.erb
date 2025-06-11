@@ -1,0 +1,33 @@
+<%# app/views/public/shared/_notification_list.html.erb %>
+<%# 呼び出し側で変数 notifications がセットされていない場合は、以下でデフォルト値を設定 %>
+<% notifications ||= current_user.notifications.where(read: false).to_a.reject { |n| n.source_type == "Like" && n.source&.user&.id == current_user.id } %>
+
+<% if notifications.present? %>
+  <div class="list-group">
+    <% notifications.each do |notification| %>
+      <% message = case notification.source_type
+         when "Comment"
+           if notification.source && notification.source.user
+             "#{notification.source.user.name} さんがあなたの投稿にコメントしました！"
+           else
+             "コメントが投稿されました（詳細不明）"
+           end
+         when "Like"
+           if notification.source && notification.source.user
+             "#{notification.source.user.name} さんがあなたの投稿をいいねしました！"
+           else
+             "投稿にいいねがありました（詳細不明）"
+           end
+         else
+           "新しい通知があります！"
+      end %>
+      <%= link_to message, notification_path(notification), method: :patch, data: { turbo: false }, class: "list-group-item list-group-item-action" %>
+    <% end %>
+  </div>
+  <div class="dropdown-divider"></div>
+  <div class="text-center">
+    <%= link_to "すべての通知を見る", notifications_path, class: "dropdown-item text-center", data: { turbo: false } %>
+  </div>
+<% else %>
+  <p class="list-group-item disabled">未読の通知はありません</p>
+<% end %>

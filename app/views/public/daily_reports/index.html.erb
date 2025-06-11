@@ -1,6 +1,6 @@
 <!-- app/views/daily_reports/index.html.erb -->
 
-<h1 class="mb-4">ライフログ＜日報一覧＞</h1>
+<h1 class="mb-4 text-center font-weight-bold">ライフログ＜日報一覧＞</h1>
 
 <!-- 新規日報作成ボタン -->
 <div class="d-flex justify-content-end mb-3">
@@ -47,29 +47,25 @@
     </div>
 
     <!-- パフォーマンス推移グラフ用カード -->
-    <div class="row">
-      <div class="col-12">
-        <div class="card mb-3">
-          <div class="card-header">
-            <h3 class="mb-0">
-              パフォーマンスの推移
-              <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right"
-                 title="グラフ上には、今日の実績（タスク達成度×自己評価の平均値）と、設定した目標値に向かう予測推移が表示されます。"></i>
-            </h3>
-          </div>
-          <div class="card-body">
-            <!-- 一覧ページ用グラフのラッパー -->
-            <div id="performanceChartContainer"
-                 data-goal-value="<%= @daily_reports.last&.future_goal_value.to_i %>"
-                 data-goal-days="<%= @daily_reports.last&.future_goal_days.to_i %>"
-                 style="position: relative; width:100%; max-width:800px; height:300px; margin:0 auto;">
-              <!-- ここに daily_reports.js がキャンバスを生成します -->
-            </div>
-            <p class="small text-muted mt-2">
-              ※ グラフには、日々の記録に基づく実績と、目標に向けた推移が示されています。
-            </p>
-          </div>
+    <div class="card mb-3">
+      <div class="card-header">
+        <h3 class="mb-0">
+          パフォーマンスの推移
+          <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right"
+             title="グラフ上には、今日の実績（タスク達成度×自己評価の平均値）と、設定した目標値に向かう予測推移が表示されます。"></i>
+        </h3>
+      </div>
+      <div class="card-body">
+        <!-- 一覧ページ用グラフのラッパー -->
+        <div id="performanceChartContainer"
+             data-goal-value="<%= @daily_reports.last&.future_goal_value.to_i %>"
+             data-goal-days="<%= @daily_reports.last&.future_goal_days.to_i %>"
+             style="position: relative; width:100%; max-width:800px; height:300px; margin:0 auto;">
+          <!-- ここに daily_reports.js がキャンバスを生成します -->
         </div>
+        <p class="small text-muted mt-2">
+          ※ グラフには、日々の記録に基づく実績と、目標に向けた推移が示されています。
+        </p>
       </div>
     </div>
   </div>
@@ -97,7 +93,7 @@
   </div>
   <div class="card-body">
     <form action="<%= daily_reports_path %>" method="get">
-      <div class="row mb-3">
+      <div class="row align-items-end">
         <div class="col-md-4">
           <label for="date_range" class="form-label">期間で検索:</label>
           <select name="date_range" id="date_range" class="form-select">
@@ -110,13 +106,15 @@
           <label for="keyword" class="form-label">キーワード検索</label>
           <%= text_field_tag :keyword, params[:keyword], id: "keyword", class: "form-control", placeholder: "キーワード入力" %>
         </div>
+        <div class="col-md-4">
+          <button type="submit" class="btn btn-primary w-100">検索</button>
+        </div>
       </div>
-      <button type="submit" class="btn btn-primary">検索</button>
     </form>
   </div>
 </div>
 
-<!-- タイムライン：日報履歴（List Group 方式に変更） -->
+<!-- タイムライン：日報履歴（List Group 方式） -->
 <div class="card mb-4">
   <div class="card-header">
     <h3 class="mb-0">日報履歴（タイムライン）</h3>
@@ -169,8 +167,6 @@
     </ul>
   </div>
 </div>
-
-
 
 <!-- フッターリンク：マイページへ -->
 <div class="text-center mt-4">

@@ -22,3 +22,34 @@
     font-size: 14px;
   }
 }
+
+.footer {
+  background-color: #002B36;
+  color: #F0F0F0;
+  padding: 1rem 0; // 上下の余白を調整
+
+  // SNSリンク部分
+  .social-links {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .social-link {
+    color: #F0F0F0;
+    font-size: 20px;
+    transition: color 0.3s ease;
+    
+    &:hover {
+      color: lighten(#F0F0F0, 10%);
+    }
+  }
+  
+  // コピーライトの文字サイズと余白
+  p {
+    margin-top: 15px;
+    font-size: 14px;
+  }
+}

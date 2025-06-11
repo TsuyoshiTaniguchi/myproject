@@ -1,13 +1,19 @@
 /* _cards.scss */
+/* ユーザー一覧 */
+
+/* 基本のカード設定 */
 .card {
   min-height: 250px;
+  overflow: hidden;  // オーバーフローがあれば隠すことでレイアウトに影響しないように
 }
 
+/* カード内の画像オーバーレイの設定 */
 .card-img-overlay {
   padding: 0;
   position: relative;
 }
 
+/* オーバーレイ効果 */
 .overlay {
   position: absolute;
   top: 0;
@@ -19,7 +25,21 @@
   transition: opacity 0.3s ease;
 }
 
+/* カードにマウスホバー時にオーバーレイを表示 */
 .card:hover .overlay {
   opacity: 1;
 }
 
+/* Masonry レイアウト用のスタイル */
+.masonry-grid {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -15px;
+  margin-right: -15px;
+}
+
+.masonry-item {
+  /* アイテムの横幅を固定し、マージンで間隔を調整 */
+  width: 300px;
+  margin: 15px;
+}

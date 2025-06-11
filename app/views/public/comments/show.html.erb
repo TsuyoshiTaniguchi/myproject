@@ -1,19 +1,29 @@
-<h2>コメント</h2>
+<h2 class="mb-4">コメント</h2>
 
-<%= form_with(model: [post, Comment.new], local: true) do |form| %>
-  <div class="mb-3">
-    <%= form.label :content, "コメント" %>
-    <%= form.text_area :content, class: "form-control" %>
+<!-- コメント入力フォーム -->
+<div class="card mb-4">
+  <div class="card-body">
+    <%= form_with(model: [post, Comment.new], local: true) do |form| %>
+      <div class="mb-3">
+        <%= form.label :content, "コメント", class: "form-label" %>
+        <%= form.text_area :content, class: "form-control", rows: 3 %>
+      </div>
+      <div>
+        <%= form.submit "送信", class: "btn btn-primary btn-sm" %>
+      </div>
+    <% end %>
   </div>
-  
-  <%= form.submit "送信", class: "btn btn-primary btn-sm" %>
-<% end %>
+</div>
 
-<h3>コメント一覧</h3>
+<!-- コメント一覧 -->
+<h3 class="mb-3">コメント一覧</h3>
 <% post.comments.each do |comment| %>
-  <div class="border p-2 mb-2">
-    <strong><%= comment.user.name %></strong> - <%= time_ago_in_words(comment.created_at) %>前
-    <p><%= comment.content %></p>
+  <div class="border rounded p-3 mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <strong><%= comment.user.name %></strong>
+      <span class="text-muted"><%= time_ago_in_words(comment.created_at) %> 前</span>
+    </div>
+    <p class="mb-2"><%= comment.content %></p>
     <% if comment.user == current_user %>
       <%= link_to "削除", post_comment_path(post, comment), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
     <% end %>
