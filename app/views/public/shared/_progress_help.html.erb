@@ -1,63 +1,43 @@
 <!-- アコーディオン用のボタン -->
-<button class="btn btn-info" type="button" data-toggle="collapse" data-target="#explanationCollapse" aria-expanded="false" aria-controls="explanationCollapse">
-  進捗サポートの使い方を確認する
+<button class="btn btn-info"
+        type="button"
+        data-toggle="collapse"
+        data-target="#explanationCollapse"
+        aria-expanded="false"
+        aria-controls="explanationCollapse">
+  進捗サポートのかんたんガイドを見る
 </button>
 
 <!-- アコーディオン本体 -->
 <div class="collapse" id="explanationCollapse">
   <div class="card card-body mt-2">
-    <h4>【あなたの日報進捗サポート：こんなふうに活用してください】</h4>
+    <h4>進捗サポートのかんたんガイド</h4>
+    <p>
+      日々のタスク実績と設定された目標から「達成率」を算出し、  
+      グラフで自分の成長過程を一目で確認できます。
+    </p>
     <ol>
       <li>
-        <strong>１．今日のデータ入力について</strong>
-        <ul>
-          <li>
-            <em>タスク入力</em><br>
-            あなたは、今日行ったタスクの進捗や詳細を入力します。<br>
-            ※各タスクの完了状況は、タスク管理リスト（日報管理詳細の「タスク管理」）で確認できます。
-          </li>
-          <li>
-            <em>自己評価</em><br>
-            同時に、今日の自己評価（1〜5の数値）も入力します。
-          </li>
-        </ul>
+        <strong>タスクを完了としてマーク</strong><br>
+        タスク一覧で終わったものにチェックを入れます。
       </li>
       <li>
-        <strong>２．目標設定の仕組み</strong>
-        <ul>
-          <li>
-            <em>将来の目標値（future_goal_value）</em><br>
-            あなたは将来的に目指す達成値（例：7）を入力します（この数値が画面に「目標値」として表示されます）。
-          </li>
-          <li>
-            <em>目標達成率の計算方法</em><br>
-            システムは、あなたが今日入力した「タスク達成度」を、設定された目標値で割りパーセンテージに直します。<br>
-            例：今日のタスク達成が5の場合、5÷7×100 ≒ 71.4% となり、これが<strong>「達成率」</strong>として表示されます。
-          </li>
-        </ul>
+        <strong>目標値を確認</strong><br>
+        画面に表示された「目標値（例：7）」が最終的に目指す数値です。
       </li>
       <li>
-        <strong>３．過去との比較</strong>
-        <ul>
-          <li>
-            <em>前回の日報</em><br>
-            画面下部の「過去の成果との比較」で直近の日報の達成率（例：70%）が確認できます。
-          </li>
-          <li>
-            <em>進捗の確認</em><br>
-            今日の達成率と前回の達成率を見比べ、改善・維持できているかチェックしてください。<br>
-            （例：前回70%、今日71.4%なら、少し改善していると言えます）
-          </li>
-        </ul>
+        <strong>達成率を計算</strong><br>
+        完了タスク数 ÷ 目標値 × 100 でパーセンテージを表示します。  
+        （例：3 ÷ 7 × 100 ＝ 約43%）
       </li>
       <li>
-        <strong>４．グラフでの可視化</strong>
-        <ul>
-          <li>
-            グラフでは横軸が日付、縦軸が達成率（％）として表示されます。<br>
-            理想的な成長は、目標値に向かって一定の上昇曲線（例：毎日約0.2～0.3%アップ）として描かれ、実際の達成率と比較できます。
-          </li>
-        </ul>
+        <strong>前回の達成率と比較</strong><br>
+        前回の日報の達成率と比べ、どれだけ伸びたかを確認します。
+      </li>
+      <li>
+        <strong>グラフで経過をチェック</strong><br>
+        グラフ上の実績と理想曲線を見比べ、  
+        「もっと伸ばすには何をすればいいか」を考えましょう。
       </li>
     </ol>
   </div>

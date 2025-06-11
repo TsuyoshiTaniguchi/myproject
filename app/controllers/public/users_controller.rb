@@ -136,7 +136,7 @@ class Public::UsersController < ApplicationController
   end
 
   def user_params
-    params.require(:user).permit(:name, :email, :personal_statement, :portfolio_url, :portfolio_file, :profile_image)
+    params.require(:user).permit(:name, :email, :personal_statement, :growth_story, :portfolio_url, :portfolio_file, :profile_image)
   end
 
   def ensure_guest_user

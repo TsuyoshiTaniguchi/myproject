@@ -6,71 +6,45 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
-    <!-- FontAwesome -->
-    <script src="https://kit.fontawesome.com/e1acaa1ac8.js" crossorigin="anonymous"></script>
+    <!-- ① アプリ固有 SCSS（Sprockets 側） -->
+    <%= stylesheet_link_tag 'application',
+          media: 'all',
+          'data-turbolinks-track': 'reload' %>
 
-    <!-- アプリケーション用スタイルシート -->
-    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <!-- ② Bootstrap 4.6.2 CSS -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- ③ Webpacker バンドル（application.js のみで全機能を呼ぶ） -->
+    <%= javascript_pack_tag 'application',
+          'data-turbolinks-track': 'reload' %>
 
-    <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- ④ Font Awesome Kit -->
+    <script src="https://kit.fontawesome.com/e1acaa1ac8.js"
+            crossorigin="anonymous"></script>
 
-    <!-- Chart.js (CDN) -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- ⑤ Google Maps（callback なし／async+defer）-->
+    <script src="https://maps.googleapis.com/maps/api/js?key=<%= ENV['GOOGLE_MAPS_API_KEY'] %>&loading=async&libraries=marker" async defer></script>
 
-    <!--
-      ※ まず、initMap 関数をグローバル（window）に定義しておく
-      これにより、Google Maps API のコールバックで必ず参照できます
-    -->
-    <script>
-      window.initMap = function() {
-        // ここで、ページ内に id="map" の要素が存在するか確認
-        var mapDiv = document.getElementById("map");
-        if (!mapDiv) {
-          console.warn("initMap: Map container element with id 'map' is not found. Skipping map initialization.");
-          return;
-        }
-        // 例として、東京の中心付近をマップの中心に設定
-        var centerCoords = { lat: 35.6895, lng: 139.6917 };
-        var mapObj = new google.maps.Map(mapDiv, {
-          center: centerCoords,
-          zoom: 12
-        });
-        // マーカーの追加（※現時点では google.maps.Marker を使用）
-        new google.maps.Marker({
-          position: centerCoords,
-          map: mapObj
-        });
-      }
-    </script>
-
-    <!-- Google Maps API を async/defer で読み込む。callback は initMap -->
-    <script
-      src="https://maps.googleapis.com/maps/api/js?key=<%= ENV['GOOGLE_MAPS_API_KEY'] %>&callback=initMap"
-      async defer>
-    </script>
-
-    <!-- Webpacker パックの読み込み（必ずこれ以降に配置） -->
-    <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
-    <%= javascript_pack_tag 'daily_reports', 'data-turbolinks-track': 'reload' %>
-    <%= javascript_pack_tag 'calendar', 'data-turbolinks-track': 'reload' %>
   </head>
 
-  <body class="d-flex flex-column vh-100" style="background-color: #F0F0F0">
-    <!-- ヘッダー -->
+  <body class="d-flex flex-column vh-100" style="background-color:#F0F0F0;">
+    <!-- ===== ヘッダー ===== -->
     <%= render 'layouts/user_header' %>
 
-    <!-- メインコンテンツ -->
+    <!-- ===== メイン ===== -->
     <main class="mb-auto">
-      <p class="text-success"><%= flash[:notice] %></p>
-      <p class="text-danger"><%= flash[:alert] %></p>
+      <% if flash[:notice].present? %>
+        <p class="text-success px-3"><%= flash[:notice] %></p>
+      <% end %>
+      <% if flash[:alert].present? %>
+        <p class="text-danger  px-3"><%= flash[:alert]  %></p>
+      <% end %>
+
       <%= yield %>
     </main>
 
-    <!-- フッター -->
-    <%= render "layouts/footer" %>
+    <!-- ===== フッター ===== -->
+    <%= render 'layouts/footer' %>
   </body>
 </html>

@@ -4,38 +4,50 @@
   <%= link_to "新規投稿", new_post_path, class: "btn btn-success mb-3" %>
 <% end %>
 
-<% if user.posts.present? %>
+<% if user.posts.exists? %>
   <div class="timeline">
-    <% user.posts.order(created_at: :desc).each do |post| %>
-      <div class="timeline-item">
-        <div class="timeline-icon">
+    <% user.posts.order(created_at: :desc).limit(10).each do |post| %>
+      <div class="timeline-item mb-4 p-3 border rounded">
+        <!-- アイコン部分 -->
+        <div class="timeline-icon float-left mr-3" style="font-size: 2rem; color: #007bff;">
           <i class="fas fa-pen"></i>
         </div>
+        <!-- 投稿内容部分 -->
         <div class="timeline-content">
-          <h5 class="card-title">
-            <%= link_to post.title, post_path(post), class: "text-dark fw-bold" %>
+          <h5 class="mb-1">
+            <%= link_to post.title, post_path(post), class: "text-dark font-weight-bold" %>
           </h5>
-          <p class="text-muted"><%= post.created_at.strftime("%Y年%m月%d日 %H:%M") %></p>
+          <p class="text-muted small">
+            <%= time_ago_in_words(post.created_at) %>
+            (<%= post.created_at.strftime("%Y年%m月%d日 %H:%M") %>)
+          </p>
 
           <% visible_text = post.content.truncate(50) %>
-          <% full_text = post.content %>
-
           <p><%= visible_text %></p>
-          <% if full_text.length > 50 %>
-            <%= link_to "続きを読む", post_path(post), class: "btn btn-link text-primary" %>
+          <% if post.content.length > 50 %>
+            <%= link_to "続きを読む", post_path(post), class: "btn btn-link text-primary p-0" %>
           <% end %>
 
-          <div class="post-actions">
-            <span>👍 <%= post.likes.count %> いいね</span>
-            <span>💬 <%= post.comments.count %> コメント</span>
+          <div class="post-actions mt-2">
+            <span class="mr-3">👍 <%= post.likes.count %> いいね</span>
+            <span class="mr-3">💬 <%= post.comments.count %> コメント</span>
             <% if show_edit_button %>
               <%= link_to "編集", edit_post_path(post), class: "btn btn-outline-secondary btn-sm" %>
             <% end %>
           </div>
         </div>
+        <div class="clearfix"></div>
       </div>
     <% end %>
   </div>
+  
+  <!-- 投稿件数が10件を超える場合の「もっと読む」リンク -->
+  <% if user.posts.count > 10 %>
+    <div class="text-center">
+      <%= link_to "もっと読む", posts_user_path(user), class: "btn btn-outline-primary" %>
+    </div>
+  <% end %>
+  
 <% else %>
   <p class="text-muted">投稿がありません。</p>
 <% end %>

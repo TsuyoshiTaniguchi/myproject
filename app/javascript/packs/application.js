@@ -4,39 +4,55 @@
 // that code so it'll be compiled.
 
 
+//  app/javascript/packs/application.js
+//  Bootstrap 4.6.2 用
+
 import Rails from "@rails/ujs";
-import Turbolinks from "turbolinks";
-import * as ActiveStorage from "@rails/activestorage";
-import "channels";
-
-// Bootstrap & jQuery
-import "jquery";
-import "popper.js";
-import "bootstrap";
-import "../stylesheets/application";
-
-// 外部ファイルの読み込み
-import { initCalendar } from "packs/calendar"; // カレンダー機能
-import "packs/maps";                           // Google Maps
-import { Chart, registerables } from "chart.js";
-Chart.register(...registerables);
-window.Chart = Chart;  // HTML 内直書き用に公開
-
 Rails.start();
+
+import Turbolinks from "turbolinks";
 Turbolinks.start();
+
+import * as ActiveStorage from "@rails/activestorage";
 ActiveStorage.start();
 
-/* ---------- ユーティリティ関数 ---------- */
+import "channels";
+
+// ===== jQuery / Popper / Bootstrap (4.6.2) =====
+import $ from "jquery";
+window.$       = $;
+window.jQuery  = $;                   // Bootstrap が内部参照
+import "popper.js/dist/umd/popper";
+import "bootstrap";
+
+// ===== スタイル（SCSS 全体を一括で）=====
+import "../stylesheets/application";
+
+// ===== Chart.js =====
+import { Chart, registerables } from "chart.js";
+Chart.register(...registerables);
+window.Chart = Chart;                // HTML 直書き用に公開
+
+// ===== 外部モジュール =====
+import { initCalendar }   from "./calendar"; // packs/calendar.js
+import { initMapIfNeeded } from "./maps";    // packs/maps.js ※下で解説
+import { initPerformanceChart } from "./daily_reports";  // ★追加
+
+
+
+//  自作ユーティリティ
+
 function initDropdown() {
   const toggle = document.querySelector(".dropdown-toggle");
-  const menu = document.querySelector(".dropdown-menu");
+  const menu   = document.querySelector(".dropdown-menu");
   if (!toggle || !menu) return;
 
-  toggle.addEventListener("click", (e) => {
+  toggle.addEventListener("click", e => {
     e.stopPropagation();
     menu.classList.toggle("show");
   });
-  document.addEventListener("click", (e) => {
+
+  document.addEventListener("click", e => {
     if (!toggle.contains(e.target) && !menu.contains(e.target)) {
       menu.classList.remove("show");
     }
@@ -44,8 +60,8 @@ function initDropdown() {
 }
 
 function initDeleteConfirm() {
-  document.querySelectorAll(".delete-comment").forEach((btn) => {
-    btn.addEventListener("click", (e) => {
+  document.querySelectorAll(".delete-comment").forEach(btn => {
+    btn.addEventListener("click", e => {
       e.preventDefault();
       if (confirm("⚠️ 本当に削除しますか？この操作は取り消せません！")) {
         window.location.href = btn.href;
@@ -55,21 +71,21 @@ function initDeleteConfirm() {
 }
 
 function initImagePreview() {
-  const fileInput = document.querySelector('input[type="file"]');
+  const fileInput   = document.querySelector('input[type="file"]');
   const previewArea = document.getElementById("image-preview");
   if (!fileInput || !previewArea) return;
 
-  // 初期表示が無ければ追加
-  previewArea.innerHTML ||= "<p class='text-muted'>画像プレビューはここに表示されます</p>";
+  if (!previewArea.innerHTML.trim())
+    previewArea.innerHTML = "<p class='text-muted'>画像プレビューはここに表示されます</p>";
 
   fileInput.addEventListener("change", () => {
     previewArea.innerHTML = "";
-    [...fileInput.files].forEach((file) => {
+    [...fileInput.files].forEach(file => {
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = e => {
         const img = new Image();
-        img.src = e.target.result;
-        img.className = "img-thumbnail m-2";
+        img.src        = e.target.result;
+        img.className  = "img-thumbnail m-2";
         img.style.maxWidth = "200px";
         previewArea.appendChild(img);
       };
@@ -77,79 +93,34 @@ function initImagePreview() {
     });
   });
 
-  document.querySelectorAll(".remove-image-checkbox").forEach((cb) => {
+  document.querySelectorAll(".remove-image-checkbox").forEach(cb => {
     cb.addEventListener("change", () => {
       const wrap = cb.closest(".existing-image");
-      if (wrap) {
-        wrap.style.display = cb.checked ? "none" : "block";
-      }
+      if (wrap) wrap.style.display = cb.checked ? "none" : "block";
     });
   });
 }
 
-/* ---------- turbolinks:load ---------- */
-function onLoad() {
-  // 共通初期化処理
+
+//  turbolinks:load で毎ページ初期化
+
+document.addEventListener("turbolinks:load", () => {
   initDropdown();
   initDeleteConfirm();
   initImagePreview();
-
-  // カレンダー初期化
   initCalendar();
+  initMapIfNeeded();                   // maps.js 側で map が必要なときだけ描画
+  initPerformanceChart(); 
 
-  // Google Maps 初期化 (map コンテナがありかつ google オブジェクトが存在するなら)
-  if (document.getElementById("map") && typeof google !== "undefined") {
-    initMap();
-  } else {
-    console.warn("Google Maps API がまだ読み込まれていないか、マップコンテナが存在しません。");
-  }
-
-  // タブ切替時のカレンダー再初期化
-  const dailyTab = document.querySelector('a[data-bs-toggle="tab"][href="#daily_reports"]');
+  // 「日報」タブに切り替わった瞬間に再描画
+  const dailyTab = document.querySelector('a[data-toggle="tab"][href="#daily_reports"]');
   if (dailyTab) {
-    dailyTab.addEventListener("shown.bs.tab", () => {
-      initCalendar();
-    });
+    $(dailyTab).on("shown.bs.tab", () => initCalendar());
   }
-  if (document.querySelector("#daily_reports.show.active")) {
-    initCalendar();
-  }
-}
-
-document.addEventListener("turbolinks:load", onLoad);
-
-/* ---------- ページキャッシュ前の Chart インスタンス破棄 ---------- */
-document.addEventListener("turbolinks:before-cache", () => {
-  const canvas = document.getElementById("performanceChart");
-  if (canvas) {
-    const existingChart = Chart.getChart(canvas);
-    if (existingChart) {
-      existingChart.destroy();
-    }
-  }
-  // グローバル変数で管理している場合はリセット（未使用の場合は削除してもOK）
-  window.performanceChartInstance = undefined;
+  // 直接 URL で日報タブが開かれていた場合
+  if (document.querySelector("#daily_reports.show.active")) initCalendar();
 });
 
-/* ---------- 位置情報 ---------- */
-window.getLocation = function () {
-  if (!navigator.geolocation) {
-    alert("このブラウザでは位置情報の取得ができません。");
-    return;
-  }
-  navigator.geolocation.getCurrentPosition(
-    (pos) => {
-      const latEl = document.getElementById("latitude");
-      const lngEl = document.getElementById("longitude");
-      if (latEl && lngEl) {
-        latEl.value = pos.coords.latitude;
-        lngEl.value = pos.coords.longitude;
-        alert("位置情報を取得しました！");
-      }
-    },
-    (err) => alert("位置情報の取得に失敗しました：" + err.message)
-  );
-};
 
 //  いいねボタンをでリロードなしに更新(現在うまく行っていない為リロードありで対応、将来用に残しています)
 // document.addEventListener("DOMContentLoaded", function () {

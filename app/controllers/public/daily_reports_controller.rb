@@ -62,7 +62,8 @@ class Public::DailyReportsController < ApplicationController
   # POST /daily_reports
   def create
     @daily_report = current_user.daily_reports.build(daily_report_params)
-
+    @daily_report.published = true  # 公開状態に設定
+  
     if @daily_report.save
       Rails.cache.delete("daily_reports/#{@user.id}")
       redirect_to daily_reports_path, notice: '日報が作成されました。'

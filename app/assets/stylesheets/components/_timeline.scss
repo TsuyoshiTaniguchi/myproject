@@ -1,0 +1,27 @@
+/* 自己PR詳細 */
+.timeline {
+  border-left: 2px solid #ddd;
+  padding-left: 20px;
+  margin-bottom: 20px;
+}
+.timeline-item {
+  position: relative;
+  margin-bottom: 20px;
+}
+.timeline-item::before {
+  content: "";
+  position: absolute;
+  left: -10px;
+  top: 5px;
+  width: 10px;
+  height: 10px;
+  background-color: #66ccff; // ブランドカラーの例
+  border-radius: 50%;
+}
+.timeline-item-header {
+  font-size: 1.1em;
+  margin-bottom: 5px;
+}
+.timeline-item-body {
+  font-size: 0.95em;
+}

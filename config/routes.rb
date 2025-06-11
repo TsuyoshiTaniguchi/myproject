@@ -53,7 +53,11 @@ Rails.application.routes.draw do
         get :growth_data
         get :future_growth_data
       end
-      resources :tasks, only: %i[create update destroy] # タスクはあくまで日報詳細の中で CRUD させるだけ
+      resources :tasks, only: %i[create update destroy] do # タスクはあくまで日報詳細の中で CRUD させるだけ
+        collection do
+          post :bulk_create  # 一括作成用アクション
+        end
+      end
     end
 
 

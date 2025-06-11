@@ -42,14 +42,6 @@
   <%= render 'public/shared/progress_help' %>
 
   <div class="mb-3">
-    <%= form.label :task_achievement, "タスク達成度 (1～10)" %>
-    <%= form.select :task_achievement, options_for_select((1..10).map { |n| [n, n] }, @daily_report.task_achievement), {}, class: "form-control" %>
-    <small class="form-text text-muted">
-      数値が大きいほど、客観的なタスク遂行度が高いことを示します。
-    </small>
-  </div>
-
-  <div class="mb-3">
     <%= form.label :self_evaluation, "自己評価 (1～5)" %>
     <%= form.select :self_evaluation, options_for_select((1..5).map { |n| [n, n] }, @daily_report.self_evaluation), {}, class: "form-control" %>
     <small class="form-text text-muted">

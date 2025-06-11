@@ -1,15 +1,18 @@
-<!-- ユーザープロフィールページ：タブナビゲーションによる表示例 -->
 <ul class="nav nav-tabs" id="userProfileTab" role="tablist">
   <li class="nav-item" role="presentation">
-    <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-content" type="button" role="tab" aria-controls="profile-content" aria-selected="true">プロフィール</button>
+    <button class="nav-link active" id="profile-tab" data-toggle="tab" data-target="#profile-content" type="button" role="tab" aria-controls="profile-content" aria-selected="true">
+      プロフィール
+    </button>
   </li>
-  
   <li class="nav-item" role="presentation">
-    <button class="nav-link" id="posts-tab" data-bs-toggle="tab" data-bs-target="#posts-content" type="button" role="tab" aria-controls="posts-content" aria-selected="false">投稿一覧</button>
+    <button class="nav-link" id="posts-tab" data-toggle="tab" data-target="#posts-content" type="button" role="tab" aria-controls="posts-content" aria-selected="false">
+      投稿一覧
+    </button>
   </li>
-
   <li class="nav-item" role="presentation">
-    <button class="nav-link" id="selfpr-tab" data-bs-toggle="tab" data-bs-target="#selfpr-content" type="button" role="tab" aria-controls="selfpr-content" aria-selected="false">自己PR詳細</button>
+    <button class="nav-link" id="selfpr-tab" data-toggle="tab" data-target="#selfpr-content" type="button" role="tab" aria-controls="selfpr-content" aria-selected="false">
+      自己PR詳細
+    </button>
   </li>
 </ul>
 
@@ -24,12 +27,24 @@
     <%= render partial: "public/posts/post_list", locals: { user: @user, show_create_button: false, show_edit_button: false } %>
   </div>
 
-  <!-- 自己PR詳細タブ -->
+  <!-- 自己PR詳細タブ（成長ストーリーとして） -->
   <div class="tab-pane fade" id="selfpr-content" role="tabpanel" aria-labelledby="selfpr-tab">
-    <h3>自己PR詳細</h3>
-    <p><%= @user.personal_statement %></p>
+    <h3>成長ストーリー</h3>
+    
+    <% if @user.growth_story.present? %>
+      <div class="mb-3">
+        <p><%= simple_format @user.growth_story %></p>
+      </div>
+    <% else %>
+      <p class="text-muted">
+        成長ストーリーがまだ登録されていません。
+        <% if current_user == @user %>
+          <%= link_to "自己PR詳細を編集する", edit_user_path(@user) %>
+        <% end %>
+      </p>
+    <% end %>
   </div>
-</div>
+  
 
 <div class="actions mt-3">
   <%= link_to "ユーザー一覧へ戻る", users_path, class: "btn btn-outline-secondary" %>

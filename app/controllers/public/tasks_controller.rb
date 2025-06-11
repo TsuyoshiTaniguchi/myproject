@@ -26,6 +26,14 @@ module Public
       redirect_back fallback_location: daily_report_path(@daily_report), notice: "タスクを削除しました。"
     end
 
+    def bulk_create
+      # textarea に入力された「改行区切り文字列」を配列化して一気に作成
+      titles = params[:titles].to_s.split(/\r?\n/).map(&:strip).reject(&:blank?)
+      titles.each { |t| @daily_report.tasks.create(title: t) }
+      redirect_to daily_report_path(@daily_report)
+    end
+  
+
     private
 
     def set_daily_report

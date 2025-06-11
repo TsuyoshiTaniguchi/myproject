@@ -1,3 +1,5 @@
+<!-- 既存のタスク管理部分はそのまま -->
+
 <h4>タスク管理</h4>
 
 <% if daily_report.tasks.any? %>
@@ -6,14 +8,14 @@
       <li class="list-group-item d-flex align-items-center justify-content-between">
         <div>
           <%= form_with model: [daily_report, task], local: true do |f| %>
-            <!-- チェックボックスで完了状態を更新（変更時に自動送信） -->
+            <!-- タスクが完了しているかチェック -->
             <%= f.check_box :completed, onchange: "this.form.submit();" %>
-            <!-- タスクタイトル（編集フォームとしても利用） -->
+            <!-- タスクのタイトル（編集可能なフォーム） -->
             <%= f.text_field :title, value: task.title, class: 'form-control d-inline-block', style: "width: 200px;" %>
           <% end %>
         </div>
         <div>
-          <!-- 削除ボタン -->
+          <!-- タスク削除ボタン -->
           <%= button_to '削除', daily_report_task_path(daily_report, task), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
         </div>
       </li>
@@ -23,6 +25,28 @@
   <p class="text-muted">登録されたタスクはありません。</p>
 <% end %>
 
+<!-- 折りたたみボタンでまとめて追加フォームを表示 -->
+<button class="btn btn-info mb-3" type="button" data-toggle="collapse" data-target="#bulkTaskForm" aria-expanded="false" aria-controls="bulkTaskForm">
+  まとめてタスクを追加する（複数登録）
+</button>
+
+<div class="collapse" id="bulkTaskForm">
+  <div class="card card-body">
+    <h5>まとめてタスクを追加</h5>
+    <%= form_with url: bulk_create_daily_report_tasks_path(daily_report), local: true do |f| %>
+      <div class="form-group mb-3">
+        <%= f.text_area :titles, rows: 4, class: "form-control",
+                    placeholder: "例：\n議事録作成\nデザインチェック\nテストケース作成" %>
+        <small class="form-text text-muted">
+          １行に１つずつタスク内容を入力してください。
+        </small>
+      </div>
+      <%= f.submit "一括追加", class: "btn btn-secondary btn-sm" %>
+    <% end %>
+  </div>
+</div>
+
+<!-- 単一タスク追加フォームはそのまま配置 -->
 <h5>新しいタスクを追加</h5>
 <%= form_with model: [daily_report, Task.new], local: true do |f| %>
   <div class="input-group mb-3">

@@ -11,11 +11,25 @@
   </div>
 
   <!-- 自己紹介 -->
-  <div class="mb-3">
-    <%= f.label :personal_statement, "自己紹介", class: "form-label" %>
-    <%= f.text_area :personal_statement, rows: 4, class: "form-control", placeholder: "自己紹介を入力" %>
-  </div>
 
+  <div class="form-group mb-4 p-3 border rounded" style="background-color: #f9f9f9;">
+  <h4>自己PR概要</h4>
+  <p class="small text-muted">
+    ※ あなたの自信や魅力をひとことで伝えてみましょう。シンプルに、あなたらしさを表現してみよう。
+  </p>
+  <%= f.label :personal_statement, "自己PR概要", class: "form-label" %>
+  <%= f.text_area :personal_statement, class: "form-control", rows: 4, placeholder: "例）温かい人柄とアイデアが自慢です…" %>
+</div>
+
+<div class="form-group mb-4 p-3 border rounded" style="background-color: #fdfdfd;">
+  <h4>成長ストーリー（詳細）</h4>
+  <p class="small text-muted">
+    ※ あなたがこれまでに積み重ねてきた経験や学びのお話を聞かせください。未来への夢や目標などもぜひ！
+  </p>
+  <%= f.label :growth_story, "成長ストーリー（詳細）", class: "form-label" %>
+  <%= f.text_area :growth_story, class: "form-control", rows: 6, placeholder: "例）学生時代の小さな挑戦から、社会での経験まで…温かいお話をお聞かせください…" %>
+</div>
+  
   <!-- ポートフォリオURL・サービス選択 -->
   <div class="mb-3">
     <%= f.label :portfolio_url, "ポートフォリオURLを選択または入力", class: "form-label" %>
@@ -39,41 +53,40 @@
   </div>
 
   <script>
-  // 一度だけ input イベントリスナーを設定する形に
-  document.addEventListener("DOMContentLoaded", function() {
-    const portfolioPlatform = document.getElementById("portfolio_platform");
-    const usernameField = document.getElementById("portfolio_username_field");
-    const urlField = document.getElementById("portfolio_url_field");
-    const urlInput = document.querySelector("[name='user[portfolio_url]']");
-    let portfolioUsernameInput = document.querySelector("[name='user[portfolio_username]']");
-  
-    portfolioPlatform.addEventListener("change", function() {
-      const selectedService = this.value;
-  
-      if (selectedService === "custom") {
-        usernameField.style.display = "none";
-        urlField.style.display = "block";
-        urlInput.value = "";
-      } else if (selectedService === "github" || selectedService === "behance" || selectedService === "dribbble") {
-        usernameField.style.display = "block";
-        urlField.style.display = "none";
-        urlInput.value = "";
-      }
-    });
-  
-    if(portfolioUsernameInput) {
-      portfolioUsernameInput.addEventListener("input", function() {
-        const selectedService = portfolioPlatform.value;
-        if (selectedService === "github") {
-          urlInput.value = `https://github.com/${this.value}`;
-        } else if (selectedService === "behance") {
-          urlInput.value = `https://www.behance.net/${this.value}`;
-        } else if (selectedService === "dribbble") {
-          urlInput.value = `https://dribbble.com/${this.value}`;
+    // input イベントリスナーを一度だけ設定する
+    document.addEventListener("DOMContentLoaded", function() {
+      const portfolioPlatform = document.getElementById("portfolio_platform");
+      const usernameField = document.getElementById("portfolio_username_field");
+      const urlField       = document.getElementById("portfolio_url_field");
+      const urlInput       = document.querySelector("[name='user[portfolio_url]']");
+      let portfolioUsernameInput = document.querySelector("[name='user[portfolio_username]']");
+
+      portfolioPlatform.addEventListener("change", function() {
+        const selectedService = this.value;
+        if (selectedService === "custom") {
+          usernameField.style.display = "none";
+          urlField.style.display = "block";
+          urlInput.value = "";
+        } else if (selectedService === "github" || selectedService === "behance" || selectedService === "dribbble") {
+          usernameField.style.display = "block";
+          urlField.style.display = "none";
+          urlInput.value = "";
         }
       });
-    }
-  });
+
+      if(portfolioUsernameInput) {
+        portfolioUsernameInput.addEventListener("input", function() {
+          const selectedService = portfolioPlatform.value;
+          if (selectedService === "github") {
+            urlInput.value = `https://github.com/${this.value}`;
+          } else if (selectedService === "behance") {
+            urlInput.value = `https://www.behance.net/${this.value}`;
+          } else if (selectedService === "dribbble") {
+            urlInput.value = `https://dribbble.com/${this.value}`;
+          }
+        });
+      }
+    });
   </script>
 
   <div class="mb-3">
