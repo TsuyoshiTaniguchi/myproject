@@ -1,34 +1,36 @@
 <div class="container my-4">
   <h2 class="mb-3">通知一覧</h2>
-  
+
   <% if @notifications.any? %>
     <ul class="list-group">
-      <% @notifications.each do |notification| %>
-        <%# 未読は強調表示するクラスを追加 %>
-        <% item_class = notification.read? ? "list-group-item" : "list-group-item list-group-item-info" %>
-        <li class="<%= item_class %> d-flex justify-content-between align-items-center">
-          <% if notification.source.present? %>
-            <%# 種別別にアイコンを追加する例 %>
-            <% message = case notification.source_type
-              when "Comment"
-                "<i class='bi bi-chat-left-text'></i> #{notification.source&.user&.name} さんがあなたの投稿にコメントしました！"
-              when "Like"
-                "<i class='bi bi-hand-thumbs-up'></i> #{notification.source&.user&.name} さんがあなたの投稿をいいねしました！"
-              else
-                "<i class='bi bi-bell'></i> 新しい通知があります！"
-              end.html_safe %>
-            <span>
-              <%= link_to message, notification_path(notification), method: :patch, class: "stretched-link" %>
-              <br>
-              <small class="text-muted"><%= time_ago_in_words(notification.created_at) %> 前</small>
-            </span>
-          <% else %>
-            <span class="text-muted">通知の情報がありません</span>
-          <% end %>
-        </li>
+      <% @notifications.uniq { |n| [n.source_type, n.source_id, n.created_at.to_date] }.each do |notification| %>
+        <%# 自分自身のコメント通知は除外 %>
+        <% unless notification.source_type == "Comment" && notification.source&.user&.id == current_user.id %>
+          <% item_class = notification.read? ? "list-group-item" : "list-group-item list-group-item-info" %>
+          <li class="<%= item_class %> d-flex justify-content-between align-items-center">
+            <% if notification.source.present? %>
+              <% message = case notification.source_type
+                when "Comment"
+                  "<i class='bi bi-chat-left-text'></i> #{notification.source&.user&.name} さんがあなたの投稿にコメントしました！"
+                when "Like"
+                  "<i class='bi bi-hand-thumbs-up'></i> #{notification.source&.user&.name} さんがあなたの投稿をいいねしました！"
+                else
+                  "<i class='bi bi-bell'></i> 新しい通知があります！"
+                end.html_safe %>
+              <span>
+                <%= link_to message, notification_path(notification), method: :patch, class: "stretched-link" %>
+                <br>
+                <small class="text-muted"><%= time_ago_in_words(notification.created_at) %> 前</small>
+              </span>
+            <% else %>
+              <span class="text-muted">通知の情報がありません</span>
+            <% end %>
+          </li>
+        <% end %>
       <% end %>
     </ul>
-    <!-- すべて既読にするボタン（オプション） -->
+
+    <!-- すべて既読にするボタン -->
     <div class="mt-3 text-end">
       <%= button_to "すべて既読にする", mark_all_read_notifications_path, method: :patch, class: "btn btn-sm btn-secondary" %>
     </div>

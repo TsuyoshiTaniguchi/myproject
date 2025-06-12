@@ -34,3 +34,17 @@
 
  /* その他グローバルなスタイルがあれば追記 */
  
+ .tab-content {
+  min-height: 500px; /* コンテンツの最小高さを設定 */
+}
+
+.tab-pane {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: 500px;
+}
+
+.tab-content {
+  overflow: hidden;
+}

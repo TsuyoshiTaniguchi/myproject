@@ -10,13 +10,17 @@
       <% 
          # 未読通知を取得
          unread_notifications = current_user.notifications.where(read: false).to_a 
-         # 自分自身による "Like" 通知は除外
+         
+         # 自分自身による通知（コメントと Like）を除外
          filtered_notifications = unread_notifications.reject do |notification|
-           notification.source_type == "Like" &&
+           (notification.source_type == "Like" || notification.source_type == "Comment") &&
            notification.source.present? &&
            notification.source.user.present? &&
            notification.source.user.id == current_user.id
          end 
+
+         # 同じ種類・同じ対象・同じ日に作成された通知を統一
+         filtered_notifications = filtered_notifications.uniq { |n| [n.source_type, n.source_id, n.created_at.to_date] }
       %>
       <% if filtered_notifications.any? %>
         <% filtered_notifications.first(5).each do |notification| %>
@@ -44,6 +48,3 @@
     </div>
   </div>
 </li>
-
-<%# フォールバック：呼び出し側で notifications 変数が必要な場合の定義 %>
-<% notifications = current_user.notifications.where(read: false).to_a.reject { |n| n.source_type == "Like" && n.source&.user&.id == current_user.id } %>

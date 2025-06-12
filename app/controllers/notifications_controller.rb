@@ -3,9 +3,11 @@ class NotificationsController < ApplicationController
 
   def index
     @notifications = current_user.notifications
-                      .select(:id, :user_id, :notification_type, :source_id, :source_type, :read, :created_at)
-                      .order(created_at: :desc)
-                      .limit(5)
+                        .where.not(source_type: "Comment", source_id: current_user.id)  # 自分のコメントを除外
+                        .select(:id, :user_id, :notification_type, :source_id, :source_type, :read, :created_at)
+                        .order(created_at: :desc)
+                        .limit(5)
+                        .uniq { |n| [n.source_type, n.source_id, n.created_at.to_date] }  # 重複通知の排除
   end
 
   def update

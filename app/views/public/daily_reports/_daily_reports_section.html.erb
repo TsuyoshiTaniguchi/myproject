@@ -1,0 +1,43 @@
+<h3>ライフログ＜日報管理＞</h3>
+
+<% if user.daily_reports_public? || current_user == user %>
+  <div class="table-responsive">
+    <table class="table table-bordered">
+      <thead class="thead-light">
+        <tr>
+          <th>日付</th>
+          <th>内容</th>
+          <th>公開状態</th>
+          <% if current_user == user %>
+            <th>操作</th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% user.daily_reports.order(date: :desc).each do |report| %>
+          <tr>
+            <td><%= report.date %></td>
+            <td><%= truncate(report.content, length: 50) %></td>
+            <td>
+              <% if report.public_report? %>
+                <span class="badge badge-success">公開</span>
+              <% else %>
+                <span class="badge badge-secondary">非公開</span>
+              <% end %>
+            </td>
+            <% if current_user == user %>
+              <td>
+                <%= link_to "編集", edit_daily_report_path(report), class: "btn btn-sm btn-warning mr-1" %>
+                <%= link_to "削除", daily_report_path(report), method: :delete,
+                            data: { confirm: "本当に削除しますか？" },
+                            class: "btn btn-sm btn-danger" %>
+              </td>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <p class="alert alert-info">このユーザーはライフログを公開していません。</p>
+<% end %>

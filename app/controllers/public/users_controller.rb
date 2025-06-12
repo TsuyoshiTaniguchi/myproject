@@ -62,7 +62,6 @@ class Public::UsersController < ApplicationController
       @daily_reports = @user.daily_reports.public_report.order(date: :desc)
     else
       @daily_reports = [] # もしくは別メッセージを表示
-      flash.now[:alert] = "このユーザーは日報を公開していません。"
     end
   end
 
