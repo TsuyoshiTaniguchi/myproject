@@ -1,7 +1,0 @@
-
-/* カレンダー用コンテナに固定された高さの上限を設定 */
-#calendar {
-  max-height: 600px; /* 必要に応じて調整 */
-  width: 100%;
-  overflow-y: auto;
-}
