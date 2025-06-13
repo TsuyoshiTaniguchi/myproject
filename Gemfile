@@ -68,6 +68,7 @@ gem "faraday-retry", "~> 2.3"
 gem "faraday", "~> 2.13"
 gem 'acts-as-taggable-on'
 
+gem 'dotenv-rails'
 group :production do
   gem 'mysql2'
 end
