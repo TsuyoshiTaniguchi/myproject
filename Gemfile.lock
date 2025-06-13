@@ -158,6 +158,7 @@ GEM
     minitest (5.25.5)
     msgpack (1.8.0)
     multi_json (1.15.0)
+    mysql2 (0.5.6)
     net-http (0.6.0)
       uri
     net-imap (0.5.8)
@@ -182,8 +183,7 @@ GEM
       sawyer (~> 0.9)
     orm_adapter (0.5.0)
     public_suffix (6.0.2)
-    puma (5.6.9)
-      nio4r (~> 2.0)
+    puma (3.12.6)
     racc (1.8.1)
     rack (2.2.14)
     rack-mini-profiler (2.3.4)
@@ -319,8 +319,12 @@ DEPENDENCIES
   kaminari (~> 1.2.1)
   listen (~> 3.3)
   mini_magick (~> 5.2)
+  mysql2
+  net-imap
+  net-pop
+  net-smtp
   octokit
-  puma (~> 5.0)
+  puma (~> 3.11)
   rack-mini-profiler (~> 2.0)
   rails (~> 6.1.7, >= 6.1.7.10)
   sass-rails (>= 6)
