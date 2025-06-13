@@ -22,7 +22,6 @@ module WaiToWai
       Dotenv.load if defined?(Dotenv)
 
       ENV["GOOGLE_MAPS_API_KEY"] ||= Rails.application.credentials.dig(:google_maps, :api_key)
-      ENV["GITHUB_API_KEY"] ||= Rails.application.credentials.dig(:github, :api_key)
     end
 
     # Configuration for the application, engines, and railties goes here.
