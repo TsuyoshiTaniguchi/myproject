@@ -1,44 +1,38 @@
-# This file should contain all the record creation needed to seed the database with its default values.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Examples:
-#
-#   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
-#   Character.create(name: 'Luke', movie: movies.first)
-Admin.find_or_create_by!(email: 'admin@com') do |admin|
-  admin.password = 'admin123'
-end
-
 # db/seeds.rb
 # frozen_string_literal: true
 require "securerandom"
 
 puts "── Seeding ──"
 
-# 1. Admin（既存）
+# ─────────────────────────────
+# 1. Admin
+# ─────────────────────────────
 Admin.find_or_create_by!(email: ENV.fetch("ADMIN_EMAIL", "admin@example.com")) do |a|
-  a.password     = ENV.fetch("ADMIN_PASSWORD", "admin123")
-  a.name         = "PortfolioAdmin"
-  a.confirmed_at = Time.current
+  a.password = ENV.fetch("ADMIN_PASSWORD", "admin123")
+  a.name     = "PortfolioAdmin"
+  a.skip_confirmation! if a.respond_to?(:skip_confirmation!)
 end
 
-# 2. Guest（既存）
-GUEST_EMAIL = "guest@example.com"
-guest = User.find_or_create_by!(email: GUEST_EMAIL) { |u| u.password = SecureRandom.urlsafe_base64 ; u.name="Guest" }
+# ─────────────────────────────
+# 2. Guest
+# ─────────────────────────────
+guest = User.find_or_create_by!(email: "guest@example.com") do |u|
+  u.password = SecureRandom.urlsafe_base64
+  u.name     = "Guest"
+end
+guest.skip_confirmation! if guest.respond_to?(:skip_confirmation!)
 
-# ───────────────────────────────────────────────
-# 3. デモ用“固定”ユーザー  ← 企業・学校に教える ID
-# ───────────────────────────────────────────────
-DEMO_EMAIL    = "demo@example.com"
-DEMO_PASSWORD = "demo1234"               # 伝える用パス
-
-demo = User.find_or_initialize_by(email: DEMO_EMAIL)
+# ─────────────────────────────
+# 3. Demo（ポートフォリオ公開用）
+# ─────────────────────────────
+demo = User.find_or_initialize_by(email: "demo@example.com")
 demo.assign_attributes(
   name:               "Demo User",
-  password:           DEMO_PASSWORD,
+  password:           "demo1234",
   personal_statement: "ポートフォリオ閲覧用のデモアカウントです。",
   growth_story:       "閲覧者が実際に機能を体験できるように用意しています。"
 )
+demo.skip_confirmation! if demo.respond_to?(:skip_confirmation!)
 unless demo.profile_image.attached?
   demo.profile_image.attach(
     io: File.open(Rails.root.join("app/assets/images", "user1.jpg")),
@@ -46,14 +40,15 @@ unless demo.profile_image.attached?
   )
 end
 demo.save!
-puts "Demo user OK (email=#{DEMO_EMAIL} / pw=#{DEMO_PASSWORD})"
+puts "Demo user OK (email=demo@example.com / pw=demo1234)"
 
-# ───────────────────────────────────────────────
-# 4. 残り 12 人のサンプルユーザーをバルク生成
-#    ※ demo と guest を除外する
-# ───────────────────────────────────────────────
-images = %w[user2.jpg user3.jpg user4.png user5.jpg user6.png user7.png
-           user8.jpg user9.jpg user10.jpg user11.png user12.png user13.png]
+# ─────────────────────────────
+# 4. サンプルユーザー 12 名
+# ─────────────────────────────
+images = %w[
+  user2.jpg user3.jpg user4.png user5.jpg user6.png user7.png
+  user8.jpg user9.jpg user10.jpg user11.png user12.png user13.png
+]
 
 names = %w[Ren Aoi Yuto Mei Riku Kana Sora Minato Hina Ryo Kaede Nao]
 
@@ -90,20 +85,20 @@ growth = [
 ]
 
 names.each_with_index do |name, idx|
-  email = "sample#{idx + 1}@example.com"
-  user  = User.find_or_initialize_by(email:)
+  user = User.find_or_initialize_by(email: "sample#{idx + 1}@example.com")
   user.assign_attributes(
     name:               name,
     password:           SecureRandom.base64(10),
     personal_statement: personal[idx % personal.size],
     growth_story:       growth[idx % growth.size]
   )
+  user.skip_confirmation! if user.respond_to?(:skip_confirmation!)
   unless user.profile_image.attached?
     img = Rails.root.join("app/assets/images", images[idx])
     user.profile_image.attach(io: File.open(img), filename: images[idx])
   end
   user.save!
 end
-puts " 12 sample users OK"
+puts "12 sample users OK"
 
 puts "── Done ──"
