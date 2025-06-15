@@ -28,12 +28,12 @@
       
       <div class="form-group mb-3">
         <%= f.label :privacy, "投稿の公開範囲" %>
-        <%= f.select :privacy, Group.privacies.keys.map { |key| [I18n.t("enums.group.privacy.#{key}"), key] }, {}, class: "form-control" %>
+        <%= f.select :privacy, [["全体公開", "public_visibility"], ["メンバーのみ", "restricted_visibility"]], {}, class: "form-control" %>
       </div>
       
       <div class="form-group mb-3">
         <%= f.label :join_policy, "参加ルール" %>
-        <%= f.select :join_policy, [["誰でも参加可能", "open"], ["オーナーの承認制", "invite_only"]], {}, class: "form-control" %>
+        <%= f.select :join_policy, [["誰でも参加可能", "open"], ["承認制", "invite_only"]], {}, class: "form-control" %>
       </div>
       
       <div class="d-flex justify-content-end">

@@ -16,10 +16,10 @@
             <%= link_to group.name, admin_group_path(group), class: "font-weight-bold text-primary" %>
           </td>
           <td class="text-center">
-            <%= group.memberships.where(status: "pending").count %> 人
+            <%= group.memberships.where(role: "pending").count %> 人
           </td>
           <td>
-            <% if group.memberships.where(status: "pending").count > 0 %>
+            <% if group.memberships.where(role: "pending").count > 0 %>
               <%= link_to "🛠 参加リクエスト管理", manage_group_group_membership_path(group), class: "btn btn-primary btn-sm mb-1" %><br>
             <% end %>
             <%= link_to "⚙️ グループ編集", edit_group_path(group), class: "btn btn-outline-warning btn-sm" %>

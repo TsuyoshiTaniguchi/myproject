@@ -4,14 +4,13 @@ class Public::MembershipsController < ApplicationController
 
   def create
     @group = Group.find(params[:group_id])
-    # role で状態を管理する場合
     @membership = @group.memberships.build(user: current_user, role: "pending")
-    
+  
     if @membership.save
-      # 承認リクエスト時に管理者へ通知（ここはグループオーナーもしくは管理者を設定）
       Notification.create(
-        recipient: @group.owner,   # グループの所有者（または「admin」メソッドが定義済みであればそちら）
-        sender: current_user,
+        user_id: @group.owner.id,             # 受け取り側：グループオーナー
+        source_id: current_user.id,            # 発信側：現在のユーザー（リクエスト送信者）
+        source_type: "User",
         notification_type: "group_request_pending"
       )
       redirect_to group_path(@group), notice: "参加リクエストを送信しました！"
@@ -39,8 +38,9 @@ class Public::MembershipsController < ApplicationController
     # 承認時は role を「member」に更新する
     if @membership.update(role: "member")
       Notification.create(
-        recipient: @membership.user, # 申請したユーザーに通知
-        sender: @membership.group.owner,
+        user_id: @membership.user.id,        # 申請したユーザーが受け取る通知
+        source_id: @membership.group.owner.id, # オーナーが発信者
+        source_type: "User",
         notification_type: "group_request_approved"
       )
       redirect_to group_path(@membership.group), notice: "参加リクエストを承認しました！"
@@ -53,8 +53,9 @@ class Public::MembershipsController < ApplicationController
     @membership = Membership.find(params[:id])
     if @membership.update(reported: true)
       Notification.create(
-        recipient: Admin.first,  # 管理者へ通知
-        sender: current_user,
+        user_id: Admin.first.id,             # 管理者へ通知
+        source_id: current_user.id,
+        source_type: "User",
         notification_type: "admin_alert"
       )
       redirect_to group_path(@membership.group), notice: "メンバーを通報しました"
@@ -101,11 +102,12 @@ class Public::MembershipsController < ApplicationController
     
     if @membership.role == "pending"
       @membership.update!(role: "member")
-      # 管理者に対して通知。ここも同じキーを利用して統一
+      # 管理者への通知（今回は管理者に通知する例）
       admin = Admin.first
       Notification.create(
-        recipient: admin,
-        sender: current_user,
+        user_id: admin.id,
+        source_id: current_user.id,
+        source_type: "User",
         notification_type: "group_membership_approved"
       )
       redirect_to group_path(@group), notice: "参加リクエストを承認しました！"
@@ -144,8 +146,9 @@ class Public::MembershipsController < ApplicationController
   def process_member_report(membership, notification_type)
     if membership.update(reported: true)
       Notification.create(
-        recipient: Admin.first,
-        sender: current_user,
+        user_id: Admin.first.id,
+        source_id: current_user.id,
+        source_type: "User",
         notification_type: notification_type
       )
       redirect_to group_path(membership.group), notice: "メンバーを通報しました"

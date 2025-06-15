@@ -25,15 +25,15 @@ class Public::GroupsController < ApplicationController
 
     # 参加中のグループを取得
     @joined_groups = Group.joins(:memberships)
-                          .where(memberships: { user_id: current_user.id, role: "member" })
+                          .where(memberships: { user_id: current_user.id, role: ["member", "owner"] })
                           .includes(:memberships)
 
-    # ★ 人気グループの取得
+    # 人気グループの取得
     @popular_groups = Group.public_visibility
-                           .joins(:memberships)
-                           .group('groups.id')
-                           .order('COUNT(memberships.id) DESC')
-                           .limit(3)
+                          .joins(:memberships)
+                          .group('groups.id')
+                          .order('COUNT(memberships.id) DESC')
+                          .limit(6)
 
     # 既存の処理があればその後に続ける（たとえば @groups, @joined_groups など）
     end
@@ -41,17 +41,21 @@ class Public::GroupsController < ApplicationController
 
   def show
     @group = Group.find(params[:id])
-    @user = @group.owner      # グループオーナーの情報を取得
+    @user = @group.owner
     @membership = current_user.memberships.find_by(group: @group)
-
+  
+    # ページネーション用の投稿一覧
+    @posts = @group.posts.order(created_at: :desc).page(params[:page]).per(10)
+  
+    # 最近のアクティビティ用（最新5件の投稿）
     @recent_posts = @group.posts.order(created_at: :desc).limit(5)
-
-    # Membership 経由で、role が "member" または "owner" のユーザーを取得
+  
+    # Membership 経由で、role が "member" または "owner" のユーザーを取得（最新3件）
     @new_members = @group.memberships.where(role: ["member", "owner"])
-                                     .order(created_at: :desc)
-                                     .limit(3)
-                                     .map(&:user)
-
+                                      .order(created_at: :desc)
+                                      .limit(3)
+                                      .map(&:user)
+  
     session[:return_to] = request.original_url
   end
 
@@ -62,19 +66,13 @@ class Public::GroupsController < ApplicationController
   def create
     @user = User.find(params[:user_id])
     @group = @user.groups.new(group_params)
-
-    # 公式グループは管理者のみ作成可能
-    if @group.category == "official_label" && !current_user.admin?
-      flash[:alert] = "公式グループは管理者のみ作成できます。"
-      return render :new
-    end
-
+  
     # 一般ユーザーの場合、所有者は作成者に設定する
     @group.owner = current_user
     @group.category = "user_created_label" unless current_user.admin?
-
+  
     if @group.save
-      # グループ作成後、オーナーとしてメンバーシップを作成
+      # グループ作成後、オーナーとしてメンバーシップを作成（role: "owner"）
       @group.memberships.create(user: current_user, role: "owner")
       redirect_to group_path(@group), notice: "グループを作成しました！"
     else

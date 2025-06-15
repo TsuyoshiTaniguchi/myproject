@@ -13,6 +13,7 @@ class Notification < ApplicationRecord
     comment_report: 5
   }
 
+
    def formatted_content
     # 'content' カラムが存在していて、かつ値が存在すればその値を使う
     if attribute_names.include?("content") && self["content"].present?

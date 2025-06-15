@@ -32,7 +32,7 @@
         <% case @group.join_policy %>
           <% when "open" %>
             <span class="text-success">誰でも自由に参加できます。</span>
-          <% when "admin_approval" %>
+          <% when "admin_only" %>
             <span class="text-warning">管理者の承認が必要です。</span>
           <% when "invite_only" %>
             <span class="text-danger">招待制のグループです。</span>
@@ -103,7 +103,7 @@
           <% non_admin_memberships.limit(10).each do |membership| %>
             <li class="list-group-item d-flex justify-content-between align-items-center">
               <%= link_to membership.user.name, user_path(membership.user) %>
-              <% unless current_user.guest? %>
+              <% unless current_user.guest? || membership.user == current_user %>
                 <% if membership.user.reported? %>
                   <span class="text-danger font-weight-bold">⚠️ 通報済み</span>
                 <% else %>
@@ -124,6 +124,7 @@
     </div>
   </div>
   
+  
   <!-- 参加／脱退ボタン -->
   <div class="text-center mb-4">
     <% if current_user.guest? %>
@@ -131,10 +132,10 @@
     <% elsif @group.memberships.exists?(user: current_user, role: "member") %>
       <%= link_to "グループを脱退", leave_group_path(@group),
                   method: :delete, class: "btn btn-danger" %>
-    <% elsif @group.memberships.exists?(user: current_user, status: "pending") %>
+    <% elsif @group.memberships.exists?(user: current_user, role: "pending") %>
       <p class="text-muted">⏳ 参加リクエスト送信済み。管理者の承認待ち！</p>
-    <% elsif !@group.memberships.exists?(user: current_user, status: "member") && current_user != @group.owner %>
-      <% if @group.join_policy == "admin_approval" %>
+    <% elsif !@group.memberships.exists?(user: current_user, role: "member") && current_user != @group.owner %>
+      <% if @group.join_policy.in?(["admin_only", "invite_only"]) %>
         <%= button_to "🔒 参加リクエストを送る", request_join_group_path(@group),
                       method: :post, class: "btn btn-warning" %>
       <% else %>
@@ -148,7 +149,7 @@
   <div class="card mb-4">
     <div class="card-body">
       <h3 class="h5">最近のアクティビティ</h3>
-      <% approved_new_members = @group.memberships.where(status: "member")
+      <% approved_new_members = @group.memberships.where(role: "member")
            .order(created_at: :desc).limit(3).map(&:user) %>
       <% if @recent_posts.any? || approved_new_members.any? %>
         <ul class="list-unstyled">
@@ -178,9 +179,9 @@
     <div class="card-body">
       <h3 class="h5">このグループの投稿</h3>
       <% if @group.privacy == "public_visibility" || @group.users.include?(current_user) %>
-        <% if @group.posts.any? %>
+        <% if @posts.any? %>
           <div class="row">
-            <% @group.posts.order(created_at: :desc).each do |post| %>
+            <% @posts.each do |post| %>
               <div class="col-12 col-md-6 mb-4">
                 <div class="card h-100">
                   <div class="card-body">
@@ -199,7 +200,10 @@
               </div>
             <% end %>
           </div>
-          <%# ※投稿が多数の場合は「もっと見る」ボタンやページネーションの導入を検討してください %>
+          <!-- ページネーションリンク -->
+          <div class="text-center">
+            <%= paginate @posts %>
+          </div>
         <% else %>
           <p>まだ投稿がありません。</p>
         <% end %>
@@ -210,12 +214,12 @@
   </div>
   
   <!-- 新規投稿ボタン（参加済みのメンバーのみ表示） -->
-  <% if @group.memberships.exists?(user: current_user, status: "approved") %>
+  <% if @group.memberships.exists?(user: current_user, role: "member") || current_user == @group.owner %>
     <div class="text-center mb-4">
       <%= link_to "新規投稿", new_group_post_path(@group), class: "btn btn-primary" %>
     </div>
   <% end %>
-  
+    
   <!-- グループ一覧に戻る -->
   <div class="text-center">
     <%= link_to "グループ一覧へ戻る", groups_path, class: "btn btn-secondary" %>
