@@ -21,7 +21,7 @@ class Post < ApplicationRecord
   enum status: { normal: 0, reported: 1 }  # `status` カラムで通報を管理
   
   validates :title, presence: true
-  validates :content, presence: true, length: { minimum: 10 }
+  validates :content, presence: true, length: { minimum: 5 }
   validates :group_id, presence: true, allow_nil: true # 投稿が必ずグループに属するようにする
   validates :code_snippet, length: { maximum: 1000 }, allow_blank: true # コードの長さを制限
 
