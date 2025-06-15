@@ -74,14 +74,16 @@
                       class: "btn btn-danger btn-sm mr-2" %>
         <% end %>
 
-        <% unless comment.reported? %>
-          <%= link_to "⚠️ 通報", report_post_comment_path(@post, comment), 
-                      method: :patch, 
-                      class: "btn btn-outline-danger btn-sm" %>
-        <% else %>
-          <div class="alert alert-warning mt-1 mb-0 p-1" style="font-size: 0.9rem;">
-            ⚠️ このコメントは通報済み
-          </div>
+        <% if current_user.id != comment.user_id %>
+          <% unless comment.reported? %>
+            <%= link_to "⚠️ 通報", report_post_comment_path(@post, comment),
+                        method: :patch,
+                        class: "btn btn-outline-danger btn-sm" %>
+          <% else %>
+            <div class="alert alert-warning mt-1 mb-0 p-1" style="font-size: 0.9rem;">
+              ⚠️ このコメントは通報済み
+            </div>
+          <% end %>
         <% end %>
       </div>
     </div>
