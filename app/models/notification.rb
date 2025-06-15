@@ -12,20 +12,21 @@ class Notification < ApplicationRecord
     group_reported: 4 
   }
 
-  def formatted_content
-    case notification_type
-    when "membership_request"
-      "📝 ユーザー #{user.name} が「#{source.group.name}」への参加をリクエストしました！"
-    when "membership_approval"
-      "✅ 「#{source.group.name}」への参加が承認されました！"
-    when "membership_rejection"
-      "❌ 「#{source.group.name}」への参加が拒否されました！"
-    when "member_report"
-      "⚠️ ユーザー #{user.name} が「#{source.user.name}」を通報しました！"
-    when "group_reported"  
-      "⚠️ ユーザー #{user.name} が「#{source.name}」を通報しました！"
-    else
-      "通知の種類が不明です"
-    end
+   def formatted_content
+  # 'content' カラムが存在していて、かつ値が存在すればその値を使う
+  if attribute_names.include?("content") && self["content"].present?
+    text = self["content"]
+  else
+    # カラムがない・空の場合は、notification_type を見やすい形（タイトルケース）に変換して使う
+    text = notification_type.to_s.titleize
   end
+
+  # Markdown 形式のリンク [リンクテキスト](URL) にマッチするかチェックする
+  md = /\A\[(.+?)\]\((https?:\/\/.+?)\)\z/.match(text)
+  return text unless md
+
+  # マッチしていればリンクタグに変換して返す
+  link_text, url = md[1], md[2]
+  "<a href='#{url}' target='_blank' rel='noopener'>#{link_text}</a>".html_safe
 end
+end        
