@@ -1,5 +1,6 @@
 <div class="container my-4">
-  <!-- グループ画像 -->
+
+  <!-- 画像 ---------------------------------------------------------- -->
   <div class="text-center mb-4">
     <% if @group.group_image&.attached? %>
       <%= image_tag @group.group_image.variant(resize_to_fill: [200, 200]),
@@ -7,26 +8,23 @@
                     alt: "#{@group.name}の画像" %>
     <% else %>
       <%= image_tag "no_image.jpg",
+                    width: 200, height: 200,
                     class: "rounded mb-3",
-                    width: 200,
-                    height: 200,
                     alt: "グループ画像なし" %>
     <% end %>
   </div>
-  
-  <!-- グループ情報（参加ルールも統合） -->
+
+  <!-- 情報カード ---------------------------------------------------- -->
   <div class="card mb-4">
     <div class="card-body">
       <h1 class="card-title text-center font-weight-bold"><%= @group.name %></h1>
       <h4 class="card-subtitle text-center mb-3">グループ情報</h4>
-      
-      <% if @group.description.present? %>
-        <p class="card-text"><%= @group.description %></p>
-      <% else %>
-        <p class="card-text text-muted">このグループにはまだ説明がありません。</p>
-      <% end %>
-      
-      <!-- 参加ルールをわかりやすく表示 -->
+
+      <p class="card-text">
+        <%= @group.description.presence || content_tag(:span, 'このグループにはまだ説明がありません。', class: 'text-muted') %>
+      </p>
+
+      <!-- 参加ルール -->
       <div class="text-center mb-3">
         <strong>参加ルール:</strong>
         <% case @group.join_policy %>
@@ -40,8 +38,8 @@
             <span class="text-muted">未設定</span>
         <% end %>
       </div>
-      
-      <!-- グループ種別 -->
+
+      <!-- 種別 -->
       <div class="mb-3 text-center">
         <% if @group.official_label? %>
           <span class="badge badge-warning text-dark">公式プロジェクト</span>
@@ -49,20 +47,24 @@
           <span class="badge badge-info text-white">ユーザー作成グループ</span>
         <% end %>
       </div>
-      
-      <!-- 所有者情報 -->
+
+      <!-- オーナー -->
       <p class="text-center">オーナー: <%= @group.owner&.name || "未設定" %></p>
-      
-      <!-- 管理リンク（オーナーの場合） -->
+
+      <!-- オーナー用管理リンク -->
       <% if current_user == @group.owner %>
         <div class="text-center my-3">
           <p class="text-muted">このページでは、グループ全体の管理が行えます。</p>
-          <%= link_to "⚡ オーナー管理ページ", owner_dashboard_group_membership_path(@group), class: "btn btn-primary mr-2" %>
-          <%= link_to "🛠 参加リクエスト管理へ", manage_group_group_membership_path(@group), class: "btn btn-warning" %>
+          <%= link_to "⚡ オーナー管理ページ",
+                      owner_dashboard_group_membership_path(@group),
+                      class: "btn btn-primary mr-2" %>
+          <%= link_to "🛠 参加リクエスト管理へ",
+                      manage_group_group_membership_path(@group),
+                      class: "btn btn-warning" %>
         </div>
       <% end %>
-      
-      <!-- プライバシー設定 -->
+
+      <!-- プライバシー -->
       <p class="text-center">
         投稿の共有範囲:
         <% case @group.privacy %>
@@ -76,46 +78,51 @@
             <span class="badge badge-secondary">未設定</span>
         <% end %>
       </p>
-      
-      <!-- 通報リンク（オーナー以外） -->
-      <% unless current_user.guest? || current_user == @group.owner %>
+
+      <!-- 通報 -->
+      <% unless guest_blocked? || current_user == @group.owner %>
         <div class="text-center mt-3">
           <% if @group.reported? %>
             <p class="text-danger font-weight-bold">⚠️ このグループは通報済みです。</p>
           <% else %>
-            <%= link_to "⚠️ このグループを通報", report_group_path(@group),
+            <%= link_to "⚠️ このグループを通報",
+                        report_group_path(@group),
                         method: :patch,
-                        class: "btn btn-danger btn-sm",
-                        data: { confirm: "本当にこのグループを通報しますか？" } %>
+                        data: { confirm: "本当にこのグループを通報しますか？" },
+                        class: "btn btn-danger btn-sm" %>
           <% end %>
         </div>
       <% end %>
     </div>
   </div>
-  
-  <!-- メンバー一覧 -->
+
+  <!-- メンバー一覧 -------------------------------------------------- -->
   <div class="card mb-4">
     <div class="card-body">
       <h3 class="h5">メンバー一覧 (<%= @group.memberships.where(role: "member").count %>人)</h3>
-      <% non_admin_memberships = @group.memberships.where(role: "member") %>
-      <% if non_admin_memberships.any? %>
+      <% members = @group.memberships.where(role: "member") %>
+      <% if members.any? %>
         <ul class="list-group list-group-flush">
-          <% non_admin_memberships.limit(10).each do |membership| %>
+          <% members.limit(10).each do |m| %>
             <li class="list-group-item d-flex justify-content-between align-items-center">
-              <%= link_to membership.user.name, user_path(membership.user) %>
-              <% unless current_user.guest? || membership.user == current_user %>
-                <% if membership.user.reported? %>
+              <%= link_to m.user.name, user_path(m.user) %>
+              <% unless guest_blocked? || m.user == current_user %>
+                <% if m.user.reported? %>
                   <span class="text-danger font-weight-bold">⚠️ 通報済み</span>
                 <% else %>
-                  <%= link_to "⚠️ メンバーを通報する", user_path(membership.user), class: "text-danger" %>
+                  <%= link_to "⚠️ メンバーを通報する",
+                              user_path(m.user),
+                              class: "text-danger" %>
                 <% end %>
               <% end %>
             </li>
           <% end %>
         </ul>
-        <% if non_admin_memberships.count > 10 %>
+        <% if members.count > 10 %>
           <div class="text-center mt-2">
-            <%= link_to "すべてのメンバーを見る", group_members_path(@group), class: "btn btn-sm btn-outline-secondary" %>
+            <%= link_to "すべてのメンバーを見る",
+                        group_members_path(@group),
+                        class: "btn btn-sm btn-outline-secondary" %>
           </div>
         <% end %>
       <% else %>
@@ -123,46 +130,49 @@
       <% end %>
     </div>
   </div>
-  
-  
-  <!-- 参加／脱退ボタン -->
+
+  <!-- 参加／脱退 ---------------------------------------------------- -->
   <div class="text-center mb-4">
-    <% if current_user.guest? %>
+    <% if guest_blocked? %>
       <p class="text-muted">ゲストユーザーはグループに参加できません。</p>
     <% elsif @group.memberships.exists?(user: current_user, role: "member") %>
-      <%= link_to "グループを脱退", leave_group_path(@group),
-                  method: :delete, class: "btn btn-danger" %>
+      <%= link_to "グループを脱退",
+                  leave_group_path(@group),
+                  method: :delete,
+                  class: "btn btn-danger" %>
     <% elsif @group.memberships.exists?(user: current_user, role: "pending") %>
       <p class="text-muted">⏳ 参加リクエスト送信済み。管理者の承認待ち！</p>
-    <% elsif !@group.memberships.exists?(user: current_user, role: "member") && current_user != @group.owner %>
-      <% if @group.join_policy.in?(["admin_only", "invite_only"]) %>
-        <%= button_to "🔒 参加リクエストを送る", request_join_group_path(@group),
-                      method: :post, class: "btn btn-warning" %>
+    <% elsif current_user != @group.owner %>
+      <% if @group.join_policy.in?(%w[admin_only invite_only]) %>
+        <%= button_to "🔒 参加リクエストを送る",
+                      request_join_group_path(@group),
+                      method: :post,
+                      class: "btn btn-warning" %>
       <% else %>
-        <%= button_to "✅ 参加する", request_join_group_path(@group),
-                      method: :post, class: "btn btn-primary" %>
+        <%= button_to "✅ 参加する",
+                      request_join_group_path(@group),
+                      method: :post,
+                      class: "btn btn-primary" %>
       <% end %>
     <% end %>
   </div>
-  
-  <!-- 最近のアクティビティ -->
+
+  <!-- 最近のアクティビティ ---------------------------------------- -->
   <div class="card mb-4">
     <div class="card-body">
       <h3 class="h5">最近のアクティビティ</h3>
-      <% approved_new_members = @group.memberships.where(role: "member")
-           .order(created_at: :desc).limit(3).map(&:user) %>
-      <% if @recent_posts.any? || approved_new_members.any? %>
+      <% new_members = @group.memberships.where(role: "member")
+                         .order(created_at: :desc).limit(3).map(&:user) %>
+      <% if @recent_posts.any? || new_members.any? %>
         <ul class="list-unstyled">
           <% @recent_posts.each do |post| %>
-            <li>
-              📢 <strong>新規投稿:</strong>
+            <li>📢 <strong>新規投稿:</strong>
               <%= link_to post.title, group_post_path(@group, post) %>
               （<%= post.created_at.strftime("%Y-%m-%d") %>）
             </li>
           <% end %>
-          <% approved_new_members.each do |member| %>
-            <li>
-              🆕 <strong>新しいメンバー:</strong>
+          <% new_members.each do |member| %>
+            <li>🆕 <strong>新しいメンバー:</strong>
               <%= link_to member.name, user_path(member) %>
               （<%= member.created_at.strftime("%Y-%m-%d") %>）
             </li>
@@ -173,8 +183,8 @@
       <% end %>
     </div>
   </div>
-  
-  <!-- グループの投稿一覧 -->
+
+  <!-- グループ投稿一覧 -------------------------------------------- -->
   <div class="card mb-4">
     <div class="card-body">
       <h3 class="h5">このグループの投稿</h3>
@@ -186,7 +196,9 @@
                 <div class="card h-100">
                   <div class="card-body">
                     <h5 class="card-title">
-                      <%= link_to post.title, group_post_path(@group, post), class: "stretched-link text-reset" %>
+                      <%= link_to post.title,
+                                  group_post_path(@group, post),
+                                  class: "stretched-link text-reset" %>
                     </h5>
                     <p class="card-text"><%= truncate(post.content, length: 100) %></p>
                   </div>
@@ -200,10 +212,7 @@
               </div>
             <% end %>
           </div>
-          <!-- ページネーションリンク -->
-          <div class="text-center">
-            <%= paginate @posts %>
-          </div>
+          <div class="text-center"><%= paginate @posts %></div>
         <% else %>
           <p>まだ投稿がありません。</p>
         <% end %>
@@ -212,15 +221,19 @@
       <% end %>
     </div>
   </div>
-  
-  <!-- 新規投稿ボタン（参加済みのメンバーのみ表示） -->
-  <% if @group.memberships.exists?(user: current_user, role: "member") || current_user == @group.owner %>
+
+  <!-- 新規投稿ボタン ---------------------------------------------- -->
+  <% if !guest_blocked? &&
+        (@group.memberships.exists?(user: current_user, role: "member") ||
+         current_user == @group.owner) %>
     <div class="text-center mb-4">
-      <%= link_to "新規投稿", new_group_post_path(@group), class: "btn btn-primary" %>
+      <%= link_to "新規投稿",
+                  new_group_post_path(@group),
+                  class: "btn btn-primary" %>
     </div>
   <% end %>
-    
-  <!-- グループ一覧に戻る -->
+
+  <!-- 戻る -->
   <div class="text-center">
     <%= link_to "グループ一覧へ戻る", groups_path, class: "btn btn-secondary" %>
   </div>

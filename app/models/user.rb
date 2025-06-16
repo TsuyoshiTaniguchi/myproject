@@ -37,12 +37,6 @@ class User < ApplicationRecord
     connection&.destroy
   end
 
-  # 指定ユーザーをフォロー中
-  def following?(other_user)
-    following.exists?(other_user.id)
-  end
-
-
   enum status: { active: 0, withdrawn: 1 }
 
   validates :email, presence: true, uniqueness: true
@@ -50,6 +44,13 @@ class User < ApplicationRecord
   validates :reported, inclusion: { in: [true, false] }
 
   before_validation :set_default_status, on: :create
+
+
+  # 既存列 role:string default:"user" をそのまま使う
+  enum role: { guest: "guest", user: "user", admin: "admin" }
+
+
+
 
   # 認証チェック
   def active_for_authentication?

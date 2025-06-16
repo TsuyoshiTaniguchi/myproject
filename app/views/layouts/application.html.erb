@@ -6,24 +6,24 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
-    <!-- ① アプリ固有 SCSS（Sprockets 側） -->
+    <!-- アプリ固有 SCSS（Sprockets 側） -->
     <%= stylesheet_link_tag 'application',
           media: 'all',
           'data-turbolinks-track': 'reload' %>
 
-    <!-- ② Bootstrap 4.6.2 CSS -->
+    <!-- Bootstrap 4.6.2 CSS -->
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
 
-    <!-- ③ Webpacker バンドル（gmapsBoot を定義した application.js） -->
+    <!-- Webpacker バンドル（gmapsBoot を定義した application.js） -->
     <%= javascript_pack_tag 'application',
           'data-turbolinks-track': 'reload' %>
 
-    <!-- ④ Font Awesome Kit -->
+    <!-- Font Awesome Kit -->
     <script src="https://kit.fontawesome.com/e1acaa1ac8.js"
             crossorigin="anonymous"></script>
 
-    <!-- ⑤ Google Maps API : head 内に１本だけ・改行なし・loading=async -->
+    <!-- Google Maps API : head 内に１本だけ・改行なし・loading=async -->
     <script async defer data-turbolinks-eval="false"
       src="https://maps.googleapis.com/maps/api/js?key=<%= ENV['GOOGLE_MAPS_API_KEY'] %>&libraries=marker&loading=async&callback=gmapsBoot"></script>
   </head>

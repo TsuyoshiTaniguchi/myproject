@@ -16,11 +16,17 @@ end
 # ─────────────────────────────
 # 2. Guest
 # ─────────────────────────────
-guest = User.find_or_create_by!(email: "guest@example.com") do |u|
-  u.password = SecureRandom.urlsafe_base64
-  u.name     = "Guest"
-end
+guest = User.find_or_initialize_by(email: "guest@example.com")
+
+guest.update!(
+  password: SecureRandom.urlsafe_base64, # 何度 seed を流してもランダム
+  name:     "Guest",
+  role:     :guest                       # ここが肝：必ず guest 役割にする
+)
+
 guest.skip_confirmation! if guest.respond_to?(:skip_confirmation!)
+
+puts "✅ Guest user ensured  (id=#{guest.id})"
 
 # ─────────────────────────────
 # 3. Demo（ポートフォリオ公開用）

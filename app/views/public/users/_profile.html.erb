@@ -41,7 +41,7 @@
         </p>
 
         <div class="d-flex flex-wrap justify-content-center">
-          <% unless current_user.guest? || current_user == user %>
+          <% unless guest_blocked? || current_user == user %>  <!-- ★ ゲストと本人以外 -->
             <% if current_user.following?(user) %>
               <%= button_to unfollow_user_path(user), method: :delete,
                             class: "btn btn-outline-secondary btn-sm mr-2 mb-2" do %>
@@ -63,7 +63,7 @@
             <% end %>
           <% end %>
 
-          <% if current_user == user %>
+          <% if current_user == user && !guest_blocked? %> <!-- ★ 本人かつ非ゲスト -->
             <%= link_to edit_user_path(user),
                         class: "btn btn-primary btn-sm mr-2 mb-2" do %>
               <i class="fas fa-edit"></i> 編集

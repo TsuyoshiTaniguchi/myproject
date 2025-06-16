@@ -1,13 +1,19 @@
 <h1 class="mt-5 mb-4">投稿一覧</h1>
 
-
-<!-- 投稿フィルター（フォロー中フィルターなどはそのまま） -->
+<!-- ── 投稿フィルター ─────────────────────────── -->
 <div class="btn-group mb-3">
-  <%= link_to "すべての投稿", posts_path, class: "btn btn-outline-secondary #{params[:filter].nil? ? 'active' : ''}" %>
-  <%= link_to "フォローしている人の投稿", posts_path(filter: 'following'), class: "btn btn-outline-primary #{params[:filter] == 'following' ? 'active' : ''}" %>
+  <%= link_to "すべての投稿",
+              posts_path,
+              class: "btn btn-outline-secondary #{params[:filter].nil? ? 'active' : ''}" %>
+
+  <% unless guest_blocked? %> <!-- ★ ゲストは “フォロー中” フィルタ不可 -->
+    <%= link_to "フォローしている人の投稿",
+                posts_path(filter: 'following'),
+                class: "btn btn-outline-primary #{params[:filter] == 'following' ? 'active' : ''}" %>
+  <% end %>
 </div>
 
-<!-- 統合フィルターバー（キーワード・タグ・カテゴリーを１行にまとめる） -->
+<!-- ── 検索バー ─────────────────────────────── -->
 <div class="mb-3">
   <%= form_with url: posts_path, method: :get, local: true, class: "form-inline w-100" do |f| %>
     <div class="input-group flex-fill mr-2">
@@ -23,15 +29,17 @@
   <% end %>
 </div>
 
-<!-- 投稿表示 -->
+<!-- ── 投稿タイムライン ───────────────────────── -->
 <% if @posts.any? %>
   <div class="timeline">
     <% @posts.each do |post| %>
       <div class="timeline-item mb-4 p-3 border rounded">
         <div class="timeline-content">
+          <!-- ユーザーアイコンと名前 -->
           <div class="d-flex align-items-center mb-2">
             <% if post.user.profile_image.attached? %>
-              <%= image_tag post.user.profile_image.variant(resize_to_fill: [50, 50]), class: "rounded-circle mr-2" %>
+              <%= image_tag post.user.profile_image.variant(resize_to_fill: [50, 50]),
+                            class: "rounded-circle mr-2" %>
             <% end %>
             <div>
               <h5 class="mb-0">
@@ -41,11 +49,12 @@
             </div>
           </div>
 
+          <!-- タイトル -->
           <h2>
             <%= link_to post.title, post_path(post), class: "text-decoration-none font-weight-bold" %>
           </h2>
-          
-          <!-- カテゴリー表示 -->
+
+          <!-- カテゴリ -->
           <% if post.category.present? %>
             <div class="mb-2">
               <strong>カテゴリ:</strong>
@@ -53,7 +62,7 @@
             </div>
           <% end %>
 
-          <!-- タグ表示（ActsAsTaggableOn を使用） -->
+          <!-- タグ -->
           <% if post.tag_list.present? %>
             <div class="mb-2">
               <strong>タグ:</strong>
@@ -63,8 +72,10 @@
             </div>
           <% end %>
 
+          <!-- 本文サマリ -->
           <p><%= sanitize(truncate(post.content, length: 200)) %></p>
 
+          <!-- 画像 -->
           <% if post.images.attached? %>
             <div class="post-images mb-3">
               <% post.images.each do |image| %>
@@ -73,23 +84,33 @@
             </div>
           <% end %>
 
+          <!-- コード -->
           <% if post.code_snippet.present? %>
             <pre class="code-block"><%= sanitize(post.code_snippet) %></pre>
           <% end %>
 
-          <div id="post-likes-<%= post.id %>">
-            <%= render 'public/likes/like_button', post: post %>
-          </div>
+          <!-- いいねボタン -->
+          <% unless guest_blocked? %>  <!-- ★ ゲストはいいね不可 -->
+            <div id="post-likes-<%= post.id %>">
+              <%= render 'public/likes/like_button', post: post %>
+            </div>
+          <% end %>
 
+          <!-- コメントリンク（閲覧は許可） -->
           <div class="d-flex mt-3">
             <% comment_count = post.comments.count %>
-            <%= link_to "💬 コメント (#{comment_count})", post_path(post), class: "btn btn-outline-secondary btn-sm mr-2" %>
+            <%= link_to "💬 コメント (#{comment_count})", post_path(post),
+                        class: "btn btn-outline-secondary btn-sm mr-2" %>
           </div>
 
-          <% if post.user == current_user %>
+          <!-- 編集／削除（本人 & 非ゲスト） -->
+          <% if post.user == current_user && !guest_blocked? %>
             <div class="d-flex mt-2">
               <%= link_to "編集", edit_post_path(post), class: "btn btn-warning btn-sm mr-2" %>
-              <%= link_to "削除", post_path(post), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
+              <%= link_to "削除", post_path(post),
+                          method: :delete,
+                          data: { confirm: "本当に削除しますか？" },
+                          class: "btn btn-danger btn-sm" %>
             </div>
           <% end %>
         </div>
@@ -102,14 +123,20 @@
 <% else %>
   <div class="alert alert-info">
     <p>まだ投稿がありません。</p>
-    <p>最初の投稿をしてみませんか？</p>
-    <%= link_to "新規投稿する", new_post_path, class: "btn btn-primary" %>
+    <% unless guest_blocked? %>  <!-- ★ ゲストには新規投稿誘導を隠す -->
+      <p>最初の投稿をしてみませんか？</p>
+      <%= link_to "新規投稿する", new_post_path, class: "btn btn-primary" %>
+    <% end %>
   </div>
 <% end %>
 
-<!-- アクションボタン -->
+<!-- ── アクションボタン ─────────────────────── -->
 <div class="d-flex justify-content-center flex-wrap mb-3">
   <%= link_to "マイページ", users_mypage_path, class: "btn btn-outline-secondary btn-lg mr-2 mb-2" %>
-  <%= link_to "新規投稿", new_post_path, class: "btn btn-primary btn-lg mr-2 mb-2" %>
+
+  <% unless guest_blocked? %>  <!-- ★ ゲストは新規投稿ボタン非表示 -->
+    <%= link_to "新規投稿", new_post_path, class: "btn btn-primary btn-lg mr-2 mb-2" %>
+  <% end %>
+
   <%= link_to "投稿一覧へ戻る", posts_path, class: "btn btn-secondary btn-lg mb-2" %>
 </div>

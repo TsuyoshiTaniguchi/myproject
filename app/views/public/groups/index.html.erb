@@ -1,30 +1,41 @@
 <h1 class="mt-5 mt-4">グループ一覧</h1>
 
-<form action="/groups" accept-charset="UTF-8" method="get" style="display: flex; align-items: center;">
-  <input type="text" name="query" id="query" placeholder="グループを検索..." class="form-control" style="flex: 1; max-width: 400px; margin-right: 5px;">
-  <input type="submit" name="commit" value="検索" class="btn btn-primary">
+<form action="/groups" method="get"
+      class="d-flex align-items-center mb-3">
+  <input type="text" name="query" id="query"
+         placeholder="グループを検索..."
+         class="form-control flex-grow-1 mr-2" style="max-width:400px;">
+  <input type="submit" value="検索" class="btn btn-primary">
 </form>
 
-<% unless current_user.guest? %>
+<% unless guest_blocked? %>          <!-- ★ゲストは新規作成不可 -->
   <div class="d-flex justify-content-end mt-4">
-    <%= link_to "➕ 新しいグループを作成", new_group_path, class: "btn btn-success font-weight-bold" %>
+    <%= link_to "➕ 新しいグループを作成",
+                new_group_path,
+                class: "btn btn-success font-weight-bold" %>
   </div>
 <% end %>
 
 <ul class="nav nav-pills nav-justified mt-3">
   <li class="nav-item">
-    <a class="nav-link active font-weight-bold" data-toggle="tab" href="#search_results">🔍 検索結果</a>
+    <a class="nav-link active font-weight-bold"
+       data-toggle="tab" href="#search_results">🔍 検索結果</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link font-weight-bold" data-toggle="tab" href="#popular_groups">⭐ 人気グループ</a>
+    <a class="nav-link font-weight-bold"
+       data-toggle="tab" href="#popular_groups">⭐ 人気グループ</a>
   </li>
-  <li class="nav-item">
-    <a class="nav-link font-weight-bold" data-toggle="tab" href="#joined_groups">👥 参加中</a>
-  </li>
+  <% unless guest_blocked? %>        <!-- ★ゲストには参加中タブ非表示 -->
+    <li class="nav-item">
+      <a class="nav-link font-weight-bold"
+         data-toggle="tab" href="#joined_groups">👥 参加中</a>
+    </li>
+  <% end %>
 </ul>
 
 <div class="tab-content mt-4">
-  <!-- 🔍 検索結果タブ -->
+
+  <!-- 🔍 検索結果 -->
   <div class="tab-pane fade show active" id="search_results">
     <% if @query.present? %>
       <div class="alert alert-info font-weight-bold">
@@ -32,41 +43,36 @@
       </div>
       <% if @groups.any? %>
         <div class="row">
-          <% @groups.each do |group| %>
-            <%= render "public/shared/group_card", group: group %>
-          <% end %>
+          <% @groups.each { |g| render "public/shared/group_card", group: g } %>
         </div>
       <% else %>
         <div class="alert alert-warning text-center">
-          <p>該当するグループが見つかりませんでした。</p>
+          該当するグループが見つかりませんでした。
         </div>
       <% end %>
     <% end %>
   </div>
 
-  <!-- ⭐ 人気グループタブ -->
+  <!-- ⭐ 人気グループ -->
   <div class="tab-pane fade" id="popular_groups">
     <% if @popular_groups.present? %>
       <div class="row">
-        <% @popular_groups.each do |group| %>
-          <%= render "public/shared/group_card", group: group %>
-        <% end %>
+        <% @popular_groups.each { |g| render "public/shared/group_card", group: g } %>
       </div>
     <% else %>
       <p class="text-muted text-center">人気のグループはありません。</p>
     <% end %>
   </div>
 
-  <!-- 👥 参加中のグループタブ -->
-  <div class="tab-pane fade" id="joined_groups">
-    <% if @joined_groups.present? %>
-      <div class="row">
-        <% @joined_groups.each do |group| %>
-          <%= render "public/shared/group_card", group: group %>
-        <% end %>
-      </div>
-    <% else %>
-      <p class="text-muted text-center">参加中のグループはありません。</p>
-    <% end %>
-  </div>
+  <% unless guest_blocked? %>        <!-- ★ゲストは中身も非表示 -->
+    <div class="tab-pane fade" id="joined_groups">
+      <% if @joined_groups.present? %>
+        <div class="row">
+          <% @joined_groups.each { |g| render "public/shared/group_card", group: g } %>
+        </div>
+      <% else %>
+        <p class="text-muted text-center">参加中のグループはありません。</p>
+      <% end %>
+    </div>
+  <% end %>
 </div>

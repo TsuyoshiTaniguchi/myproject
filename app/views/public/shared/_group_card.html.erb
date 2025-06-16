@@ -1,28 +1,32 @@
 <div class="col-md-4">
   <div class="card bg-light shadow-sm p-4 mb-4 rounded text-center">
+
+    <!-- アイコン -->
     <% if group.group_image.attached? %>
       <%= image_tag group.group_image.variant(resize_to_fill: [100, 100]),
                     class: "rounded-circle border border-secondary mx-auto d-block mb-3" %>
     <% else %>
       <%= image_tag "no_image.jpg",
-                    class: "rounded-circle border border-secondary mx-auto d-block mb-3",
-                    width: 100, height: 100 %>
+                    width: 100, height: 100,
+                    class: "rounded-circle border border-secondary mx-auto d-block mb-3" %>
     <% end %>
 
     <h4 class="font-weight-bold">
       <%= link_to group.name, group_path(group), class: "text-primary" %>
     </h4>
+
     <p class="text-muted">
       📢 <%= group.category.present? ? t("enums.group.category.#{group.category}") : "未分類" %>
     </p>
 
-    <!-- メンバー数の表示（owner も含む） -->
+    <!-- メンバー数 -->
     <p>
       <span class="badge badge-secondary">
-        メンバー数: <%= group.memberships.where(role: ["member", "owner"]).count %>人
+        メンバー数: <%= group.memberships.where(role: %w[member owner]).count %>人
       </span>
     </p>
-  
+
+    <!-- 参加ルール -->
     <p class="text-muted text-center">
       🔑 参加ルール:
       <% case group.join_policy %>
@@ -37,22 +41,29 @@
       <% end %>
     </p>
 
-    <%= link_to "📄 詳細を見る", group_path(group), class: "btn btn-outline-info w-100 mt-3" %>
+    <%= link_to "📄 詳細を見る",
+                group_path(group),
+                class: "btn btn-outline-info w-100 mt-3" %>
 
-    <% membership = group.memberships.find_by(user: current_user) %>
-    <% if membership.present? %>
-      <% case membership.role %>
-        <% when "member" %>
-          <p class="text-muted text-center">✅ あなたはこのグループのメンバーです！</p>
-        <% when "pending" %>
-          <p class="text-muted text-center">⏳ 参加リクエスト送信済み。管理者の承認待ち！</p>
-        <% when "owner" %>
-          <p class="text-muted text-center">👑 あなたはこのグループのオーナーです！</p>
-      <% end %>
-    <% else %>
-      <% if group.join_policy != "admin_approval" %>
-        <%= button_to "✅ 参加する", request_join_group_path(group),
-                      method: :post, class: "btn btn-primary w-100" %>
+    <% if !guest_blocked? && current_user.present? %>     <!-- ★ゲストは以下全部非表示 -->
+      <% membership = group.memberships.find_by(user: current_user) %>
+
+      <% if membership.present? %>
+        <% case membership.role %>
+          <% when "member" %>
+            <p class="text-muted text-center">✅ あなたはこのグループのメンバーです！</p>
+          <% when "pending" %>
+            <p class="text-muted text-center">⏳ 参加リクエスト送信済み。管理者の承認待ち！</p>
+          <% when "owner" %>
+            <p class="text-muted text-center">👑 あなたはこのグループのオーナーです！</p>
+        <% end %>
+      <% else %>
+        <% if group.join_policy != "admin_approval" %>
+          <%= button_to "✅ 参加する",
+                        request_join_group_path(group),
+                        method: :post,
+                        class: "btn btn-primary w-100" %>
+        <% end %>
       <% end %>
     <% end %>
   </div>

@@ -14,6 +14,7 @@
         プロフィール
       </a>
     </li>
+
     <li class="nav-item">
       <a class="nav-link"
          id="posts-tab"
@@ -25,6 +26,7 @@
         投稿一覧
       </a>
     </li>
+
     <li class="nav-item">
       <a class="nav-link"
          id="selfpr-tab"
@@ -36,17 +38,20 @@
         自己PR詳細
       </a>
     </li>
-    <li class="nav-item">
-      <a class="nav-link"
-         id="daily_reports-tab"
-         data-toggle="tab"
-         href="#daily_reports"
-         role="tab"
-         aria-controls="daily_reports"
-         aria-selected="false">
-        ライフログ＜日報管理＞
-      </a>
-    </li>
+
+    <% unless guest_blocked? %>  <!-- ゲストには日報タブごと非表示 -->
+      <li class="nav-item">
+        <a class="nav-link"
+           id="daily_reports-tab"
+           data-toggle="tab"
+           href="#daily_reports"
+           role="tab"
+           aria-controls="daily_reports"
+           aria-selected="false">
+          ライフログ＜日報管理＞
+        </a>
+      </li>
+    <% end %>
   </ul>
 
   <!-- タブパネル -->
@@ -65,7 +70,7 @@
          role="tabpanel"
          aria-labelledby="posts-tab">
       <%= render partial: "public/posts/post_list",
-                  locals: { user: @user, show_create_button: false, show_edit_button: false } %>
+                 locals: { user: @user, show_create_button: false, show_edit_button: false } %>
     </div>
 
     <!-- 自己PR詳細（成長ストーリー） -->
@@ -81,23 +86,25 @@
       <% else %>
         <p class="text-muted">
           成長ストーリーがまだ登録されていません。
-          <% if current_user == @user %>
+          <% if current_user == @user && !guest_blocked? %>
             <%= link_to "自己PR詳細を編集する", edit_user_path(@user) %>
           <% end %>
         </p>
       <% end %>
     </div>
 
-        <!-- ライフログ（日報管理） -->
-    <div class="tab-pane fade"
-         id="daily_reports"
-         role="tabpanel"
-         aria-labelledby="daily_reports-tab">
-      <%= render "public/daily_reports/daily_reports_section", user: @user %>
-    </div>
+    <% unless guest_blocked? %> <!-- ゲストにはコンテンツも非表示 -->
+      <!-- ライフログ（日報管理） -->
+      <div class="tab-pane fade"
+           id="daily_reports"
+           role="tabpanel"
+           aria-labelledby="daily_reports-tab">
+        <%= render "public/daily_reports/daily_reports_section", user: @user %>
+      </div>
+    <% end %>
   </div>
 
-  <!-- ユーザー一覧ボタン -->
+  <!-- ユーザー一覧ボタン（閲覧は許可する） -->
   <div class="text-center mt-4">
     <%= link_to "ユーザー一覧", users_path, class: "btn btn-lg btn-outline-secondary px-4" %>
   </div>

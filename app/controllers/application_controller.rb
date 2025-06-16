@@ -1,32 +1,48 @@
 class ApplicationController < ActionController::Base
+
   before_action :configure_permitted_parameters, if: :devise_controller?
-  before_action :restrict_guest_access, only: [:edit, :update]
   before_action :set_unread_notifications_count
   before_action :set_cache_buster
 
+  # ゲスト書き込みブロック（全コントローラ共通
+  before_action :reject_guest_write, if: -> { current_user&.guest? }
 
-  # ユーザーと管理者でログイン後のリダイレクト先を分ける
+  # Devise リダイレクトなど 
   def after_sign_in_path_for(resource)
-    if resource.is_a?(Admin)
-      admin_dashboard_path # 管理者は管理画面へ
-    else
-      users_mypage_path # 一般ユーザーはマイページへ
-    end
+    resource.is_a?(Admin) ? admin_dashboard_path : users_mypage_path
   end
-  
-  
-  
-  # ログアウト後のリダイレクト先を指定
-  def after_sign_out_path_for(resource_or_scope)
+
+  def after_sign_out_path_for(_scope)
     root_path
   end
 
+  # 管理者ログイン中は current_user を nil 扱い
   def current_user
-    if admin_signed_in?
-      nil #  管理者の場合は `current_user` を返さない
-    else
-      super #  通常の `current_user` を返す
-    end
+    admin_signed_in? ? nil : super
+  end
+
+
+  SAFE_HTTP_METHODS = %w[GET HEAD OPTIONS].freeze
+
+  # ゲストにも許可したい “例外” アクションを列挙
+  # controller_name(シンボル) => [ :action, … ]
+  GUEST_WHITELIST = {
+    sessions:  %i[destroy],      # 例：ログアウト
+    passwords: %i[new create]    # 例：パスワード再設定
+  }.freeze
+
+  def reject_guest_write
+    # 安全メソッドなら通す
+    return if SAFE_HTTP_METHODS.include?(request.method)
+
+    # ホワイトリストなら通す
+    ctrl = params[:controller].split('/').last.to_sym
+    act  = params[:action].to_sym
+    return if GUEST_WHITELIST[ctrl]&.include?(act)
+
+    # それ以外はブロック
+    redirect_back fallback_location: root_path,
+                  alert: 'ゲストユーザーはこの操作を実行できません'
   end
 
 
@@ -34,36 +50,23 @@ class ApplicationController < ActionController::Base
   protected
 
   def configure_permitted_parameters
-    devise_parameter_sanitizer.permit(:sign_up, keys: [:name, :status]) # status も含めてデフォルト値を設定する場合
+    devise_parameter_sanitizer.permit(:sign_up, keys: %i[name status])
   end
 
   private
 
 
-  def restrict_guest_access
-    return unless current_user # `nil` チェックを追加
-    
-    return if params[:action] == "destroy" # ログアウト時は制限をスキップ
-  
-    if current_user.guest?
-      redirect_to root_path, alert: "ゲストユーザーはこの操作を実行できません"
-    end
-  end
-
   def set_unread_notifications_count
-    if current_user.is_a?(User) # `Admin` の場合は処理しない
-      @unread_notifications_count = current_user.notifications.where(read: false).count
+    if current_user.is_a?(User)
+      @unread_notifications_count = current_user.notifications.unread.count
     else
-      @unread_notifications_count = 0 # `Admin` の場合は通知を持たない
+      @unread_notifications_count = 0
     end
   end
 
   def set_cache_buster
-    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
-    response.headers["Pragma"] = "no-cache"
-    response.headers["Expires"] = "Fri, 01 Jan 1990 00:00:00 GMT"
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma']        = 'no-cache'
+    response.headers['Expires']       = 'Fri, 01 Jan 1990 00:00:00 GMT'
   end
-
-
 end
-
