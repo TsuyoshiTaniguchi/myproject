@@ -37,6 +37,12 @@ class User < ApplicationRecord
     connection&.destroy
   end
 
+  # 指定ユーザーをフォロー中
+  def following?(other_user)
+    following.exists?(other_user.id)
+  end
+
+
   enum status: { active: 0, withdrawn: 1 }
 
   validates :email, presence: true, uniqueness: true

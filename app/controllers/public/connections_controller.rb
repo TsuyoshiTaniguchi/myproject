@@ -1,42 +1,47 @@
 class Public::ConnectionsController < ApplicationController
   before_action :authenticate_user!
+  before_action :set_user, only: %i[create destroy]
 
-  # ユーザーフォロー
+  # ---------------- フォロー ----------------
+  # POST /users/:id/follow
   def create
-    user = User.find(params[:user_id])
-    current_user.connect(user)
-    redirect_to request.referer, notice: "#{user.name}さんをフォローしました！"
-  end
-  
-  # フォロー解除
-  def destroy
-    connection = Connection.find_by(id: params[:id])
-  
-    if connection
-      connection.destroy!
-      @users = User.joins(:connections).where(connections: { followed_id: connection.followed_id }).distinct.reload
-  
-      respond_to do |format|
-        format.html { redirect_back fallback_location: request.referer, notice: "フォロー解除しました" }
-        format.js
-      end
-    else
-      flash[:alert] = "フォロー解除できませんでした"
-      redirect_back fallback_location: request.referer
+    current_user.connect(@user)
+
+    respond_to do |format|
+      format.html { redirect_back fallback_location: user_path(@user),
+                                  notice: "#{@user.name}さんをフォローしました！" }
+      format.js   # create.js.erb を置けば Ajax でもOK
     end
   end
-  
 
-  # フォローしているユーザー一覧
+  # -------------- フォロー解除 ---------------
+  # DELETE /users/:id/unfollow
+  def destroy
+    current_user.disconnect(@user)
+
+    respond_to do |format|
+      format.html { redirect_back fallback_location: user_path(@user),
+                                  notice: "フォロー解除しました" }
+      format.js   # destroy.js.erb を置けば Ajax でもOK
+    end
+  end
+
+
   def following
-    @user = User.find(params[:id])
-    @users = @user.following  # `@users` にフォローしているユーザー一覧を代入
+    @user  = User.find(params[:id])
+    @users = @user.following
   end
 
   def followers
-    @user = User.find(params[:id])
-    @users = @user.followers 
+    @user  = User.find(params[:id])
+    @users = @user.followers
   end
 
+  private
+
+  # member ルートなので params[:id] に相手ユーザーIDが入る
+  def set_user
+    @user = User.find(params[:id])
+  end
 
 end

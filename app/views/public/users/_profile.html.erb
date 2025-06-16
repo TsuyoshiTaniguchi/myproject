@@ -1,16 +1,15 @@
 <div class="container py-4">
-  <!-- タブナビ -->
+
+  <!-- ───── タブナビ ───────────────────────── -->
   <ul class="nav nav-tabs" id="profileTab" role="tablist">
-    <% tabs = { overview: "概要", portfolio: "ポートフォリオ", files: "ファイル", story: "自己PR" } %>
-    <% tabs.each.with_index do |(key, label), i| %>
+    <% { overview: "概要", portfolio: "ポートフォリオ", files: "ファイル", story: "自己PR" }.each_with_index do |(key,label), i| %>
       <li class="nav-item">
         <button
           class="nav-link <%= 'active' if i.zero? %>"
           id="tab-<%= key %>"
           data-toggle="tab"
           data-target="#pane-<%= key %>"
-          type="button"
-          role="tab"
+          type="button" role="tab"
           aria-controls="pane-<%= key %>"
           aria-selected="<%= i.zero? %>">
           <%= label %>
@@ -19,107 +18,141 @@
     <% end %>
   </ul>
 
-  <!-- タブコンテンツ -->
+  <!-- ───── タブコンテンツ ───────────────────── -->
   <div class="tab-content p-3 border border-top-0 mb-4">
-    <!-- 概要 -->
-    <div class="tab-pane fade show active"
-         id="pane-overview"
-         role="tabpanel"
-         aria-labelledby="tab-overview">
-      <div class="row">
-        <!-- 左カラム：プロフィール -->
-        <div class="col-md-6 text-center">
-          <%= image_tag(
-                user.profile_image.attached? ?
-                  user.profile_image.variant(resize_to_fill: [150, 150]) :
-                  "no_image.jpg",
-                class: "rounded-circle mb-3 border",
-                width: 150,
-                height: 150
-              ) %>
-          <h4><%= user.name %> さん</h4>
-          <p class="text-muted small mb-3">
-            メール：<%= user.email %><br>
-            登録日：<%= user.created_at.strftime("%Y.%m.%d") %>
-          </p>
-        </div>
-        <!-- 右カラム：フォロー情報・所属グループ -->
-        <div class="col-md-6">
-          <div class="row mb-3">
-            <div class="col-6 text-center">
-              <span class="badge badge-primary d-block mb-2">
-                フォロー中: <%= user.following.count %>
-              </span>
-              <%= link_to "フォロー一覧", following_user_path(user), class: "btn btn-outline-primary btn-sm" %>
-            </div>
-            <div class="col-6 text-center">
-              <span class="badge badge-secondary d-block mb-2">
-                フォロワー: <%= user.followers.count %>
-              </span>
-              <%= link_to "フォロワー一覧", followers_user_path(user), class: "btn btn-outline-secondary btn-sm" %>
-            </div>
-          </div>
-          <div class="mt-4 text-center">
-            <h5>所属グループ</h5>
-            <% if user.joined_groups.any? %>
-              <div class="d-flex flex-wrap justify-content-center">
-                <% user.joined_groups.each do |g| %>
-                  <%= link_to g.name, group_path(g),
-                              class: "badge badge-success text-decoration-none mr-2 mb-2" %>
-                <% end %>
-              </div>
-            <% else %>
-              <p class="text-muted small mb-0">参加グループはありません。</p>
+
+    <!-- ① 概要 ──────────────────────────────── -->
+    <div class="tab-pane fade show active" id="pane-overview" role="tabpanel">
+
+  <div class="row">
+
+    <!-- ========== 左列：プロフィール & アクション ========== -->
+    <div class="col-md-4 text-center mb-4 mb-md-0">
+
+      <!-- プロフ画像 -->
+      <%= image_tag(
+            user.profile_image.attached? ?
+              user.profile_image.variant(resize_to_fill: [150,150]) :
+              "no_image.jpg",
+            class: "rounded-circle border mb-3",
+            width: 150, height: 150) %>
+
+      <!-- 名前・登録情報 -->
+      <h4 class="mb-1"><%= user.name %> さん</h4>
+      <p class="text-muted small mb-2">
+        メール：<%= user.email %><br>
+        登録日：<%= user.created_at.strftime('%Y.%m.%d') %>
+      </p>
+
+      <!-- ■ アクションボタン（登録日の直下） -->
+      <div class="d-flex flex-wrap justify-content-center">
+
+        <% unless current_user.guest? || current_user == user %>
+          <% if current_user.following?(user) %>
+            <%= button_to unfollow_user_path(user), method: :delete,
+                          class: "btn btn-outline-secondary btn-sm mr-2 mb-2" do %>
+              <i class="fas fa-user-minus"></i> フォロー解除
             <% end %>
-          </div>
+          <% else %>
+            <%= button_to follow_user_path(user), method: :post,
+                          class: "btn btn-outline-primary btn-sm mr-2 mb-2" do %>
+              <i class="fas fa-user-plus"></i> フォロー
+            <% end %>
+          <% end %>
+
+          <% if user.reported? %>
+            <span class="text-danger font-weight-bold mr-2 mb-2">⚠️ 通報済み</span>
+          <% else %>
+            <%= link_to "⚠️ 通報", report_user_path(user),
+                        method: :patch,
+                        class: "btn btn-danger btn-sm mr-2 mb-2" %>
+          <% end %>
+        <% end %>
+
+        <% if current_user == user %>
+          <%= link_to edit_user_path(user),
+                      class: "btn btn-primary btn-sm mr-2 mb-2" do %>
+            <i class="fas fa-edit"></i> 編集
+          <% end %>
+          <%= link_to withdraw_user_path(user), method: :patch,
+                      data: { confirm: "本当に退会しますか？" },
+                      class: "btn btn-danger btn-sm mb-2" do %>
+            <i class="fas fa-user-slash"></i> 退会
+          <% end %>
+        <% end %>
+
+      </div><!-- /ボタン -->
+
+    </div><!-- /左列 -->
+
+    <!-- ========== 右列：フォロー数 & グループ ========== -->
+    <div class="col-md-8">
+
+      <div class="row mb-3">
+        <div class="col-6 text-center">
+          <span class="badge badge-primary d-block mb-2">
+            フォロー中: <%= user.following.count %>
+          </span>
+          <%= link_to "フォロー一覧", following_user_path(user),
+                      class: "btn btn-outline-primary btn-sm" %>
+        </div>
+        <div class="col-6 text-center">
+          <span class="badge badge-secondary d-block mb-2">
+            フォロワー: <%= user.followers.count %>
+          </span>
+          <%= link_to "フォロワー一覧", followers_user_path(user),
+                      class: "btn btn-outline-secondary btn-sm" %>
         </div>
       </div>
-    </div>
-    
-    <!-- ポートフォリオURL -->
-    <div class="tab-pane fade"
-         id="pane-portfolio"
-         role="tabpanel"
-         aria-labelledby="tab-portfolio">
+
+      <div class="text-center">
+        <h5 class="h6 mb-3">所属グループ</h5>
+        <% if user.joined_groups.any? %>
+          <div class="d-flex flex-wrap justify-content-center">
+            <% user.joined_groups.each do |g| %>
+              <%= link_to g.name, group_path(g),
+                          class: "badge badge-success text-white mr-2 mb-2" %>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-muted small mb-0">参加グループはありません。</p>
+        <% end %>
+      </div>
+
+    </div><!-- /右列 -->
+
+  </div><!-- /row -->
+</div><!-- /pane-overview -->
+
+    <!-- ② ポートフォリオURL ──────────────── -->
+    <div class="tab-pane fade" id="pane-portfolio" role="tabpanel">
       <h5>ポートフォリオリンク</h5>
       <% if user.portfolio_url.present? %>
-        <p>
-          <%= link_to user.portfolio_url,
-                      user.portfolio_url,
-                      target: "_blank",
-                      rel: "noopener",
-                      class: "text-primary" %>
-        </p>
+        <p><%= link_to user.portfolio_url, user.portfolio_url,
+                       class: "text-primary", target: "_blank", rel: "noopener" %></p>
       <% else %>
         <p class="text-muted small mb-0">リンク未設定です。</p>
       <% end %>
     </div>
-    
-    <!-- ポートフォリオファイル -->
-    <div class="tab-pane fade"
-         id="pane-files"
-         role="tabpanel"
-         aria-labelledby="tab-files">
+
+    <!-- ③ ファイル ──────────────────────── -->
+    <div class="tab-pane fade" id="pane-files" role="tabpanel">
       <h5>アップロードファイル</h5>
       <% if user.portfolio_files.attached? %>
         <ul class="list-group list-group-flush">
           <% user.portfolio_files.each do |f| %>
             <li class="list-group-item d-flex align-items-center py-2">
               <% if f.content_type.start_with?("image/") %>
-                <%= link_to url_for(f), target: "_blank", class: "mr-3" do %>
-                  <%= image_tag f.variant(resize_to_limit: [80, 80]),
+                <%= link_to url_for(f), target: "_blank", class: "me-3" do %>
+                  <%= image_tag f.variant(resize_to_limit: [80,80]),
                                 class: "img-thumbnail" %>
                 <% end %>
               <% else %>
-                <i class="fas fa-file-alt fa-2x text-secondary mr-3"></i>
+                <i class="fas fa-file-alt fa-2x text-secondary me-3"></i>
               <% end %>
               <div>
-                <%= link_to f.filename.to_s,
-                            url_for(f),
-                            target: "_blank" %><br>
-                <small class="text-muted">
-                  <%= number_to_human_size(f.byte_size) %>
-                </small>
+                <%= link_to f.filename.to_s, url_for(f), target: "_blank" %><br>
+                <small class="text-muted"><%= number_to_human_size(f.byte_size) %></small>
               </div>
             </li>
           <% end %>
@@ -128,12 +161,9 @@
         <p class="text-muted small mb-0">ファイルがありません。</p>
       <% end %>
     </div>
-    
-    <!-- 自己PR -->
-    <div class="tab-pane fade"
-         id="pane-story"
-         role="tabpanel"
-         aria-labelledby="tab-story">
+
+    <!-- ④ 自己PR ──────────────────────────── -->
+    <div class="tab-pane fade" id="pane-story" role="tabpanel">
       <h5>自己PR・成長ストーリー</h5>
       <% if user.personal_statement.present? %>
         <%= simple_format(user.personal_statement) %>
@@ -141,32 +171,6 @@
         <p class="text-muted small mb-0">未入力です。</p>
       <% end %>
     </div>
-  </div>
-  
-  <!-- 下部アクション -->
-  <div class="text-center">
-    <% unless current_user.guest? || current_user == user %>
-      <% if user.reported? %>
-        <span class="text-danger font-weight-bold">⚠️ 通報済み</span>
-      <% else %>
-        <%= link_to "⚠️ 通報する",
-                    report_user_path(user),
-                    method: :patch,
-                    class: "btn btn-danger btn-sm mr-2" %>
-      <% end %>
-    <% end %>
 
-    <% if show_actions && current_user == user %>
-      <%= link_to edit_user_path(user),
-                  class: "btn btn-primary mr-2" do %>
-        <i class="fas fa-edit"></i> 編集
-      <% end %>
-      <%= link_to withdraw_user_path(user),
-                  method: :patch,
-                  data: { confirm: "本当に退会しますか？" },
-                  class: "btn btn-danger" do %>
-        <i class="fas fa-user-slash"></i> 退会
-      <% end %>
-    <% end %>
-  </div>
+  </div><!-- /tab-content -->
 </div>

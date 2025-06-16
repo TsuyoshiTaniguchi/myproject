@@ -93,6 +93,12 @@ Rails.application.routes.draw do
         patch :withdraw
         patch :report  # ユーザー通報機能
       end
+      member do
+        # ConnectionsController に明示的に振り分ける
+        post   :follow,   to: 'connections#create'
+        delete :unfollow, to: 'connections#destroy'
+      end
+
       
       # ユーザーに紐づく投稿・グループ（※ グループはネストして使うケースもあるが、重複を避けるため各種
       resources :posts, only: [:index, :show, :new, :create, :edit, :update, :destroy]
