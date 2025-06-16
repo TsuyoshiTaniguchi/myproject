@@ -6,7 +6,7 @@
               posts_path,
               class: "btn btn-outline-secondary #{params[:filter].nil? ? 'active' : ''}" %>
 
-  <% unless guest_blocked? %> <!-- ★ ゲストは “フォロー中” フィルタ不可 -->
+  <% unless guest_blocked? %> <!-- ゲストは “フォロー中” フィルタ不可 -->
     <%= link_to "フォローしている人の投稿",
                 posts_path(filter: 'following'),
                 class: "btn btn-outline-primary #{params[:filter] == 'following' ? 'active' : ''}" %>
@@ -130,7 +130,7 @@
   </div>
 <% end %>
 
-<!-- ── アクションボタン ─────────────────────── -->
+<!-- アクションボタン-->
 <div class="d-flex justify-content-center flex-wrap mb-3">
   <%= link_to "マイページ", users_mypage_path, class: "btn btn-outline-secondary btn-lg mr-2 mb-2" %>
 

@@ -10,7 +10,9 @@ class Notification < ApplicationRecord
     membership_rejection: 2,
     member_report:        3,
     group_reported:       4,
-    comment_report:       5
+    comment_report:       5,
+    admin_alert:          6,
+    post_report:          7 
   }
 
   scope :unread, -> { where(read: false) }

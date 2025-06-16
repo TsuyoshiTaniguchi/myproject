@@ -50,7 +50,10 @@ class User < ApplicationRecord
   enum role: { guest: "guest", user: "user", admin: "admin" }
 
 
-
+  # 引数のユーザーをすでにフォローしているか？
+  def following?(other_user)
+    following.exists?(other_user.id)
+  end
 
   # 認証チェック
   def active_for_authentication?

@@ -45,6 +45,8 @@ class Public::PostsController < ApplicationController
       return
     end
 
+    @post.reload
+
     # 意図したページから来た場合のみ、リダイレクト先をセッションにセット
     if request.referer.present? && !request.referer.include?("/posts/")
       session[:return_to] = request.referer
@@ -120,20 +122,33 @@ class Public::PostsController < ApplicationController
 
   def report
     @post = Post.find(params[:id])
-    if @post.update(reported: true)
-      Notification.create!(
-        recipient_id: Admin.first.id,
-        user_id: current_user.id,
-        notification_type: "post_report",
-        source_id: @post.id,
-        source_type: "Post",
-        read: false
-      )
-      redirect_to post_path(@post), notice: "投稿を通報しました"
-    else
-      redirect_to post_path(@post), alert: "この投稿はすでに通報されています"
-    end
+  
+    # 0) ゲストを遮断
+    return redirect_to @post, alert: 'ゲストユーザーは通報できません' if current_user.guest?
+  
+    # 1) 二重通報を防ぐ
+    return redirect_to @post, alert: 'この投稿はすでに通報されています' if @post.reported?
+  
+    # 2) フラグを強制 ON
+    @post.update_column(:reported, true)
+  
+    # 3) 管理者代表となる “受信者ユーザー” を取得
+    admin_recipient = User.find_by(email: 'admin_notifier@example.com') ||
+                      User.create!(
+                        email:    'admin_notifier@example.com',
+                        password: SecureRandom.urlsafe_base64,
+                        name:     'System Admin'
+                      )
+  
+    Notification.create!(
+      user:              admin_recipient,  # ← User を渡す
+      source:            @post,
+      notification_type: :post_report
+    )
+  
+    redirect_to @post, notice: '投稿を通報しました'
   end
+  
 
   def search
     @query = params[:query]

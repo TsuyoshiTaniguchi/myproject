@@ -1,6 +1,6 @@
 class Public::GroupsController < ApplicationController
   before_action :authenticate_user!
-  before_action :restrict_guest_access, only: [:create]
+  before_action :reject_guest_write,    except: %i[index show]
 
   def index
     # params[:user_id] が存在するかチェックし、ユーザーを取得

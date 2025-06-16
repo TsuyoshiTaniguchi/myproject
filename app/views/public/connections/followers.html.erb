@@ -1,16 +1,21 @@
-<h1 class="mb-4 text-center font-weight-bold"><%= @user.name %>さんのフォロワー一覧</h1>
+<h1 class="mb-4 text-center font-weight-bold">
+  <%= @user.name %>さんのフォロワー一覧
+</h1>
 
 <div id="followers-list" class="mb-4">
   <ul class="list-group">
-    <% @users.each do |user| %>
-      <li id="user-<%= user.id %>" class="list-group-item d-flex justify-content-between align-items-center">
-        <%= link_to user.name, user_path(user), class: "text-decoration-none" %>
-        <% if @user == current_user %> 
-          <!-- 自分のマイページなら解除ボタンを表示 -->
-          <% connection = Connection.find_by(followed_id: @user.id, follower_id: user.id) %>
-          <% if connection %>
-            <%= button_to "フォロー解除", connection_path(connection), method: :delete, remote: true, class: "btn btn-danger btn-sm" %>
-          <% end %>
+    <% @users.each do |follower| %>
+      <li
+        id="user-<%= follower.id %>"
+        class="list-group-item d-flex justify-content-between align-items-center"
+      >
+        <%= link_to follower.name, user_path(follower), class: "text-decoration-none" %>
+        <% if @user.id == current_user.id %>
+          <%= button_to "フォロー解除",
+                        unfollow_user_path(follower),
+                        method: :delete,
+                        remote: true,
+                        class: "btn btn-danger btn-sm" %>
         <% end %>
       </li>
     <% end %>
