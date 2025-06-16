@@ -18,113 +18,103 @@
     <% end %>
   </ul>
 
-  <!-- ───── タブコンテンツ ───────────────────── -->
+  <!-- タブコンテンツ -->
   <div class="tab-content p-3 border border-top-0 mb-4">
-
-    <!-- ① 概要 ──────────────────────────────── -->
+    <!-- 概要 -->
     <div class="tab-pane fade show active" id="pane-overview" role="tabpanel">
+    <div class="row">
+      <!-- 左列 -->
+      <div class="col-md-4 text-center mb-4 mb-md-0">
+        <!-- プロフ画像 -->
+        <%= image_tag(
+              user.profile_image.attached? ?
+                user.profile_image.variant(resize_to_fill: [150,150]) :
+                "no_image.jpg",
+              class: "rounded-circle border mb-3",
+              width: 150, height: 150) %>
 
-  <div class="row">
+        <!-- 名前・登録情報 -->
+        <h4 class="mb-1"><%= user.name %> さん</h4>
+        <p class="text-muted small mb-2">
+          メール：<%= user.email %><br>
+          登録日：<%= user.created_at.strftime('%Y.%m.%d') %>
+        </p>
 
-    <!-- ========== 左列：プロフィール & アクション ========== -->
-    <div class="col-md-4 text-center mb-4 mb-md-0">
-
-      <!-- プロフ画像 -->
-      <%= image_tag(
-            user.profile_image.attached? ?
-              user.profile_image.variant(resize_to_fill: [150,150]) :
-              "no_image.jpg",
-            class: "rounded-circle border mb-3",
-            width: 150, height: 150) %>
-
-      <!-- 名前・登録情報 -->
-      <h4 class="mb-1"><%= user.name %> さん</h4>
-      <p class="text-muted small mb-2">
-        メール：<%= user.email %><br>
-        登録日：<%= user.created_at.strftime('%Y.%m.%d') %>
-      </p>
-
-      <!-- ■ アクションボタン（登録日の直下） -->
-      <div class="d-flex flex-wrap justify-content-center">
-
-        <% unless current_user.guest? || current_user == user %>
-          <% if current_user.following?(user) %>
-            <%= button_to unfollow_user_path(user), method: :delete,
-                          class: "btn btn-outline-secondary btn-sm mr-2 mb-2" do %>
-              <i class="fas fa-user-minus"></i> フォロー解除
+        <div class="d-flex flex-wrap justify-content-center">
+          <% unless current_user.guest? || current_user == user %>
+            <% if current_user.following?(user) %>
+              <%= button_to unfollow_user_path(user), method: :delete,
+                            class: "btn btn-outline-secondary btn-sm mr-2 mb-2" do %>
+                <i class="fas fa-user-minus"></i> フォロー解除
+              <% end %>
+            <% else %>
+              <%= button_to follow_user_path(user), method: :post,
+                            class: "btn btn-outline-primary btn-sm mr-2 mb-2" do %>
+                <i class="fas fa-user-plus"></i> フォロー
+              <% end %>
             <% end %>
-          <% else %>
-            <%= button_to follow_user_path(user), method: :post,
-                          class: "btn btn-outline-primary btn-sm mr-2 mb-2" do %>
-              <i class="fas fa-user-plus"></i> フォロー
+
+            <% if user.reported? %>
+              <span class="text-danger font-weight-bold mr-2 mb-2">⚠️ 通報済み</span>
+            <% else %>
+              <%= link_to "⚠️ 通報", report_user_path(user),
+                          method: :patch,
+                          class: "btn btn-danger btn-sm mr-2 mb-2" %>
             <% end %>
           <% end %>
 
-          <% if user.reported? %>
-            <span class="text-danger font-weight-bold mr-2 mb-2">⚠️ 通報済み</span>
-          <% else %>
-            <%= link_to "⚠️ 通報", report_user_path(user),
-                        method: :patch,
-                        class: "btn btn-danger btn-sm mr-2 mb-2" %>
+          <% if current_user == user %>
+            <%= link_to edit_user_path(user),
+                        class: "btn btn-primary btn-sm mr-2 mb-2" do %>
+              <i class="fas fa-edit"></i> 編集
+            <% end %>
+            <%= link_to withdraw_user_path(user), method: :patch,
+                        data: { confirm: "本当に退会しますか？" },
+                        class: "btn btn-danger btn-sm mb-2" do %>
+              <i class="fas fa-user-slash"></i> 退会
+            <% end %>
           <% end %>
-        <% end %>
-
-        <% if current_user == user %>
-          <%= link_to edit_user_path(user),
-                      class: "btn btn-primary btn-sm mr-2 mb-2" do %>
-            <i class="fas fa-edit"></i> 編集
-          <% end %>
-          <%= link_to withdraw_user_path(user), method: :patch,
-                      data: { confirm: "本当に退会しますか？" },
-                      class: "btn btn-danger btn-sm mb-2" do %>
-            <i class="fas fa-user-slash"></i> 退会
-          <% end %>
-        <% end %>
-
-      </div><!-- /ボタン -->
-
-    </div><!-- /左列 -->
-
-    <!-- ========== 右列：フォロー数 & グループ ========== -->
-    <div class="col-md-8">
-
-      <div class="row mb-3">
-        <div class="col-6 text-center">
-          <span class="badge badge-primary d-block mb-2">
-            フォロー中: <%= user.following.count %>
-          </span>
-          <%= link_to "フォロー一覧", following_user_path(user),
-                      class: "btn btn-outline-primary btn-sm" %>
-        </div>
-        <div class="col-6 text-center">
-          <span class="badge badge-secondary d-block mb-2">
-            フォロワー: <%= user.followers.count %>
-          </span>
-          <%= link_to "フォロワー一覧", followers_user_path(user),
-                      class: "btn btn-outline-secondary btn-sm" %>
         </div>
       </div>
 
-      <div class="text-center">
-        <h5 class="h6 mb-3">所属グループ</h5>
-        <% if user.joined_groups.any? %>
-          <div class="d-flex flex-wrap justify-content-center">
-            <% user.joined_groups.each do |g| %>
-              <%= link_to g.name, group_path(g),
-                          class: "badge badge-success text-white mr-2 mb-2" %>
-            <% end %>
+      <!-- 右列-->
+      <div class="col-md-8">
+
+        <div class="row mb-3">
+          <div class="col-6 text-center">
+            <span class="badge badge-primary d-block mb-2">
+              フォロー中: <%= user.following.count %>
+            </span>
+            <%= link_to "フォロー一覧", following_user_path(user),
+                        class: "btn btn-outline-primary btn-sm" %>
           </div>
-        <% else %>
-          <p class="text-muted small mb-0">参加グループはありません。</p>
-        <% end %>
+          <div class="col-6 text-center">
+            <span class="badge badge-secondary d-block mb-2">
+              フォロワー: <%= user.followers.count %>
+            </span>
+            <%= link_to "フォロワー一覧", followers_user_path(user),
+                        class: "btn btn-outline-secondary btn-sm" %>
+          </div>
+        </div>
+
+        <div class="text-center">
+          <h5 class="h6 mb-3">所属グループ</h5>
+          <% if user.joined_groups.any? %>
+            <div class="d-flex flex-wrap justify-content-center">
+              <% user.joined_groups.each do |g| %>
+                <%= link_to g.name, group_path(g),
+                            class: "badge badge-success text-white mr-2 mb-2" %>
+              <% end %>
+            </div>
+          <% else %>
+            <p class="text-muted small mb-0">参加グループはありません。</p>
+          <% end %>
+        </div>
       </div>
+    </div>
+  </div>
 
-    </div><!-- /右列 -->
-
-  </div><!-- /row -->
-</div><!-- /pane-overview -->
-
-    <!-- ② ポートフォリオURL ──────────────── -->
+    <!-- ポートフォリオURL -->
     <div class="tab-pane fade" id="pane-portfolio" role="tabpanel">
       <h5>ポートフォリオリンク</h5>
       <% if user.portfolio_url.present? %>
@@ -135,7 +125,7 @@
       <% end %>
     </div>
 
-    <!-- ③ ファイル ──────────────────────── -->
+    <!-- ファイル -->
     <div class="tab-pane fade" id="pane-files" role="tabpanel">
       <h5>アップロードファイル</h5>
       <% if user.portfolio_files.attached? %>
@@ -162,7 +152,7 @@
       <% end %>
     </div>
 
-    <!-- ④ 自己PR ──────────────────────────── -->
+    <!-- 自己PR -->
     <div class="tab-pane fade" id="pane-story" role="tabpanel">
       <h5>自己PR・成長ストーリー</h5>
       <% if user.personal_statement.present? %>
@@ -171,6 +161,5 @@
         <p class="text-muted small mb-0">未入力です。</p>
       <% end %>
     </div>
-
-  </div><!-- /tab-content -->
+  </div>
 </div>
