@@ -109,7 +109,6 @@ document.addEventListener("turbolinks:load", () => {
   initDeleteConfirm();
   initImagePreview();
   initCalendar();
-  initMapIfNeeded();                   // maps.js 側で map が必要なときだけ描画
   initPerformanceChart(); 
 
   // 「日報」タブに切り替わった瞬間に再描画

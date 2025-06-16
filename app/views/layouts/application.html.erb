@@ -15,7 +15,7 @@
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
 
-    <!-- ③ Webpacker バンドル（application.js のみで全機能を呼ぶ） -->
+    <!-- ③ Webpacker バンドル（gmapsBoot を定義した application.js） -->
     <%= javascript_pack_tag 'application',
           'data-turbolinks-track': 'reload' %>
 
@@ -23,12 +23,13 @@
     <script src="https://kit.fontawesome.com/e1acaa1ac8.js"
             crossorigin="anonymous"></script>
 
-    <!-- ⑤ Google Maps（callback なし／async+defer）-->
-    <script src="https://maps.googleapis.com/maps/api/js?key=<%= ENV['GOOGLE_MAPS_API_KEY'] %>&loading=async&libraries=marker" async defer></script>
-
+    <!-- ⑤ Google Maps API : head 内に１本だけ・改行なし・loading=async -->
+    <script async defer data-turbolinks-eval="false"
+      src="https://maps.googleapis.com/maps/api/js?key=<%= ENV['GOOGLE_MAPS_API_KEY'] %>&libraries=marker&loading=async&callback=gmapsBoot"></script>
   </head>
 
   <body class="d-flex flex-column vh-100" style="background-color:#F8F9FA;">
+
     <!-- ===== ヘッダー ===== -->
     <%= render 'layouts/user_header' %>
 
@@ -38,7 +39,7 @@
         <p class="text-success px-3"><%= flash[:notice] %></p>
       <% end %>
       <% if flash[:alert].present? %>
-        <p class="text-danger  px-3"><%= flash[:alert]  %></p>
+        <p class="text-danger px-3"><%= flash[:alert] %></p>
       <% end %>
 
       <%= yield %>
@@ -46,5 +47,6 @@
 
     <!-- ===== フッター ===== -->
     <%= render 'layouts/footer' %>
+
   </body>
 </html>
