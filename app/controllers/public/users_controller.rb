@@ -156,9 +156,10 @@ class Public::UsersController < ApplicationController
   end
 
   def restrict_guest_access
-    if current_user.guest?
-      flash[:alert] = "ゲストユーザーはこの操作を実行できません。"
-      redirect_to users_mypage_path
+    if current_user&.guest_user?
+      redirect_to users_mypage_path,
+                  alert: "ゲストユーザーはこの操作を実行できません。"
     end
   end
+
 end

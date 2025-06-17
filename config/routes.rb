@@ -72,6 +72,7 @@ Rails.application.routes.draw do
     
       member do
         patch :report  # 投稿通報機能
+        get   :report
       end
     
       collection do

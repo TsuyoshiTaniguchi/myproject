@@ -122,29 +122,18 @@ class Public::PostsController < ApplicationController
 
   def report
     @post = Post.find(params[:id])
-  
-    # 0) ゲストを遮断
     return redirect_to @post, alert: 'ゲストユーザーは通報できません' if current_user.guest?
-  
-    # 1) 二重通報を防ぐ
     return redirect_to @post, alert: 'この投稿はすでに通報されています' if @post.reported?
   
-    # 2) フラグを強制 ON
-    @post.update_column(:reported, true)
+    # ここを update_column から reported! に  
+    @post.reported!    # status: :reported (1) をセットする enum メソッド
   
-    # 3) 管理者代表となる “受信者ユーザー” を取得
-    admin_recipient = User.find_by(email: 'admin_notifier@example.com') ||
-                      User.create!(
-                        email:    'admin_notifier@example.com',
-                        password: SecureRandom.urlsafe_base64,
-                        name:     'System Admin'
-                      )
-  
-    Notification.create!(
-      user:              admin_recipient,  # ← User を渡す
-      source:            @post,
-      notification_type: :post_report
-    )
+    # 通知まわりはそのまま
+    admin = User.find_or_create_by!(email: 'admin_notifier@example.com') do |u|
+      u.password = SecureRandom.urlsafe_base64
+      u.name     = 'System Admin'
+    end
+    Notification.create!(user: admin, source: @post, notification_type: :post_report)
   
     redirect_to @post, notice: '投稿を通報しました'
   end

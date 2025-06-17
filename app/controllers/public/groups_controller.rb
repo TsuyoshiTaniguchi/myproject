@@ -1,6 +1,8 @@
 class Public::GroupsController < ApplicationController
   before_action :authenticate_user!
-  before_action :reject_guest_write,    except: %i[index show]
+  before_action :reject_guest_write, except: %i[index show]
+
+
 
   def index
     # params[:user_id] が存在するかチェックし、ユーザーを取得
@@ -99,9 +101,11 @@ class Public::GroupsController < ApplicationController
     @group = Group.find(params[:id])
     @user = current_user
 
-    if @user.guest?
-      return redirect_to group_path(@group), alert: "ゲストユーザーはグループに参加できません。"
+    if current_user.guest_user?
+      return redirect_to group_path(@group),
+                         alert: "ゲストユーザーはグループに参加できません。"
     end
+
 
     membership = @group.memberships.find_by(user: @user)
     if membership&.role == "member"
@@ -120,14 +124,16 @@ class Public::GroupsController < ApplicationController
 
   def leave
     @group = Group.find(params[:id])
-    @membership = current_user.memberships.find_by(group: @group)
-    if @membership
-      @membership.destroy
+    # 退会も reject_guest_write が先に評価されるのでここでは特に不要
+    membership = current_user.memberships.find_by(group: @group)
+    if membership
+      membership.destroy
       redirect_to groups_path, notice: "グループを退会しました"
     else
       redirect_to group_path(@group), alert: "グループに所属していません"
     end
   end
+
 
   def destroy
     @group = Group.find(params[:id])
@@ -226,6 +232,14 @@ class Public::GroupsController < ApplicationController
 
   def already_reported?(group)
     group.reported?
+  end
+
+  # メールアドレスが guest@example.com の自動ログインユーザーだけを制限
+  def reject_guest_write
+    if current_user&.guest_user?
+      redirect_to users_mypage_path,
+                  alert: "ゲストユーザーはこの操作を実行できません。"
+    end
   end
 
   def group_params

@@ -1,7 +1,8 @@
 # app/helpers/guest_helper.rb
 module GuestHelper
-  # true なら “ゲストなので書き込み系 UI を隠す”
+ # → email が guest@example.com の時だけ true を返す
   def guest_blocked?
-    current_user&.guest?
+    current_user&.guest_user?
   end
+
 end

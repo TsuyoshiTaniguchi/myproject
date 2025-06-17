@@ -1,6 +1,6 @@
 <div class="container my-4">
 
-  <!-- 画像 ---------------------------------------------------------- -->
+  <!-- 画像 -->
   <div class="text-center mb-4">
     <% if @group.group_image&.attached? %>
       <%= image_tag @group.group_image.variant(resize_to_fill: [200, 200]),
@@ -14,7 +14,7 @@
     <% end %>
   </div>
 
-  <!-- 情報カード ---------------------------------------------------- -->
+  <!-- 情報カード -->
   <div class="card mb-4">
     <div class="card-body">
       <h1 class="card-title text-center font-weight-bold"><%= @group.name %></h1>
@@ -80,7 +80,7 @@
       </p>
 
       <!-- 通報 -->
-      <% unless guest_blocked? || current_user == @group.owner %>
+      <% unless current_user.guest_user? || current_user == @group.owner %>
         <div class="text-center mt-3">
           <% if @group.reported? %>
             <p class="text-danger font-weight-bold">⚠️ このグループは通報済みです。</p>
@@ -96,7 +96,7 @@
     </div>
   </div>
 
-  <!-- メンバー一覧 -------------------------------------------------- -->
+  <!-- メンバー一覧 -->
   <div class="card mb-4">
     <div class="card-body">
       <h3 class="h5">メンバー一覧 (<%= @group.memberships.where(role: "member").count %>人)</h3>
@@ -106,7 +106,7 @@
           <% members.limit(10).each do |m| %>
             <li class="list-group-item d-flex justify-content-between align-items-center">
               <%= link_to m.user.name, user_path(m.user) %>
-              <% unless guest_blocked? || m.user == current_user %>
+              <% unless current_user.guest_user? || m.user == current_user %>
                 <% if m.user.reported? %>
                   <span class="text-danger font-weight-bold">⚠️ 通報済み</span>
                 <% else %>
@@ -131,9 +131,9 @@
     </div>
   </div>
 
-  <!-- 参加／脱退 ---------------------------------------------------- -->
+  <!-- 参加／脱退 -->
   <div class="text-center mb-4">
-    <% if guest_blocked? %>
+    <% if current_user.guest_user? %>
       <p class="text-muted">ゲストユーザーはグループに参加できません。</p>
     <% elsif @group.memberships.exists?(user: current_user, role: "member") %>
       <%= link_to "グループを脱退",
@@ -157,7 +157,7 @@
     <% end %>
   </div>
 
-  <!-- 最近のアクティビティ ---------------------------------------- -->
+  <!-- 最近のアクティビティ -->
   <div class="card mb-4">
     <div class="card-body">
       <h3 class="h5">最近のアクティビティ</h3>
@@ -184,7 +184,7 @@
     </div>
   </div>
 
-  <!-- グループ投稿一覧 -------------------------------------------- -->
+  <!-- グループ投稿一覧 -->
   <div class="card mb-4">
     <div class="card-body">
       <h3 class="h5">このグループの投稿</h3>
@@ -222,8 +222,8 @@
     </div>
   </div>
 
-  <!-- 新規投稿ボタン ---------------------------------------------- -->
-  <% if !guest_blocked? &&
+  <!-- 新規投稿ボタン -->
+  <% if !current_user.guest_user? &&
         (@group.memberships.exists?(user: current_user, role: "member") ||
          current_user == @group.owner) %>
     <div class="text-center mb-4">

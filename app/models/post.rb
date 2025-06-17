@@ -44,9 +44,11 @@ class Post < ApplicationRecord
     )
   }
 
-  def reported?
-    status == "reported"
+  # 既存 reported:integer を boolean として扱う
+  def reported!
+    update!(status: :reported)
   end
+
 
   def liked_by?(user)
     return false unless user.present? # `nil` の場合は明示的に `false` を返す

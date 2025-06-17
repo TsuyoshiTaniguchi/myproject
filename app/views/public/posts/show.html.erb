@@ -34,25 +34,23 @@
   <p><%= sanitize(@post.content) %></p>
 
   <!-- 編集・削除・通報 -->
+  <!-- app/views/public/posts/show.html.erb -->
   <div class="d-flex mt-3">
-  <% if @post.reported? %>
-    <div class="alert alert-warning">
-      ⚠️ この投稿は通報されています
-    </div>
-  <% elsif !guest_blocked? && @post.user == current_user %>
-    <%= link_to "編集", edit_post_path(@post), class: "btn btn-warning btn-sm mr-2" %>
-    <%= link_to "削除", post_path(@post), method: :delete,
-                    data: { confirm: "本当に削除しますか？" },
-                    class: "btn btn-danger btn-sm" %>
-  <% elsif !guest_blocked? %>
-    <%= link_to "通報する", report_post_path(@post),
-                    method: :patch, class: "btn btn-danger btn-sm" %>
-  <% end %>
+    <% if @post.user == current_user %>
+      <!-- 編集／削除ボタン -->
+    <% elsif !@post.reported? %>
+      <%= link_to "⚠️ 通報する",
+                  report_post_path(@post),
+                  method: :patch,
+                  class: "btn btn-danger btn-sm" %>
+    <% else %>
+      <div class="alert alert-warning">
+        ⚠️ この投稿は通報されています
+      </div>
+    <% end %>
   </div>
-</div>
 
-<!-- コメント追加フォーム -->
-<% unless guest_blocked? %>                                          <!-- ゲストは書き込み不可 -->
+  <!-- コメント追加フォーム -->     
   <h2 class="mt-4">コメントを追加</h2>
   <%= form_with(model: [@post, Comment.new], local: true) do |form| %>
     <div class="mb-3">
@@ -61,9 +59,9 @@
     </div>
     <%= form.submit "送信", class: "btn btn-primary btn-sm" %>
   <% end %>
-<% end %>
 
-<!-- ── コメント一覧 -->
+
+<!-- コメント一覧 -->
 <h3 class="mt-4">コメント一覧</h3>
 <% if @post.comments.any? %>
   <% @post.comments.each do |comment| %>
