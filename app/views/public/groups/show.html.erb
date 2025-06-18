@@ -56,10 +56,10 @@
         <div class="text-center my-3">
           <p class="text-muted">このページでは、グループ全体の管理が行えます。</p>
           <%= link_to "⚡ オーナー管理ページ",
-                      owner_dashboard_group_membership_path(@group),
+                      owner_dashboard_group_path(@group),
                       class: "btn btn-primary mr-2" %>
           <%= link_to "🛠 参加リクエスト管理へ",
-                      manage_group_group_membership_path(@group),
+                      manage_group_group_path(@group),
                       class: "btn btn-warning" %>
         </div>
       <% end %>

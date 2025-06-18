@@ -45,7 +45,7 @@
   
   <div class="text-center mt-4">
     <%= link_to "🔙 グループの詳細へ戻る", group_path(@group), class: "btn btn-primary mx-2" %>
-    <%= link_to "📌 マイグループ一覧へ", user_groups_path(current_user), class: "btn btn-outline-info mx-2" %>
+    <%= link_to "📌 マイグループ一覧へ", groups_path(current_user), class: "btn btn-outline-info mx-2" %>
     <% if current_user == @group.owner %>
       <%= link_to "⚡ オーナー管理画面へ戻る", owner_dashboard_group_membership_path(@group), class: "btn btn-warning mx-2" %>
     <% end %>

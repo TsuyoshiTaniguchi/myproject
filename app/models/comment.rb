@@ -14,14 +14,12 @@ class Comment < ApplicationRecord
     return if post.user_id == self.user_id
   
     Notification.create!(
-      user: post.user,
-      notification_type: 0,
-      source_id: self.id,
-      source_type: "Comment",
-      read: false
+      user:              post.user,
+      source:            self,           # この Comment オブジェクト
+      notification_type: :comment,       # シンボルで :comment に
+      read:              false
     )
   end
-  
 
   def reported?
     reported

@@ -1,6 +1,6 @@
 <div class="container py-4">
 
-  <!-- ───── タブナビ ───────────────────────── -->
+  <!-- タブナビ -->
   <ul class="nav nav-tabs" id="profileTab" role="tablist">
     <% { overview: "概要", portfolio: "ポートフォリオ", files: "ファイル", story: "自己PR" }.each_with_index do |(key,label), i| %>
       <li class="nav-item">
@@ -41,7 +41,7 @@
         </p>
 
         <div class="d-flex flex-wrap justify-content-center">
-          <% unless guest_blocked? || current_user == user %>  <!-- ★ ゲストと本人以外 -->
+          <% unless guest_blocked? || current_user == user %>  <!-- ゲストと本人以外 -->
             <% if current_user.following?(user) %>
               <%= button_to unfollow_user_path(user), method: :delete,
                             class: "btn btn-outline-secondary btn-sm mr-2 mb-2" do %>

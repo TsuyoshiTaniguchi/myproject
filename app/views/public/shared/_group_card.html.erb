@@ -32,7 +32,7 @@
       <% case group.join_policy %>
         <% when "open" %>
           <span class="badge badge-success">誰でも自由に参加できます。</span>
-        <% when "admin_approval" %>
+        <% when "admin_only" %>
           <span class="badge badge-warning">管理者の承認が必要です。</span>
         <% when "invite_only" %>
           <span class="badge badge-danger">招待制のグループです。</span>
@@ -41,24 +41,23 @@
       <% end %>
     </p>
 
-    <%= link_to "📄 詳細を見る",
-                group_path(group),
-                class: "btn btn-outline-info w-100 mt-3" %>
+    <%= link_to "📄 詳細を見る", group_path(group), class: "btn btn-outline-info w-100 mt-3" %>
 
-    <% if current_user && !current_user.guest_user? %>     <!-- ゲストは以下全部非表示 -->
+    <% if current_user && !current_user.guest_user? %>
       <% membership = group.memberships.find_by(user: current_user) %>
 
       <% if membership.present? %>
         <% case membership.role %>
-          <% when "member" %>
-            <p class="text-muted text-center">✅ あなたはこのグループのメンバーです！</p>
-          <% when "pending" %>
-            <p class="text-muted text-center">⏳ 参加リクエスト送信済み。管理者の承認待ち！</p>
-          <% when "owner" %>
-            <p class="text-muted text-center">👑 あなたはこのグループのオーナーです！</p>
+        <% when "member" %>
+          <p class="text-muted text-center">✅ あなたはこのグループのメンバーです！</p>
+        <% when "pending" %>
+          <p class="text-muted text-center">⏳ 参加リクエスト送信済み。管理者の承認待ち！</p>
+        <% when "owner" %>
+          <p class="text-muted text-center">👑 あなたはこのグループのオーナーです！</p>
         <% end %>
       <% else %>
-        <% if group.join_policy != "admin_approval" %>
+        <%# ここを admin_approval → admin_only に変更 %>
+        <% unless group.admin_only? %>
           <%= button_to "✅ 参加する",
                         request_join_group_path(group),
                         method: :post,

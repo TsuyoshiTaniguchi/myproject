@@ -1,143 +1,201 @@
-<h1>ユーザー詳細</h1>
+<div class="container-fluid">
+  <h1 class="mb-3">ユーザー詳細</h1>
 
-<div class="user-info">
-  <h2>基本情報</h2>
-  <!-- プロフィール画像を表示 -->
-  <% if @user.profile_image.attached? %>
-    <%= image_tag @user.profile_image.variant(resize_to_limit: [150, 150]), class: "rounded-circle mb-3" %>
-  <% else %>
-    <%= image_tag "no_image.jpg", class: "rounded-circle mb-3", width: 150, height: 150 %>
-  <% end %>
+  <!-- タブナビゲーション -->
+  <ul class="nav nav-tabs" id="userDetailTabs" role="tablist">
+    <li class="nav-item">
+      <a class="nav-link active" id="basic-tab" data-toggle="tab" href="#basic" role="tab" aria-controls="basic" aria-selected="true">基本情報</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="follow-tab" data-toggle="tab" href="#follow" role="tab" aria-controls="follow" aria-selected="false">フォロー・グループ</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="history-tab" data-toggle="tab" href="#history" role="tab" aria-controls="history" aria-selected="false">履歴</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="action-tab" data-toggle="tab" href="#action" role="tab" aria-controls="action" aria-selected="false">アクション＆通報</a>
+    </li>
+  </ul>
 
-  <p><strong>名前：</strong> <%= @user.name %></p>
-  <p><strong>メール：</strong> <%= @user.email %></p>
-  <p><strong>ステータス：</strong> <%= @user.display_status %></p>
-  <p><strong>登録日時：</strong> <%= @user.created_at.strftime("%Y-%m-%d %H:%M") %></p>
-  <h3 class="mb-3"> 自己紹介</h3>
-  <% if @user.personal_statement.present? %>
-    <p><%= @user.personal_statement %></p>
-  <% else %>
-    <p class="text-muted">まだ自己紹介がありません。</p>
-  <% end %>
-
-  <h2>フォロー管理</h2>
-  <%= link_to "#{@user.name}さんのフォロワー一覧", followers_admin_user_path(@user), class: "btn btn-outline-info" %>
-  <%= link_to "#{@user.name}さんがフォローしているユーザー", following_admin_user_path(@user), class: "btn btn-outline-info" %>
-
-  <h3 class="mb-3"> ポートフォリオ</h3>
-  <% if @user.portfolio_url.present? %>
-    <p><%= link_to @user.portfolio_url, @user.portfolio_url, target: "_blank", rel: "noopener noreferrer", class: "btn btn-outline-primary" %></p>
-  <% else %>
-    <p class="text-muted">ポートフォリオは未登録です。</p>
-  <% end %>
-
-  <h3 class="mb-3"> ポートフォリオファイル</h3>
-  <% if @user.portfolio_files.attached? %>
-    <ul>
-      <% @user.portfolio_files.each do |file| %>
-        <li><%= link_to file.filename, file, class: "btn btn-outline-success" %></li>
-      <% end %>
-    </ul>
-  <% else %>
-    <p class="text-muted">ポートフォリオのファイルは未登録です。</p>
-  <% end %>
-
-  <div class="user-groups">
-  <h2>所属グループ</h2>
-  <% if @user.groups.any? %>
-  <ul>
-    <% @user.groups.each do |group| %>
-      <li><%= link_to group.name, admin_group_path(group) %> （役割: <%= group.memberships.find_by(user: @user).role %>）</li>
-    <% end %>
-      </ul>
-    <% else %>
-      <p>このユーザーはまだグループに参加していません。</p>
-    <% end %>
-</div>
-
-
-
-<div class="user-posts">
-  <h2>投稿履歴</h2>
-  <% if @user.posts.any? %>
-    <% @user.posts.each do |post| %>
-      <p><%= link_to post.title, admin_post_path(post) %> （<%= post.created_at.strftime("%Y-%m-%d") %>）</p>
-    <% end %>
-  <% else %>
-    <p class="text-muted">このユーザーには投稿履歴がありません。</p>
-  <% end %>
-</div>
-
-
-<div class="user-comments">
-  <h2>コメント履歴</h2>
-  <% if @user.comments.any? %>
-    <% @user.comments.each do |comment| %>
-      <p><%= link_to comment.post.title, admin_post_path(comment.post) %>: <%= comment.content.truncate(50) %></p>
-    <% end %>
-  <% else %>
-    <p class="text-muted">このユーザーにはコメント履歴がありません。</p>
-  <% end %>
-</div>
-
-<div class="actions">
-  <h2>アクション</h2>
-  <%= link_to "編集", edit_admin_user_path(@user), class: "btn btn-primary" %>
-  <%= link_to "削除", admin_user_path(@user), method: :delete, data: { confirm: "⚠️ 本当に削除しますか？ この操作は取り消せません！" }, class: "btn btn-danger" %>
-</div>
-
-<h2>通報状況</h2>
-<div class="text-center">
-  <% if @user.reported %>
-    <span class="badge bg-danger">通報済み</span>
-    <%= form_with url: unreport_admin_user_path(@user), method: :patch do |f| %>
-      <%= f.label :unreport_reason, "通報解除の理由（任意）" %>
-      <%= f.text_area :unreport_reason, class: "form-control", rows: 2 %>
-      <%= f.submit "通報解除", class: "btn btn-outline-danger btn-sm mt-2" %>
-    <% end %>
-  <% else %>
-    <span class="badge bg-success">正常</span>
-  <% end %>
-</div>
-
-<h2>フォロー関係の管理</h2>
-
-<div class="row">
-  <div class="col-md-6">
-    <h3>フォロー中</h3>
-    <div class="list-group">
-      <% @user.following.each do |followed| %>
-        <div class="list-group-item d-flex justify-content-between align-items-center">
-          <% if followed.profile_image.attached? %>
-            <%= image_tag followed.profile_image.variant(resize_to_fill: [30, 30]), class: "rounded-circle border" %>
+  <div class="tab-content mt-3" id="userDetailTabsContent">
+    <!-- 基本情報タブ -->
+    <div class="tab-pane fade show active" id="basic" role="tabpanel" aria-labelledby="basic-tab">
+      <div class="row">
+        <!-- プロフィール画像 -->
+        <div class="col-md-4 text-center">
+          <% if @user.profile_image.attached? %>
+            <%= image_tag @user.profile_image.variant(resize_to_limit: [150,150]),
+                  class:"rounded-circle img-fluid",
+                  style:"width:150px;height:150px;object-fit:cover;" %>
           <% else %>
-            <%= image_tag "no_image.jpg", class: "rounded-circle border", width: 30, height: 30 %>
+            <%= image_tag "no_image.jpg",
+                  class:"rounded-circle img-fluid",
+                  style:"width:150px;height:150px;object-fit:cover;" %>
           <% end %>
-          <%= link_to followed.name, admin_user_path(followed), class: "fw-bold text-dark" %>
-          <%= button_to "解除", admin_connection_path(@user.connections.find_by(followed: followed)), method: :delete, class: "btn btn-danger btn-sm", data: { confirm: "本当に解除しますか？" } %>
         </div>
-      <% end %>
+        <!-- テキスト情報 -->
+        <div class="col-md-8">
+          <p><strong>名前：</strong> <%= @user.name %></p>
+          <p><strong>メール：</strong> <%= @user.email %></p>
+          <p><strong>ステータス：</strong> <%= @user.display_status %></p>
+          <p><strong>登録日時：</strong> <%= @user.created_at.strftime("%Y-%m-%d %H:%M") %></p>
+          <h5 class="mt-3">自己紹介</h5>
+          <% if @user.personal_statement.present? %>
+            <p><%= @user.personal_statement %></p>
+          <% else %>
+            <p class="text-muted">まだ自己紹介がありません。</p>
+          <% end %>
+          <h5 class="mt-3">ポートフォリオ</h5>
+          <% if @user.portfolio_url.present? %>
+            <p>
+              <%= link_to @user.portfolio_url, @user.portfolio_url,
+                      target:"_blank", rel:"noopener", class:"btn btn-outline-primary btn-sm" %>
+            </p>
+          <% else %>
+            <p class="text-muted">未登録</p>
+          <% end %>
+          <h5 class="mt-3">ポートフォリオファイル</h5>
+          <% if @user.portfolio_files.attached? %>
+            <div class="d-flex flex-wrap gap-1">
+              <% @user.portfolio_files.each do |file| %>
+                <%= link_to file.filename, file, class:"btn btn-outline-success btn-sm" %>
+              <% end %>
+            </div>
+          <% else %>
+            <p class="text-muted">未登録</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- フォロー・グループタブ -->
+    <div class="tab-pane fade" id="follow" role="tabpanel" aria-labelledby="follow-tab">
+      <div class="row">
+        <div class="col-md-6">
+          <h5>フォロー中</h5>
+          <% if @user.following.any? %>
+            <ul class="list-unstyled">
+              <% @user.following.each do |followed| %>
+                <li class="d-flex align-items-center mb-1">
+                  <% if followed.profile_image.attached? %>
+                    <%= image_tag followed.profile_image.variant(resize_to_fill: [30,30]),
+                          class:"rounded-circle mr-2", style:"width:30px;height:30px;object-fit:cover;" %>
+                  <% else %>
+                    <%= image_tag "no_image.jpg", class:"rounded-circle mr-2", style:"width:30px;height:30px;object-fit:cover;" %>
+                  <% end %>
+                  <%= link_to followed.name, admin_user_path(followed), class:"ml-2" %>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <p class="text-muted">フォロー中のユーザーはいません。</p>
+          <% end %>
+        </div>
+        <div class="col-md-6">
+          <h5>フォロワー</h5>
+          <% if @user.followers.any? %>
+            <ul class="list-unstyled">
+              <% @user.followers.each do |follower| %>
+                <li class="d-flex align-items-center mb-1">
+                  <% if follower.profile_image.attached? %>
+                    <%= image_tag follower.profile_image.variant(resize_to_fill: [30,30]),
+                          class:"rounded-circle mr-2", style:"width:30px;height:30px;object-fit:cover;" %>
+                  <% else %>
+                    <%= image_tag "no_image.jpg", class:"rounded-circle mr-2", style:"width:30px;height:30px;object-fit:cover;" %>
+                  <% end %>
+                  <%= link_to follower.name, admin_user_path(follower), class:"ml-2" %>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <p class="text-muted">フォロワーはいません。</p>
+          <% end %>
+        </div>
+      </div>
+      <div class="mt-3">
+        <h5>所属グループ</h5>
+        <% if @user.groups.any? %>
+          <ul class="list-unstyled">
+            <% @user.groups.each do |group| %>
+              <li>
+                <%= link_to group.name, admin_group_path(group) %>
+                （役割: <%= group.memberships.find_by(user: @user).role %>）
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="text-muted">このユーザーはグループに所属していません。</p>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- 履歴タブ -->
+    <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
+      <div class="row">
+        <div class="col-md-6">
+          <h5>投稿履歴</h5>
+          <% if @user.posts.any? %>
+            <ul class="list-unstyled">
+              <% @user.posts.each do |post| %>
+                <li>
+                  <%= link_to post.title, admin_post_path(post) %>
+                  （<%= post.created_at.strftime("%Y-%m-%d") %>）
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <p class="text-muted">投稿履歴がありません。</p>
+          <% end %>
+        </div>
+        <div class="col-md-6">
+          <h5>コメント履歴</h5>
+          <% if @user.comments.any? %>
+            <ul class="list-unstyled">
+              <% @user.comments.each do |comment| %>
+                <li>
+                  <%= link_to comment.post.title, admin_post_path(comment.post) %>:
+                  <%= comment.content.truncate(50) %>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <p class="text-muted">コメント履歴がありません。</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- アクション＆通報タブ -->
+    <div class="tab-pane fade" id="action" role="tabpanel" aria-labelledby="action-tab">
+      <div class="mb-4 text-center">
+        <h5>アクション</h5>
+        <%= link_to "編集", edit_admin_user_path(@user), class: "btn btn-primary mr-2" %>
+        <%= link_to "削除", admin_user_path(@user),
+                      method: :delete,
+                      data: { confirm: "⚠️ 本当に削除しますか？この操作は取り消せません！" },
+                      class: "btn btn-danger" %>
+      </div>
+      <div class="mb-4 text-center">
+        <h5>通報状況</h5>
+        <% if @user.reported %>
+          <span class="badge badge-danger mb-2">通報済み</span>
+          <%= form_with url: unreport_admin_user_path(@user), method: :patch, local: true, class: "mt-2" do |f| %>
+            <div class="form-group">
+              <%= f.label :unreport_reason, "通報解除の理由（任意）" %>
+              <%= f.text_area :unreport_reason, class: "form-control", rows: 2 %>
+            </div>
+            <%= f.submit "通報解除", class: "btn btn-outline-danger btn-sm" %>
+          <% end %>
+        <% else %>
+          <span class="badge badge-success">正常</span>
+        <% end %>
+      </div>
     </div>
   </div>
 
-  <div class="col-md-6">
-    <h3>フォロワー</h3>
-    <div class="list-group">
-      <% @user.followers.each do |follower| %>
-        <div class="list-group-item d-flex justify-content-between align-items-center">
-          <% if follower.profile_image.attached? %>
-            <%= image_tag follower.profile_image.variant(resize_to_fill: [30, 30]), class: "rounded-circle border" %>
-          <% else %>
-            <%= image_tag "no_image.jpg", class: "rounded-circle border", width: 30, height: 30 %>
-          <% end %>
-          <%= link_to follower.name, admin_user_path(follower), class: "fw-bold text-dark" %>
-        </div>
-      <% end %>
-    </div>
+  <!-- 下部の操作ボタン -->
+  <div class="text-center mt-4">
+    <%= link_to "ユーザー一覧へ戻る", admin_users_path, class: "btn btn-secondary mr-2" %>
+    <%= link_to "ダッシュボードへ戻る", admin_dashboard_path, class: "btn btn-outline-primary" %>
   </div>
-</div>
-
-<div class="actions mt-3">
-  <%= link_to "ユーザー一覧へ戻る", admin_users_path, class: "btn btn-secondary" %>
-  <%= link_to "ダッシュボードへ戻る", admin_dashboard_path, class: "btn btn-outline-primary" %>
 </div>

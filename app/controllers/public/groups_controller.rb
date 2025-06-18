@@ -161,31 +161,34 @@ class Public::GroupsController < ApplicationController
       redirect_to groups_path, alert: "指定されたグループが見つかりませんでした"
       return
     end
-
+  
     if @group.reported?
       redirect_to group_path(@group), alert: "このグループはすでに通報済みです"
       return
     end
 
-    admin = Admin.first
+    # 「admin@example.com」のアカウントを統一して使用
+    admin = User.find_by(email: 'admin@example.com')
     unless admin
-      redirect_to group_path(@group), alert: "管理者が見つかりません"
-      return
+      admin = User.create!(
+        email: 'admin@example.com',
+        password: SecureRandom.urlsafe_base64,
+        name: '管理者'
+      )
     end
-
+  
     if @group.update(reported: true)
-      Notification.create(
-        user_id: admin.id,
-        source_id: current_user.id,
-        source_type: "User",
-        notification_type: "group_reported"
+      Notification.create!(
+        user: admin,
+        source: current_user,
+        notification_type: :group_reported
       )
       redirect_to group_path(@group), notice: "グループを通報しました"
     else
       redirect_to group_path(@group), alert: "通報処理に失敗しました"
     end
   end
-
+  
   def manage_group
     @group = Group.find(params[:id])
     unless current_user == @group.owner

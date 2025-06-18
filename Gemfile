@@ -67,7 +67,6 @@ gem "faraday-retry", "~> 2.3"
 gem "faraday", "~> 2.13"
 gem 'acts-as-taggable-on'
 
-gem 'dotenv-rails'
 group :production do
   gem 'mysql2'
 end
@@ -75,4 +74,4 @@ end
 gem "net-smtp"
 gem "net-pop"
 gem "net-imap"
-gem 'dotenv-rails', require: 'dotenv/rails-now'
+gem 'dotenv-rails', require: 'dotenv/load'

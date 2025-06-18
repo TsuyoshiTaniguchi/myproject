@@ -1,32 +1,81 @@
 <%# app/views/public/shared/_notification_list.html.erb %>
-<%# 呼び出し側で変数 notifications がセットされていない場合は、以下でデフォルト値を設定 %>
-<% notifications ||= current_user.notifications.where(read: false).to_a.reject { |n| n.source_type == "Like" && n.source&.user&.id == current_user.id } %>
+<%# locals[:notifications] が渡されていなければ未読通知を自動取得 %>
+<% notifications ||= current_user.notifications.unread.order(created_at: :desc) %>
 
-<% if notifications.present? %>
+<% if notifications.any? %>
   <div class="list-group">
     <% notifications.each do |notification| %>
-      <% message = case notification.source_type
-         when "Comment"
-           if notification.source && notification.source.user
-             "#{notification.source.user.name} さんがあなたの投稿にコメントしました！"
-           else
-             "コメントが投稿されました（詳細不明）"
-           end
-         when "Like"
-           if notification.source && notification.source.user
-             "#{notification.source.user.name} さんがあなたの投稿をいいねしました！"
-           else
-             "投稿にいいねがありました（詳細不明）"
-           end
+      <% message, path, verb = case notification.notification_type
+         when "membership_request"
+           mem, grp = notification.source, notification.source.group
+           [
+             "<i class='bi bi-person-plus'></i> #{mem.user.name} さんが「#{grp.name}」に参加申請しました",
+             group_path(grp),
+             :get
+           ]
+
+         when "membership_approval"
+           mem, grp = notification.source, notification.source.group
+           [
+             "<i class='bi bi-check2-circle'></i> あなたの「#{grp.name}」参加申請が承認されました！",
+             group_path(grp),
+             :get
+           ]
+
+         when "membership_rejection"
+           mem, grp = notification.source, notification.source.group
+           [
+             "<i class='bi bi-x-circle'></i> あなたの「#{grp.name}」参加申請が却下されました…",
+             group_path(grp),
+             :get
+           ]
+
+         when "post_report", "comment_report", "member_report", "group_reported"
+           [
+             notification.formatted_content,
+             notification_path(notification),
+             :patch
+           ]
+
+         when "admin_alert"
+           [
+             notification.formatted_content,
+             notifications_path,
+             :get
+           ]
+
          else
-           "新しい通知があります！"
-      end %>
-      <%= link_to message, notification_path(notification), method: :patch, data: { turbo: false }, class: "list-group-item list-group-item-action" %>
+           # 通知タイプにない過去の Comment／Like は source_type でフォールバック
+           case notification.source_type
+           when "Comment"
+             c = notification.source
+             [
+               "<i class='bi bi-chat-left-text'></i> #{c.user.name} さんがあなたの投稿にコメントしました！",
+               notification_path(notification),
+               :patch
+             ]
+           when "Like"
+             l = notification.source
+             [
+               "<i class='bi bi-hand-thumbs-up'></i> #{l.user.name} さんがあなたの投稿をいいねしました！",
+               notification_path(notification),
+               :patch
+             ]
+           else
+             [
+               "<i class='bi bi-bell'></i> 新しい通知があります！",
+               notifications_path,
+               :get
+             ]
+           end
+         end %>
+
+      <%= link_to message.html_safe,
+                  path,
+                  method: verb,
+                  class: "list-group-item list-group-item-action",
+                  data: { turbo: false } %>
     <% end %>
-  </div>
-  <div class="dropdown-divider"></div>
-  <div class="text-center">
-    <%= link_to "すべての通知を見る", notifications_path, class: "dropdown-item text-center", data: { turbo: false } %>
   </div>
 <% else %>
   <p class="list-group-item disabled">未読の通知はありません</p>

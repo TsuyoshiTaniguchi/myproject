@@ -18,14 +18,11 @@ class Like < ApplicationRecord
     return if likeable.user == self.user
 
     Notification.create!(
-      user: likeable.user,         # 通知先は、投稿の作成者
-      notification_type: 1,         # notification_type を数値で指定していますが、enum を利用しているならシンボルにすることも可能です
-      source: self,                 # 通知の元はこの Like
-      source_id: self.id,           # 明示的に Like の id を設定
-      read: false
+      user:              likeable.user,   # 投稿者へ
+      source:            self,            # この Like オブジェクト
+      notification_type: :like,           # シンボルで :like に
+      read:              false
     )
   end
-
-
 
 end

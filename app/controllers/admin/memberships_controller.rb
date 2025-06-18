@@ -55,12 +55,6 @@ class Admin::MembershipsController < ApplicationController
   
   def reject
     @membership = Membership.find_by(id: params[:id])
-    
-    # 管理者は拒否処理をスキップ
-    if current_admin.present?
-      redirect_to admin_group_path(@membership.group), notice: "管理者は拒否する必要がありません。"
-      return
-    end
 
     if @membership.destroy
       redirect_to admin_group_path(@membership.group), notice: "参加リクエストを拒否しました！"
@@ -68,4 +62,5 @@ class Admin::MembershipsController < ApplicationController
       redirect_to admin_group_path(@membership.group), alert: "拒否に失敗しました。"
     end
   end
+  
 end

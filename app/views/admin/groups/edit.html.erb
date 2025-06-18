@@ -37,11 +37,6 @@
     <%= f.select :join_policy, Group.join_policies.keys.map { |key| [I18n.t("enums.group.join_policy.#{key}"), key] }, {}, class: "form-control" %>
   </div>
 
-  <div class="form-group">
-    <%= f.label :location, "活動場所" %>
-    <%= f.text_field :location, class: "form-control", placeholder: "例: 東京, 大阪" %>
-  </div>
-
   <% if @group.reported %>
   <p class="text-danger">⚠️ このグループは通報されています。</p>
   <%= link_to "通報を解除する", unreport_admin_group_path(@group), method: :patch, class: "btn btn-warning" %>

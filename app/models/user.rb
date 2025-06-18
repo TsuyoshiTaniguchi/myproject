@@ -3,6 +3,7 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
+         
   # スコープ：アクティブユーザーのみ取得
   scope :active, -> { where(status: statuses[:active]) }
 

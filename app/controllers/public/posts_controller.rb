@@ -125,19 +125,23 @@ class Public::PostsController < ApplicationController
     return redirect_to @post, alert: 'ゲストユーザーは通報できません' if current_user.guest?
     return redirect_to @post, alert: 'この投稿はすでに通報されています' if @post.reported?
   
-    # ここを update_column から reported! に  
-    @post.reported!    # status: :reported (1) をセットする enum メソッド
+    @post.reported!    # enum メソッドで reported 状態に設定
   
-    # 通知まわりはそのまま
-    admin = User.find_or_create_by!(email: 'admin_notifier@example.com') do |u|
-      u.password = SecureRandom.urlsafe_base64
-      u.name     = 'System Admin'
+    # 統一された管理者アカウント「admin@example.com」を使う
+    admin = User.find_by(email: 'admin@example.com')
+    unless admin
+      admin = User.create!(
+        email: 'admin@example.com',
+        password: SecureRandom.urlsafe_base64,
+        name: '管理者'
+      )
     end
-    Notification.create!(user: admin, source: @post, notification_type: :post_report)
+  
+    # source には通報したユーザー（current_user）を設定
+    Notification.create!(user: admin, source: current_user, notification_type: :post_report)
   
     redirect_to @post, notice: '投稿を通報しました'
   end
-  
 
   def search
     @query = params[:query]
@@ -164,4 +168,5 @@ class Public::PostsController < ApplicationController
       redirect_back(fallback_location: posts_path)
     end
   end
+
 end

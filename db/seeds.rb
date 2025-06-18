@@ -7,11 +7,26 @@ puts "── Seeding ──"
 # ─────────────────────────────
 # 1. Admin
 # ─────────────────────────────
-Admin.find_or_create_by!(email: ENV.fetch("ADMIN_EMAIL", "admin@example.com")) do |a|
-  a.password = ENV.fetch("ADMIN_PASSWORD", "admin123")
-  a.name     = "PortfolioAdmin"
-  a.skip_confirmation! if a.respond_to?(:skip_confirmation!)
+# ENV または Rails.credentials から一度だけ取得
+admin_email    = ENV.fetch("ADMIN_EMAIL")    { Rails.application.credentials.dig(:admin, :email) }
+admin_password = ENV.fetch("ADMIN_PASSWORD") { Rails.application.credentials.dig(:admin, :password) }
+
+admin = User.find_or_initialize_by(email: admin_email)
+
+if admin.new_record?
+  admin.assign_attributes(
+    password: admin_password,
+    name:     "管理者",
+    role:     :admin
+  )
+  admin.skip_confirmation! if admin.respond_to?(:skip_confirmation!)
+  admin.save!
+  puts "✅ Admin user created (#{admin_email})"
+else
+  # ENV 変更時にパスワードも上書きしたいならここで update! する
+  puts "⚪️ Admin already exists (#{admin_email})"
 end
+
 
 # ─────────────────────────────
 # 2. Guest

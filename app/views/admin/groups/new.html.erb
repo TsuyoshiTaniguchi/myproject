@@ -41,10 +41,9 @@
   <div class="mb-3">
   <label for="group_category">グループのカテゴリ</label>
   <%= f.select :category, [["公式グループ", "official_label"], ["ユーザー作成グループ", "user_created_label"]], {}, class: "form-control" %>
-  <%= f.hidden_field :category, value: @group.category %> <%# ✅ 追加 %>
   </div>
 
-  <!-- 🔹 公開範囲と参加ルール -->
+  <!--  公開範囲と参加ルール -->
   <h2>参加ルール</h2>
   <div class="mb-3">
     <%= f.label :join_policy, "参加ルール" %>
@@ -64,10 +63,6 @@
     ], prompt: "選択してください", class: "form-control" %>
   </div>
 
-  <div class="mb-3">
-    <%= f.label :location, "活動場所" %>
-    <%= f.text_field :location, class: "form-control", placeholder: "例: 東京, 大阪" %>
-  </div>
 
   <%= f.submit "グループを作成", class: "btn btn-success mt-3" %>
 <% end %>

@@ -97,9 +97,20 @@ class Public::UsersController < ApplicationController
 
   def report
     @user = User.find(params[:id])
-    @user.update(reported: true) # ユーザーを「通報済み」にする
-    redirect_to user_path(@user), notice: "このユーザーを通報しました。"
+    if @user.reported?
+      redirect_to user_path(@user), alert: "このユーザーは既に通報されています"
+    else
+      @user.update!(reported: true)
+      # サイト管理者に通知を飛ばす
+      Notification.create!(
+        user:              User.find_by(email: ENV.fetch("ADMIN_EMAIL")),
+        source:            current_user,
+        notification_type: :member_report
+      )
+      redirect_to user_path(@user), notice: "ユーザーを通報しました"
+    end
   end
+
 
   def daily_reports
     @daily_reports = DailyReport.where(user_id: params[:id])

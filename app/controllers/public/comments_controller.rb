@@ -27,18 +27,17 @@ class Public::CommentsController < ApplicationController
 
   def report
     @comment = Comment.find(params[:id])
-  
+    
     if @comment.update(reported: true)
-      # 通報時に管理者へ通知 (`notification_type` を使用)
+      # User テーブル内の管理者アカウント（メールアドレス admin@example.com）を取得
+      admin_user = User.find_by(email: 'admin@example.com')
+      
       Notification.create!(
-        recipient_id: Admin.first.id, # 通報通知の宛先を管理者に
-        user_id: current_user.id, # 通報したユーザーの情報を記録
-        notification_type: "comment_report",
-        source_id: @comment.id,
-        source_type: "Comment",
+        user: admin_user,                  # 管理者アカウント（Userクラスのインスタンス）を受信者として指定
+        source: current_user,              # 通報したユーザーの情報を送信者として設定
+        notification_type: :comment_report, # enum 定義に合わせてシンボルで指定
         read: false
       )
-
       redirect_to post_path(@comment.post), notice: "コメントを通報しました"
     else
       redirect_to post_path(@comment.post), alert: "このコメントはすでに通報されています"

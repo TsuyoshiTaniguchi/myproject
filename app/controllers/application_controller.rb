@@ -57,7 +57,11 @@ class ApplicationController < ActionController::Base
 
 
   def set_unread_notifications_count
-    if current_user.is_a?(User)
+    if admin_signed_in?
+      # 管理者ログイン中は、User テーブルにある管理者レコード（例: admin@example.com）から通知を取得する
+      admin_user = User.find_by(email: 'admin@example.com')
+      @unread_notifications_count = admin_user ? admin_user.notifications.unread.count : 0
+    elsif current_user.present?
       @unread_notifications_count = current_user.notifications.unread.count
     else
       @unread_notifications_count = 0

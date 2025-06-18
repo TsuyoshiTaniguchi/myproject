@@ -13,7 +13,6 @@
 <p><strong>カテゴリー:</strong> <%= I18n.t("enums.group.category.#{@group.category}") %></p>
 <p><strong>公開範囲:</strong> <%= I18n.t("enums.group.privacy.#{@group.privacy}") %></p>
 <p><strong>参加ルール:</strong> <%= I18n.t("enums.group.join_policy.#{@group.join_policy}") %></p>
-<p><strong>活動場所:</strong> <%= @group.location.presence || "未設定" %></p>
 
 <h2>メンバー管理</h2>
 <table class="table">
@@ -31,7 +30,11 @@
         <td><%= membership.role %></td>
         <td>
         <% if membership.role != "admin" %>
-          <%= button_to "削除", admin_group_membership_path(@group, membership), method: :delete, class: "btn btn-danger btn-sm", data: { confirm: "本当に削除しますか？" } %>
+          <%= button_to "削除",
+            reject_admin_group_membership_path(@group, membership),
+            method: :delete,
+            class: "btn btn-danger btn-sm",
+            data: { confirm: "本当に削除しますか？" } %>
         <% end %>
         </td>
       </tr>
@@ -41,7 +44,7 @@
 
 <h3>📥 承認待ちメンバー</h3>
 
-<% pending_memberships_for_group = @group.memberships.where(status: "pending").where.not(user_id: @group.owner_id) %>
+<% pending_memberships_for_group = @group.memberships.where(role: "pending").where.not(user_id: @group.owner_id) %>
 <% if pending_memberships_for_group.any? %>
   <% pending_memberships_for_group.each do |membership| %>
     <div class="border p-2 mb-2">
@@ -54,7 +57,11 @@
           <%= f.submit "承認する", class: "btn btn-success mt-2" %>
         <% end %>
 
-        <%= link_to "❌ 拒否", reject_admin_group_membership_path(membership), method: :patch, data: { confirm: "本当に拒否しますか？" }, class: "btn btn-danger mt-2" %>
+        <%= link_to "❌ 拒否",
+              reject_admin_group_membership_path(@group, membership),
+              method: :delete,
+              data: { confirm: "本当に拒否しますか？" },
+              class: "btn btn-danger mt-2" %>
       <% end %>
     </div>
   <% end %>
@@ -63,13 +70,26 @@
 <% end %>
 
 <h3>新規メンバーを追加</h3>
-<%= form_with url: admin_group_memberships_path(@group), method: :post do |f| %>
+<%= form_with url: admin_group_memberships_path(@group),
+              method: :post do |f| %>
   <div class="mb-3">
     <%= f.label :user_id, "ユーザー選択" %>
     <%= f.collection_select :user_id, User.where.not(id: @group.users.pluck(:id)).where.not(role: "admin").where.not(name: "ゲスト"), :id, :name, prompt: "ユーザーを選択" %>
   </div>
   <%= f.submit "追加", class: "btn btn-primary" %>
 <% end %>
+
+
+<% if @group.reported? %>
+  <div class="mb-3">
+    <%= link_to "⚠️ 通報を解除する",
+                unreport_admin_group_path(@group),
+                method: :patch,
+                data: { confirm: "本当に通報を解除しますか？" },
+                class: "btn btn-outline-secondary" %>
+  </div>
+<% end %>
+
 
 <div class="d-flex gap-2 mt-3">
   <%= link_to "編集", edit_admin_group_path(@group), class: "btn btn-warning" %>

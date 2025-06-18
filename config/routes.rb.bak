@@ -102,8 +102,9 @@ Rails.application.routes.draw do
 
       # ユーザーに紐づく投稿・グループ（※ グループはネストして使うケースもあるが、重複を避けるため各種
       resources :posts, only: [:index, :show, :new, :create, :edit, :update, :destroy]
+      resources :groups, only: [:index, :show, :new, :create] 
      end
-
+    
      # グループ (Groups) 関連
      resources :groups, only: [:index, :show, :new, :create, :edit, :update, :destroy] do
        # グループ単体の参加申請／脱退
@@ -112,10 +113,6 @@ Rails.application.routes.draw do
          delete :leave            # /groups/:id/leave
          patch  :report           # /groups/:id/report
          patch  :unreport         # /groups/:id/unreport
-       end
-       member do
-        get  :owner_dashboard    # /groups/:id/owner_dashboard
-        get  :manage_group       # /groups/:id/manage_group
        end
        # メンバーシップ承認／拒否／通報／解除
        resources :memberships, only: %i[create destroy] do
@@ -148,63 +145,62 @@ Rails.application.routes.draw do
 
   # 管理者専用ページ
   namespace :admin do
-    # 管理者トップ（ダッシュボード）
-    root to: "dashboard#index"
-    get 'dashboard', to: 'dashboard#index'
+  # 管理者トップ（ダッシュボード）
+  root to: "dashboard#index"
+  get 'dashboard', to: 'dashboard#index'
 
-    # ユーザー管理
-    resources :users, only: %i[index show edit update destroy create] do
-      collection { get :search }
+  # ユーザー管理
+  resources :users, only: %i[index show edit update destroy create] do
+    collection { get :search }
+    member do
+      patch :unreport        # 通報解除
+      patch :toggle_status   # ステータス切り替え
+      get   :followers
+      get   :following
+    end
+  end
+
+  # グループ管理
+  resources :groups, only: %i[index show new create edit update destroy] do
+    member do
+      patch  :unreport            # グループ通報解除
+      delete :remove_group_image  # 画像削除
+    end
+
+    # グループに対するメンバー申請の承認／拒否
+    resources :memberships, only: [] do
       member do
-        patch :unreport        # 通報解除
-        patch :toggle_status   # ステータス切り替え
-        get   :followers
-        get   :following
+        patch  :approve           # メンバー承認
+        delete :reject            # メンバー拒否
+        patch  :report,   action: :report_member    # メンバー通報
+        patch  :unreport, action: :unreport_member  # メンバー通報解除
       end
     end
+  end
 
-    # グループ管理
-    resources :groups, only: %i[index show new create edit update destroy] do
-      member do
-        patch  :unreport            # グループ通報解除
-        delete :remove_group_image  # 画像削除
-      end
-
-      # グループに対するメンバー申請の承認／拒否
-      resources :memberships, only: %i[create destroy] do
-        member do
-          patch  :approve             # 承認
-          delete :reject              # 拒否
-          patch  :report,   action: :report_member   # メンバー通報
-          patch  :unreport, action: :unreport_member # メンバー通報解除
-        end
-      end
-  
+  # 投稿管理
+  resources :posts, only: %i[index show edit update destroy] do
+    collection { get :search }
+    member do
+      patch :report    # 通報
+      patch :unreport  # 通報解除
     end
+  end
 
-    # 投稿管理
-    resources :posts, only: %i[index show edit update destroy] do
-      collection { get :search }
-      member do
-        patch :report    # 通報
-        patch :unreport  # 通報解除
-      end
-    end
+  # コメント管理
+  resources :comments, only: %i[index show destroy] do
+    collection { get :search }
+    member    { patch :unreport }
+  end
 
-    # コメント管理
-    resources :comments, only: %i[index show destroy] do
-      collection { get :search }
-      member    { patch :unreport }
-    end
+  # 通知管理
+  resources :notifications, only: %i[index show update] do
+    member     { patch :mark_read }
+    collection { patch :mark_all_read }
+  end
 
-    # 通知管理
-    resources :notifications, only: %i[index show update] do
-      member     { patch :mark_read }
-      collection { patch :mark_all_read }
-    end
-
-    # フォロー関係の削除だけ
-    resources :connections, only: [:destroy]
+  # フォロー関係の削除だけ
+  resources :connections, only: [:destroy]
   end
 
 end
