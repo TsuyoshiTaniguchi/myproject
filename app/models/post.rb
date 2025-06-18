@@ -17,6 +17,17 @@ class Post < ApplicationRecord
   # スコープ（アクティブユーザーのみの投稿）
   scope :active_users_posts, -> { joins(:user).where(users: { status: "active" }) }
 
+  scope :search, ->(query) {
+    q = "%#{query}%"
+    # PostgreSQLなら ILIKE を使い、それ以外は LIKE を使用
+    if connection.adapter_name.downcase.include?("postgresql")
+      where("title ILIKE ? OR content ILIKE ?", q, q)
+    else
+      where("title LIKE ? OR content LIKE ?", q, q)
+    end
+  }
+
+
   # 投稿のステータス管理
   enum status: { normal: 0, reported: 1 }  # `status` カラムで通報を管理
   

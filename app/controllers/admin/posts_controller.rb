@@ -5,11 +5,20 @@ class Admin::PostsController < ApplicationController
 
 
   def index
-    if params[:reported_only] == "true"
-      @posts = Post.where(status: "reported").order(updated_at: :desc).distinct  # 通報済み投稿のみ
+    @posts = Post.includes(:user).with_attached_images
+    @posts = @posts.where(reported: true) if params[:reported_only].present?
+
+    case params[:sort]
+    when "newest"
+      @posts = @posts.order(created_at: :desc)
+    when "oldest"
+      @posts = @posts.order(created_at: :asc)
     else
-      @posts = Post.where(status: ["reported", "normal"]).order(updated_at: :desc).distinct  # 通報済み & 正常な投稿を両方表示
+      @posts = @posts.order(updated_at: :desc)
     end
+
+    # search スコープを使用することで、どの環境でも正しく検索できる
+    @posts = @posts.search(params[:query]) if params[:query].present?
   end
 
   def show
@@ -34,13 +43,13 @@ class Admin::PostsController < ApplicationController
 
   def unreport
     @post = Post.find_by(id: params[:id])
-    Rails.logger.info "Unreport action triggered for Post ID: #{@post&.id}"  # ✅ ログを追加
+    Rails.logger.info "Unreport action triggered for Post ID: #{@post&.id}"
   
     if @post&.reported?
-      if @post.update(status: :normal)  # ✅ `status` を `normal` に変更
+      if @post.update(status: :normal)
         redirect_to admin_post_path(@post), notice: "通報を解除しました"
       else
-        Rails.logger.error("Failed to update reported: #{@post.errors.full_messages.join(", ")}")  # ✅ エラーをログに記録
+        Rails.logger.error("Failed to update reported: #{@post.errors.full_messages.join(", ")}")  # エラーをログに記録
         redirect_to admin_posts_path, alert: "通報解除に失敗しました"
       end
     else

@@ -74,13 +74,16 @@
         </td>
 
         <!-- 通報状況 -->
-        <td class="text-center">
+        <td data-label="通報状況" class="text-center">
           <% if user.reported %>
-            <span class="badge bg-danger">通報済み</span>
+            <span class="badge bg-danger">
+              <i class="bi bi-flag-fill me-1"></i>通報済み
+            </span>
           <% else %>
             <span class="badge bg-success">正常</span>
           <% end %>
         </td>
+      
 
         <!-- アクションボタン -->
         <td class="text-center">

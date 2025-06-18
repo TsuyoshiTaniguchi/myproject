@@ -2,3 +2,71 @@
 body {
   background-color: #F0F0F0;
 }
+
+/* ユーザー管理のCSS */
+
+@media (max-width: 576px) {
+  table.admin-users {     /* ① テーブル自体は消さない */
+    thead { display: none; }
+    tr {                   /* ② それぞれの行をカード化 */
+      display: block;
+      margin-bottom: .75rem;
+      border: 1px solid #dee2e6;
+      border-radius: .5rem;
+      padding: .75rem;
+    }
+    td {                   /* ③ 各セルを縦積み */
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: .25rem 0;
+      border: none !important;
+    }
+    td::before {          /* ④ ラベルを疑似要素で付与 */
+      content: attr(data-label);
+      font-weight: 600;
+      color: #495057;
+    }
+    .btn-group {          /* ⑤ アクションは下部フル幅 */
+      width: 100%;
+      .btn { flex: 1 1 33%; }
+    }
+  }
+}
+
+/* 投稿管理のCSS */
+
+@media (max-width: 576px) {
+  table.admin-posts {
+    thead { display: none; }
+
+    tr {
+      display: block;
+      margin-bottom: .75rem;
+      border: 1px solid #dee2e6;
+      border-radius: .5rem;
+      padding: .75rem;
+    }
+
+    td {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: .25rem 0;
+      border: none !important;
+    }
+
+    td::before {
+      content: attr(data-label);
+      font-weight: 600;
+      color: #6c757d;
+    }
+
+    .btn-group {          /* ボタンを全幅に・縦並びに */
+      width: 100%;
+      .btn { flex: 1 1 50%; }
+    }
+  }
+}
+
+

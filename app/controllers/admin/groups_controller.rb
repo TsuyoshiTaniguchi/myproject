@@ -4,24 +4,34 @@ class Admin::GroupsController < ApplicationController
 
   def index
     @groups = Group.all
-
-    # 承認待ちメンバーを role: "pending" で取得し、
-    # 承認済み(member)の user_id は除外する
-    @pending_memberships = Membership
-      .where(role: "pending")
-      .where.not(user_id: Membership.where(role: "member").pluck(:user_id))
-      .includes(:user, :group)
-
-    # 検索処理
-    if params[:search].present?
-      @groups = @groups.where("name LIKE ?", "%#{params[:search]}%")
+  
+    # 検索処理：ビュー側のパラメータは :query なのでこちらを利用
+    if params[:query].present?
+      @groups = @groups.where("name LIKE ? OR description LIKE ?", "%#{params[:query]}%", "%#{params[:query]}%")
     end
-
+  
     # 通報済みグループのみフィルタ
     if params[:reported_only] == "true"
       @groups = @groups.where(reported: true)
     end
-
+  
+    # プライバシーによるフィルタ（もし選択されているなら）
+    if params[:privacy].present?
+      @groups = @groups.where(privacy: params[:privacy])
+    end
+  
+    # カテゴリによるフィルタ（もし使うなら、例として category パラメータをチェック）
+    if params[:category].present?
+      @groups = @groups.where(category: params[:category])
+    end
+  
+    # ソート処理
+    if params[:sort] == "newest"
+      @groups = @groups.order(created_at: :desc)
+    elsif params[:sort] == "oldest"
+      @groups = @groups.order(created_at: :asc)
+    end
+  
     flash.now[:alert] = "該当するグループがありません。" if @groups.empty?
   end
 

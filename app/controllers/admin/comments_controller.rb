@@ -4,18 +4,30 @@ class Admin::CommentsController < ApplicationController
 
 
   def index
-    @comments = Comment.order(created_at: :desc) # 最新順にソート
+    @comments = Comment.all
   
-    # 検索機能: `params[:query]` が存在する場合、コメント内容を検索
+    # ソート処理: sortパラメータにより並び順を切り替え
+    case params[:sort]
+    when "newest"
+      @comments = @comments.order(created_at: :desc)
+    when "oldest"
+      @comments = @comments.order(created_at: :asc)
+    else
+      @comments = @comments.order(created_at: :desc)  # デフォルトは最新順
+    end
+  
+    # 検索機能：params[:query] が存在する場合、コメント内容で検索
     if params[:query].present?
       @comments = @comments.where("content LIKE ?", "%#{params[:query]}%")
     end
   
-    # 通報フィルター: `params[:reported_only]` が `true` の場合、通報済みコメントのみ取得
+    # 通報フィルター：params[:reported_only] が "true" の場合、通報済みのみ
     if params[:reported_only] == "true"
       @comments = @comments.where(reported: true)
     end
   end
+  
+  
 
   def show
     @comment = Comment.find(params[:id])

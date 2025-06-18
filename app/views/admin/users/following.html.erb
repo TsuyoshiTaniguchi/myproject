@@ -1,26 +1,31 @@
-<h1><%= @user.name %>さんがフォローしているユーザー一覧</h1>
+<h1 class="mb-4"><%= @user.name %>さんがフォローしているユーザー一覧</h1>
 
 <%= link_to "← 戻る（ユーザー詳細へ）", admin_user_path(@user), class: "btn btn-secondary mb-3" %>
 
-<table>
-  <thead>
-    <tr>
-      <th>フォロー対象</th>
-      <th>プロフィール</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @following_users.each do |user| %>
+<div class="table-responsive">
+  <table class="table table-hover">
+    <thead class="thead-dark">
       <tr>
-        <td><%= link_to user.name, admin_user_path(user) %></td>
-        <td>
-        <% if user.profile_image.attached? %>
-          <%= image_tag url_for(user.profile_image.variant(resize_to_limit: [50, 50])), class: "rounded-circle" %>
-        <% else %>
-          <%= image_tag "no_image.jpg", class: "rounded-circle", width: 50, height: 50 %>
-        <% end %>
-        </td>
+        <th>フォロー対象</th>
+        <th>プロフィール</th>
       </tr>
-    <% end %>
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      <% @following_users.each do |user| %>
+        <tr class="align-middle">
+          <td>
+            <%= link_to user.name, admin_user_path(user), class: "text-dark" %>
+          </td>
+          <td>
+            <% if user.profile_image.attached? %>
+              <%= image_tag url_for(user.profile_image.variant(resize_to_limit: [50, 50])),
+                  class: "rounded-circle", alt: "#{user.name}のプロフィール画像" %>
+            <% else %>
+              <%= image_tag "no_image.jpg", class: "rounded-circle", width: 50, height: 50, alt: "no image" %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

@@ -1,48 +1,79 @@
-<h1>コメント管理（Admin）</h1>
+<h1 class="mb-4">
+  <i class="bi bi-chat-square-text mr-2"></i>コメント管理
+</h1>
 
-<!-- 検索機能 -->
-<div class="d-flex justify-content-between mb-3">
-  <%= form_with url: search_admin_comments_path, method: :get, local: true, class: "input-group" do |form| %>
+<div class="mb-3">
+  <!-- ソート・フィルタボタン -->
+  <div class="d-flex flex-wrap mb-2 gap-2">
+  <%= link_to "新しい順", admin_comments_path(sort: "newest"), class: "btn btn-outline-primary btn-sm" %>
+  <%= link_to "古い順", admin_comments_path(sort: "oldest"), class: "btn btn-outline-primary btn-sm" %>
+  
+    <%= link_to "通報されたコメントのみ表示", search_admin_comments_path(reported_only: true),
+                class: "btn btn-outline-danger btn-sm" %>
+    <%= link_to "すべてのコメントを表示", search_admin_comments_path,
+                class: "btn btn-secondary btn-sm" %>
+  </div>
+
+  <!-- 検索フォーム -->
+  <%= form_with url: search_admin_comments_path, method: :get, local: true, 
+                html: { class: "input-group align-items-center" } do |form| %>
     <%= form.text_field :query, class: "form-control", placeholder: "コメントのキーワードで検索" %>
-    <%= form.submit "検索", class: "btn btn-primary" %>
+    <div class="input-group-append">
+      <%= form.submit "検索", class: "btn btn-primary" %>
+    </div>
   <% end %>
-
-  <%= link_to "通報されたコメントのみ表示", search_admin_comments_path(reported_only: true), class: "btn btn-danger" %>
-  <%= link_to "すべてのコメントを表示", search_admin_comments_path, class: "btn btn-secondary" %>
 </div>
 
-<table class="table">
-  <thead>
-    <tr>
-      <th>投稿タイトル</th>
-      <th>コメント者</th>
-      <th>内容</th>
-      <th>投稿日</th>
-      <th>通報状況</th>
-      <th>操作</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @comments.each do |comment| %>
-      <tr class="<%= 'table-warning' if comment.reported? %>"> <!-- ✅ 修正: 正しいフィルタリングを適用 -->
-        <td><%= link_to comment.post.title, admin_post_path(comment.post) %></td>
-        <td><%= comment.user.name %></td>
-        <td><%= comment.content.truncate(50) %></td>
-        <td><%= comment.created_at.strftime("%Y/%m/%d %H:%M") %></td>
-        <td>
-          <% if comment.reported? %>
-            <span class="badge bg-danger">通報済み</span>
-          <% else %>
-            <span class="badge bg-success">正常</span>
-          <% end %>
-        </td>
-        <td class="d-flex gap-2"> 
-          <%= link_to "詳細", admin_comment_path(comment), class: "btn btn-info btn-sm flex-fill" %>
-          <%= link_to "削除", admin_comment_path(comment), method: :delete, data: { confirm: "⚠️ 本当に削除しますか？" }, class: "btn btn-danger btn-sm flex-fill delete-comment" %>
-        </td>
+<!-- ====== コメント一覧 ====== -->
+<div class="table-responsive-lg">
+  <table class="table table-hover admin-comments">
+    <thead class="table-dark text-center">
+      <tr>
+        <th>投稿タイトル</th>
+        <th>コメント者</th>
+        <th>内容</th>
+        <th>投稿日</th>
+        <th>通報状況</th>
+        <th>操作</th>
       </tr>
-    <% end %>
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      <% @comments.each do |comment| %>
+        <tr class="align-middle <%= 'table-warning' if comment.reported? %>">
+          <td data-label="投稿タイトル">
+            <%= link_to comment.post.title, admin_post_path(comment.post), class: "font-weight-bold text-dark" %>
+          </td>
+          <td data-label="コメント者" class="text-center">
+            <%= comment.user&.name.presence || "匿名ユーザー" %>
+          </td>
+          <td data-label="内容">
+            <%= comment.content.truncate(50) %>
+          </td>
+          <td data-label="投稿日" class="text-center">
+            <%= l comment.created_at, format: :short %>
+          </td>
+          <td data-label="通報状況" class="text-center">
+            <% if comment.reported? %>
+              <span class="badge badge-danger">
+                <i class="bi bi-flag-fill mr-1"></i>通報済み
+              </span>
+            <% else %>
+              <span class="badge badge-success">正常</span>
+            <% end %>
+          </td>
+          <td data-label="操作" class="text-center">
+            <div class="btn-group" role="group" aria-label="操作">
+              <%= link_to "詳細", admin_comment_path(comment), class: "btn btn-info btn-sm" %>
+              <%= link_to "削除", admin_comment_path(comment),
+                          method: :delete,
+                          data: { confirm: "⚠️ 本当に削除しますか？" },
+                          class: "btn btn-danger btn-sm" %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
 
 <%= link_to "ダッシュボードへ戻る", admin_dashboard_path, class: "btn btn-secondary mt-3" %>

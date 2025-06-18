@@ -8,6 +8,11 @@ class Comment < ApplicationRecord
 
   validates :content, presence: true, length: { maximum: 500 }
 
+  scope :search, ->(query) {
+    where("content LIKE ?", "%#{query}%")
+  }
+
+
   def send_comment_notification
     # コメントを作った人（self.user_id）と投稿者（post.user_id）が同じなら、
     # 自分への通知なので、処理を中断（return）して通知を作らない

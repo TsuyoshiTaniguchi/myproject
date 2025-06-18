@@ -39,17 +39,25 @@ class Admin::MembershipsController < ApplicationController
   def approve
     @membership = Membership.find_by(id: params[:id])
     
-    # 管理者は承認処理をスキップ
-    if current_admin.present?
-      redirect_to admin_group_path(@membership.group), notice: "管理者は承認する必要がありません。"
+    unless @membership
+      redirect_to admin_groups_path, alert: "ユーザー作成グループは所有者のみが承認できます。"
       return
     end
-
-    # 「pending」の場合だけ role を「member」に更新
-    if @membership.update(role: "member")
-      redirect_to admin_group_path(@membership.group), notice: "参加リクエストを承認しました！"
+  
+    # 公式グループの場合のみ、管理者が承認可能（＝グループのオーナーが管理者の場合）
+    if @membership.group.owner != current_admin
+      redirect_to admin_group_path(@membership.group), alert: "ユーザー作成グループは所有者のみが承認できます。"
+      return
+    end
+  
+    if @membership.pending?
+      if @membership.update(role: "member")
+        redirect_to admin_group_path(@membership.group), notice: "参加リクエストを承認しました！"
+      else
+        redirect_to admin_group_path(@membership.group), alert: "承認に失敗しました。"
+      end
     else
-      redirect_to admin_group_path(@membership.group), alert: "承認に失敗しました。"
+      redirect_to admin_group_path(@membership.group), alert: "このユーザーはすでにメンバーです！"
     end
   end
   

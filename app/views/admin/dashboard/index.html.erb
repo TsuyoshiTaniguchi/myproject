@@ -1,145 +1,274 @@
-<h1>管理者ダッシュボード</h1>
+<div class="container-fluid">
+  <h1 class="mb-4">管理者ダッシュボード</h1>
 
-<section class="dashboard-summary d-flex gap-4">
-  <div class="card p-4 text-center bg-primary text-white shadow">
-    <h3>👥 登録ユーザー数</h3>
-    <p class="fs-3"><%= User.count %> 人</p>
+  <!-- サマリーカード -->
+  <div class="row">
+    <div class="col-md-3 col-sm-6 mb-2">
+      <div class="card small-card text-center bg-primary text-white shadow h-100">
+        <div class="card-body">
+          <h4>登録ユーザー数</h4>
+          <p class="display-4"><%= User.count %></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-2">
+      <div class="card small-card text-center bg-success text-white shadow h-100">
+        <div class="card-body">
+          <h4>投稿総数</h4>
+          <p class="display-4"><%= Post.count %></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-2">
+      <div class="card small-card text-center bg-info text-white shadow h-100">
+        <div class="card-body">
+          <h4>グループ数</h4>
+          <p class="display-4"><%= Group.count %></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-2">
+      <div class="card small-card text-center bg-warning text-white shadow h-100">
+        <div class="card-body">
+          <h4>コメント総数</h4>
+          <p class="display-4"><%= Comment.count %></p>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="card p-4 text-center bg-success text-white shadow">
-    <h3>📝 投稿総数</h3>
-    <p class="fs-3"><%= Post.count %> 件</p>
-  </div>
-</section>
 
-<section class="admin-alerts alert alert-warning">
-  <h3>⚠️ 重要なお知らせ</h3>
-  <% if Notification.where(notification_type: "admin_alert").any? %>
-    <% Notification.where(notification_type: "admin_alert").each do |notification| %>
-      <p>🟡 <strong><%= notification.created_at.strftime("%Y/%m/%d") %></strong> - <%= notification.formatted_content %></p> 
+  <!-- 重要なお知らせ -->
+  <section class="admin-alerts alert alert-warning">
+    <h3 class="mb-3">⚠️ 重要なお知らせ</h3>
+    <% if Notification.where(notification_type: "admin_alert").exists? %>
+      <% Notification.where(notification_type: "admin_alert").each do |notification| %>
+        <p>🟡 <strong><%= notification.created_at.strftime("%Y/%m/%d") %></strong> - <%= notification.formatted_content %></p>
+      <% end %>
+    <% else %>
+      <p>現在、重要なお知らせはありません。</p>
     <% end %>
-  <% else %>
-    <p>現在、重要なお知らせはありません。</p>
-  <% end %>
-</section>
-
-<div class="sorting-options mb-3">
-  <%= link_to "通報された投稿のみ表示", admin_dashboard_path(filter: "reported_posts"), class: "btn btn-outline-danger" %>
-  <%= link_to "通報されたユーザーのみ表示", admin_dashboard_path(filter: "reported_users"), class: "btn btn-outline-danger" %>
-  <%= link_to "すべて表示", admin_dashboard_path, class: "btn btn-secondary" %>
-</div>
-
-<section>
-  <h2>最新の投稿</h2>
-  <div class="d-flex justify-content-between mb-3">
-    <h3>📢 最新の投稿一覧</h3>
+  </section>
+  
+  <!-- ソート・フィルタボタン -->
+  <div class="sorting-options mb-3">
+  <%= link_to "通報されたユーザーのみ表示", admin_dashboard_path(filter: "reported_users"), class: "btn btn-outline-danger btn-sm" %>
+  <%= link_to "通報されたグループのみ表示", admin_dashboard_path(filter: "reported_groups"), class: "btn btn-outline-danger btn-sm" %>
+  <%= link_to "通報された投稿のみ表示", admin_dashboard_path(filter: "reported_posts"), class: "btn btn-outline-danger btn-sm" %>
+  <%= link_to "通報されたコメントのみ表示", admin_dashboard_path(filter: "reported_comments"), class: "btn btn-outline-danger btn-sm" %>
+  <%= link_to "すべて表示", admin_dashboard_path, class: "btn btn-secondary btn-sm" %>
   </div>
-  <table class="table">
-      <thead class="table-dark text-center">
-      <tr>
-        <th style="width: 30%;">タイトル</th>
-        <th style="width: 20%;">投稿者</th>
-        <th style="width: 20%;">投稿日</th>
-        <th style="width: 10%;">通報状況</th>
-        <th style="width: 20%;">操作</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @recent_posts.each do |post| %>
-        <tr class="align-middle <%= 'table-warning' if post.reported %>">
-          <td class="text-center align-middle"><%= link_to post.title, admin_post_path(post) %></td>
-          <td class="text-center align-middle"><%= post.user.name %></td>
-          <td class="text-center align-middle"><%= post.created_at.strftime("%Y-%m-%d %H:%M") %></td>
-          <td class="text-center align-middle">
-            <% if post.reported %>
-              <span class="badge bg-danger">通報済み</span>
-              <%= link_to "通報解除", unreport_admin_post_path(post), method: :patch, class: "btn btn-outline-warning btn-sm", data: { confirm: "この通報を解除しますか？" } %>
-            <% else %>
-              <span class="badge bg-success">正常</span>
-            <% end %>
-          </td>
-          <td class="text-center align-middle">
-            <%= link_to "✏️ 編集", edit_admin_post_path(post), class: "btn btn-warning btn-sm" %>
-            <%= link_to "🗑️ 削除", admin_post_path(post), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
-          </td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-</section>
 
-<section>
-  <h2> 最新のユーザー</h2>
-  <table class="table">
-    <thead class="table-dark text-center">
-      <tr>
-        <th style="width: 30%;">名前</th>
-        <th style="width: 25%;">メールアドレス</th>
-        <th style="width: 20%;">登録日</th>
-        <th style="width: 15%;">通報状況</th>
-        <th style="width: 10%;">操作</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @recent_users.each do |user| %>
-        <tr class="align-middle <%= 'table-warning' if user.reported %>">
-          <td class="text-center align-middle"><%= link_to user.name, admin_user_path(user) %></td>
-          <td class="text-center align-middle"><%= user.email %></td>
-          <td class="text-center align-middle"><%= user.created_at.strftime("%Y-%m-%d") %></td>
-          <td class="text-center align-middle">
-            <% if user.reported %>
-              <span class="badge bg-danger">通報済み</span>
-            <% else %>
-              <span class="badge bg-success">正常</span>
-            <% end %>
-          </td>
-          <td class="text-center align-middle">
-            <%= link_to "削除", admin_user_path(user), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
-          </td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-</section>
+  <!-- 最新の投稿 -->
+  <div class="container-fluid">
+  <h1 class="mb-4">管理者ダッシュボード</h1>
 
-<section>
-  <h2> 最新のコメント</h2>
-  <table class="table">
-        <thead class="table-dark text-center">
-      <tr>
-        <th style="width: 30%;">投稿タイトル</th>
-        <th style="width: 30%;">コメント内容</th>
-        <th style="width: 20%;">コメント者</th>
-        <th style="width: 10%;">通報状況</th>
-        <th style="width: 10%;">操作</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @recent_comments.each do |comment| %>
-        <tr class="align-middle <%= 'table-warning' if comment.reported %>"> 
-          <td class="text-center align-middle"><%= link_to comment.post.title, admin_post_path(comment.post) %></td>
-          <td class="text-center align-middle">
-            <span title="<%= comment.content %>"><%= comment.content.truncate(50) %></span>
-          </td>
-          <td class="text-center align-middle"><%= comment.user.name %></td>
-          <td class="text-center align-middle">
-            <% if comment.reported %>
-              <span class="badge bg-danger">通報済み</span>
-            <% else %>
-              <span class="badge bg-success">正常</span>
-            <% end %>
-          </td>
-          <td class="text-center align-middle">
-            <%= link_to "削除", admin_comment_path(comment), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
-          </td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-</section>
+  <% if params[:filter] == "reported_posts" %>
+    <% display_posts = Post.where(reported: true).order(created_at: :desc).limit(5) %>
+  <% else %>
+    <% display_posts = @recent_posts %>
+  <% end %>
 
-<h2> 管理メニュー </h2>
-<div class="d-flex gap-3 justify-content-center mt-4">
-  <%= link_to "ユーザー管理", admin_users_path, class: "btn btn-outline-secondary btn-lg" %>
-  <%= link_to "投稿管理", admin_posts_path, class: "btn btn-outline-secondary btn-lg" %>
-  <%= link_to "グループ管理", admin_groups_path, class: "btn btn-primary btn-lg" %>
+  <% if params[:filter] == "reported_users" %>
+    <% display_users = User.where(reported: true).order(created_at: :desc).limit(5) %>
+  <% else %>
+    <% display_users = @recent_users %>
+  <% end %>
+
+  <% if params[:filter] == "reported_groups" %>
+    <% display_groups = Group.where(reported: true).order(created_at: :desc).limit(5) %>
+  <% else %>
+    <% display_groups = @recent_groups || Group.order(created_at: :desc).limit(5) %>
+  <% end %>
+
+
+  <!-- 最新情報をタブで表示する（タブ順序：ユーザー、グループ、投稿、コメント） -->
+  <ul class="nav nav-tabs mb-3" id="dashboardTab" role="tablist">
+    <li class="nav-item">
+      <a class="nav-link active" id="users-tab" data-toggle="tab" href="#users" role="tab" aria-controls="users">最新のユーザー</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="groups-tab" data-toggle="tab" href="#groups" role="tab" aria-controls="groups">最新のグループ</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="posts-tab" data-toggle="tab" href="#posts" role="tab" aria-controls="posts">最新の投稿</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="comments-tab" data-toggle="tab" href="#comments" role="tab" aria-controls="comments">最新のコメント</a>
+    </li>
+  </ul>
+  <div class="tab-content" id="dashboardTabContent">
+    <!-- 最新のユーザータブ -->
+    <div class="tab-pane fade show active" id="users" role="tabpanel" aria-labelledby="users-tab">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead class="table-dark text-center">
+            <tr>
+              <th style="width: 30%;">名前</th>
+              <th style="width: 25%;">メールアドレス</th>
+              <th style="width: 20%;">登録日</th>
+              <th style="width: 15%;">通報状況</th>
+              <th style="width: 10%;">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% display_users.each do |user| %>
+              <tr class="align-middle <%= 'table-warning' if user.reported %>">
+                <td class="text-center"><%= link_to user.name, admin_user_path(user) %></td>
+                <td class="text-center"><%= user.email %></td>
+                <td class="text-center"><%= user.created_at.strftime("%Y-%m-%d") %></td>
+                <td class="text-center">
+                  <% if user.reported %>
+                    <span class="badge badge-danger">通報済み</span>
+                  <% else %>
+                    <span class="badge badge-success">正常</span>
+                  <% end %>
+                </td>
+                <td class="text-center">
+                  <%= link_to "削除", admin_user_path(user),
+                              method: :delete,
+                              data: { confirm: "本当に削除しますか？" },
+                              class: "btn btn-danger btn-sm" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- 最新のグループタブ -->
+    <div class="tab-pane fade" id="groups" role="tabpanel" aria-labelledby="groups-tab">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead class="table-dark text-center">
+            <tr>
+              <th style="width: 35%;">グループ名</th>
+              <th style="width: 15%;">カテゴリ</th>
+              <th style="width: 20%;">作成日</th>
+              <th style="width: 15%;">通報状況</th>
+              <th style="width: 15%;">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% display_groups.each do |group| %>
+              <tr class="align-middle <%= 'table-warning' if group.reported %>">
+                <td class="text-center"><%= link_to group.name, admin_group_path(group) %></td>
+                <td class="text-center"><%= group.category == "official_label" ? "公式" : "ユーザー作成" %></td>
+                <td class="text-center"><%= group.created_at.strftime("%Y-%m-%d") %></td>
+                <td class="text-center">
+                  <% if group.reported %>
+                    <span class="badge badge-danger">通報済み</span>
+                  <% else %>
+                    <span class="badge badge-success">正常</span>
+                  <% end %>
+                </td>
+                <td class="text-center">
+                  <div class="btn-group" role="group" aria-label="操作">
+                    <%= link_to "編集", edit_admin_group_path(group), class: "btn btn-warning btn-sm" %>
+                    <%= link_to "削除", admin_group_path(group),
+                                method: :delete,
+                                data: { confirm: "本当に削除しますか？" },
+                                class: "btn btn-danger btn-sm" %>
+                  </div>
+                </td>
+                </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- 最新の投稿タブ -->
+    <div class="tab-pane fade" id="posts" role="tabpanel" aria-labelledby="posts-tab">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead class="table-dark text-center">
+            <tr>
+              <th style="width: 30%;">タイトル</th>
+              <th style="width: 20%;">投稿者</th>
+              <th style="width: 20%;">投稿日</th>
+              <th style="width: 10%;">通報状況</th>
+              <th style="width: 20%;">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% display_posts.each do |post| %>
+              <tr class="align-middle <%= 'table-warning' if post.reported %>">
+                <td class="text-center"><%= link_to post.title, admin_post_path(post) %></td>
+                <td class="text-center"><%= post.user.name %></td>
+                <td class="text-center"><%= post.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+                <td class="text-center">
+                  <% if post.reported %>
+                    <span class="badge badge-danger">通報済み</span>
+                    <%= link_to "通報解除", unreport_admin_post_path(post),
+                                method: :patch,
+                                class: "btn btn-outline-warning btn-sm",
+                                data: { confirm: "この通報を解除しますか？" } %>
+                  <% else %>
+                    <span class="badge badge-success">正常</span>
+                  <% end %>
+                </td>
+                <td class="text-center">
+                  <%= link_to "✏️ 編集", edit_admin_post_path(post), class: "btn btn-warning btn-sm" %>
+                  <%= link_to "🗑️ 削除", admin_post_path(post),
+                              method: :delete,
+                              data: { confirm: "本当に削除しますか？" },
+                              class: "btn btn-danger btn-sm" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- 最新のコメントタブ -->
+    <div class="tab-pane fade" id="comments" role="tabpanel" aria-labelledby="comments-tab">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead class="table-dark text-center">
+            <tr>
+              <th style="width: 30%;">投稿タイトル</th>
+              <th style="width: 30%;">コメント内容</th>
+              <th style="width: 20%;">コメント者</th>
+              <th style="width: 10%;">通報状況</th>
+              <th style="width: 10%;">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @recent_comments.each do |comment| %>
+              <tr class="align-middle <%= 'table-warning' if comment.reported %>">
+                <td class="text-center"><%= link_to comment.post.title, admin_post_path(comment.post) %></td>
+                <td class="text-center">
+                  <span title="<%= comment.content %>"><%= comment.content.truncate(50) %></span>
+                </td>
+                <td class="text-center"><%= comment.user.name %></td>
+                <td class="text-center">
+                  <% if comment.reported %>
+                    <span class="badge badge-danger">通報済み</span>
+                  <% else %>
+                    <span class="badge badge-success">正常</span>
+                  <% end %>
+                </td>
+                <td class="text-center">
+                  <%= link_to "削除", admin_comment_path(comment),
+                              method: :delete,
+                              data: { confirm: "本当に削除しますか？" },
+                              class: "btn btn-danger btn-sm" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 管理メニュー -->
+  <section class="mb-5">
+    <h2 class="mb-3">管理メニュー</h2>
+    <div class="d-flex flex-wrap gap-3 justify-content-center">
+      <%= link_to "ユーザー管理", admin_users_path, class: "btn btn-outline-secondary btn-lg" %>
+      <%= link_to "投稿管理", admin_posts_path, class: "btn btn-outline-secondary btn-lg" %>
+      <%= link_to "グループ管理", admin_groups_path, class: "btn btn-outline-secondary btn-lg" %>
+      <%= link_to "コメント管理", admin_comments_path, class: "btn btn-outline-secondary btn-lg" %>
+    </div>
+  </section>
 </div>

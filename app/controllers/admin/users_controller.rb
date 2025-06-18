@@ -26,7 +26,13 @@ class Admin::UsersController < ApplicationController
 
   def show
     @user = User.find(params[:id])
+    if @user.daily_reports.respond_to?(:paginate)
+      @daily_reports = @user.daily_reports.order(date: :desc).paginate(page: params[:page], per_page: 10)
+    else
+      @daily_reports = @user.daily_reports.order(date: :desc)
+    end
   end
+  
 
   def edit
     @user = User.find(params[:id])

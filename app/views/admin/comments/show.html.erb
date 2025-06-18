@@ -1,26 +1,43 @@
-<h1>コメント詳細</h1>
+<h1 class="mb-4">
+  <i class="bi bi-chat-square-text mr-2"></i>コメント詳細
+</h1>
 
-<div class="post-card">
-<p><strong>投稿タイトル:</strong> <%= link_to @comment.post.title, admin_post_path(@comment.post) %></p>
-<p><strong>コメント者:</strong> <%= @comment.user.name %></p>
-<p><strong>内容:</strong> <%= @comment.content %></p>
-<p><strong>投稿日:</strong> <%= @comment.created_at.strftime("%Y/%m/%d %H:%M") %></p>  
+<div class="card">
+  <div class="card-body">
+    <p class="card-text">
+      <strong>投稿タイトル:</strong>
+      <%= link_to @comment.post.title, admin_post_path(@comment.post), class: "font-weight-bold text-dark" %>
+    </p>
+    <p class="card-text">
+      <strong>コメント者:</strong>
+      <%= @comment.user&.name.presence || "匿名ユーザー" %>
+    </p>
+    <p class="card-text">
+      <strong>内容:</strong>
+      <%= @comment.content %>
+    </p>
+    <p class="card-text">
+      <strong>投稿日:</strong>
+      <%= l(@comment.created_at, format: :short) %>
+    </p>
 
-<% if @comment.reported? %>
-  <div class="alert alert-danger mt-2">
-    ⚠️ このコメントは通報されています（通報日時: <%= @comment.updated_at.strftime("%Y/%m/%d %H:%M") %>）
+    <% if @comment.reported? %>
+      <div class="alert alert-danger" role="alert">
+        ⚠️ このコメントは通報されています
+        (<strong>通報日時:</strong> <%= @comment.updated_at.strftime("%Y/%m/%d %H:%M") %>)
+      </div>
+      <div class="mb-3">
+        <%= button_to "報告解除", unreport_admin_comment_path(@comment), method: :patch, class: "btn btn-warning" %>
+      </div>
+    <% else %>
+      <div class="alert alert-success" role="alert">
+        ✅ 正常なコメント
+      </div>
+    <% end %>
+
+    <div class="d-flex flex-wrap gap-2 mt-3">
+      <%= button_to "削除", admin_comment_path(@comment), method: :delete, data: { confirm: "⚠️ 本当に削除しますか？ この操作は取り消せません！" }, class: "btn btn-danger" %>
+      <%= link_to "コメント一覧へ戻る", admin_comments_path, class: "btn btn-secondary" %>
+    </div>
   </div>
-  <%= button_to "報告解除", unreport_admin_comment_path(@comment), method: :patch, class: "btn btn-warning" %> <!-- ✅ 修正！ -->
-<% else %>
-  <div class="alert alert-success mt-2">
-      ✅ 正常な投稿
-  </div>
-<% end %>
-
-
-
-<%= button_to "削除", admin_comment_path(@comment), method: :delete, data: { confirm: "⚠️ 本当に削除しますか？ この操作は取り消せません！" }, class: "btn btn-danger mt-3" %> 
-<%= link_to "コメント一覧へ戻る", admin_comments_path, class: "btn btn-secondary" %>
-
 </div>
-

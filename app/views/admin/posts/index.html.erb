@@ -1,47 +1,87 @@
-<h1>投稿管理（Admin）</h1>
+<h1 class="mb-4">
+  <i class="bi bi-file-earmark-text me-2"></i>投稿管理
+</h1>
 
-<!-- 検索機能 -->
-<!-- 検索＆フィルター -->
-<div class="d-flex justify-content-between mb-3">
-  <%= form_with url: admin_posts_path, method: :get, local: true, class: "input-group" do |form| %>
-    <%= form.text_field :query, class: "form-control", placeholder: "キーワードで検索" %>
-    <%= form.submit "検索", class: "btn btn-primary" %>
+<div class="mb-3">
+  <!-- フィルタ・ソートボタン -->
+  <div class="d-flex flex-wrap gap-2 mb-2">
+    <%= link_to "新しい順", admin_posts_path(sort: "newest"), class: "btn btn-outline-primary btn-sm" %>
+    <%= link_to "古い順", admin_posts_path(sort: "oldest"), class: "btn btn-outline-primary btn-sm" %>
+    <%= link_to "通報済みのみ", admin_posts_path(reported_only: "true"), class: "btn btn-outline-danger btn-sm" %>
+    <%= link_to "すべて表示", admin_posts_path, class: "btn btn-secondary btn-sm" %>
+  </div>
+
+  <!-- 管理者用 検索フォーム -->
+  <%= form_with url: admin_posts_path, method: :get, local: true, html: { class: "form-inline w-100" } do |f| %>
+    <div class="input-group flex-fill mr-2">
+      <%= f.text_field :query, value: params[:query], class: "form-control", placeholder: "キーワード検索" %>
+    </div>
+    <div class="input-group flex-fill mr-2">
+      <%= f.text_field :tag, value: params[:tag], class: "form-control", placeholder: "タグ検索" %>
+    </div>
+    <div class="input-group mr-2">
+      <%= select_tag :category,
+            options_for_select(["すべて", "技術", "趣味", "日常", "その他"], params[:category]),
+            class: "form-control" %>
+    </div>
+    <%= f.submit "検索", class: "btn btn-primary" %>
   <% end %>
-
-  <%= link_to "通報された投稿のみ表示", admin_posts_path(reported_only: "true"), class: "btn btn-danger" %>
-  <%= link_to "すべての投稿を表示", admin_posts_path, class: "btn btn-secondary" %>
 </div>
 
-<table class="table table-striped mt-3">
-  <thead>
-    <tr>
-      <th>タイトル</th>
-      <th>投稿者</th>
-      <th>投稿日</th>
-      <th>通報状況</th> <!-- 「ステータス」を「通報状況」に統一 -->
-      <th>操作</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @posts.reload.each do |post| %>
-      <tr class="<%= 'table-warning' if post.reported? %>"> <!-- 通報済みなら黄色背景 -->
-        <td><%= link_to post.title, admin_post_path(post) %></td>
-        <td><%= post.user.name || "匿名ユーザー" %></td>
-        <td><%= post.created_at.strftime("%Y/%m/%d %H:%M") %></td> <!-- 投稿日を表示 -->
-        <td>
-          <% if post.reported? %>
-            <span class="badge bg-danger">通報済み</span> <!-- 通報済みなら赤ラベル -->
-          <% else %>
-            <span class="badge bg-success">正常</span>
-          <% end %>
-        </td>
-        <td class="d-flex gap-2"> <!-- ボタンサイズ統一 -->
-          <%= link_to "詳細", admin_post_path(post), class: "btn btn-info btn-sm flex-fill" %>
-          <%= link_to "削除", admin_post_path(post), method: :delete, data: { confirm: "⚠️ 本当に削除しますか？ この操作は取り消せません！" }, class: "btn btn-danger btn-sm flex-fill" %>
-        </td>
+<!-- ====== 投稿一覧 ====== -->
+<div class="table-responsive-lg">
+  <table class="table table-hover admin-posts">
+    <thead class="table-dark text-center">
+      <tr>
+        <th>タイトル</th>
+        <th>投稿者</th>
+        <th>カテゴリー</th>
+        <th>タグ</th>
+        <th>投稿日</th>
+        <th>通報状況</th>
+        <th>操作</th>
       </tr>
-    <% end %>
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      <% @posts.each do |post| %>
+        <tr id="post_<%= post.id %>" class="align-middle <%= 'table-warning' if post.reported? %>">
+          <td data-label="タイトル">
+            <%= link_to post.title, admin_post_path(post), class: "fw-bold text-dark" %>
+          </td>
+          <td data-label="投稿者" class="text-center">
+            <%= post.user&.name.presence || "匿名ユーザー" %>
+          </td>
+          <td data-label="カテゴリー" class="text-center">
+            <%= post.category.presence || "-" %>
+          </td>
+          <td data-label="タグ" class="text-center">
+            <%= post.tag_list.present? ? post.tag_list.join(', ') : "-" %>
+          </td>
+          <td data-label="投稿日" class="text-center">
+            <%= l(post.created_at, format: :short) %>
+          </td>
+          <td data-label="通報状況" class="text-center">
+            <% if post.reported? %>
+              <span class="badge bg-danger">
+                <i class="bi bi-flag-fill me-1"></i>通報済み
+              </span>
+            <% else %>
+              <span class="badge bg-success">正常</span>
+            <% end %>
+          </td>
+          <td data-label="操作" class="text-center">
+            <div class="btn-group" role="group" aria-label="操作">
+              <%= link_to "詳細", admin_post_path(post), class: "btn btn-info btn-sm" %>
+              <%= link_to "削除", admin_post_path(post),
+                          method: :delete,
+                          data: { confirm: "⚠️ 本当に削除しますか？" },
+                          class: "btn btn-danger btn-sm" %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
 
-<%= link_to "ダッシュボードへ戻る", admin_dashboard_path, class: "btn btn-secondary mt-3" %>
+<%= link_to "ダッシュボードへ戻る", admin_dashboard_path, class: "btn btn-secondary mt-4" %>

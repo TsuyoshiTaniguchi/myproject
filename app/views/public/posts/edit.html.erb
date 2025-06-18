@@ -1,63 +1,77 @@
 <h1 class="text-center mb-4">投稿を編集</h1>
 
-<%= form_with model: @post, local: true, class: "card p-4 shadow-sm" do |f| %>
-  <% if @post.errors.any? %>
-    <div class="alert alert-danger">
-      <% @post.errors.full_messages.each do |message| %>
-        <p><%= message %></p>
-      <% end %>
+<% if @post %>
+  <%= form_with model: @post, local: true, class: "card p-4 shadow-sm", html: { novalidate: true } do |f| %>
+    <% if @post.errors.any? %>
+      <div class="alert alert-danger">
+        <% @post.errors.full_messages.each do |message| %>
+          <p><%= message %></p>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- タイトル -->
+    <div class="mb-3">
+      <%= f.label :title, "タイトル", class: "form-label" %>
+      <%= f.text_field :title, class: "form-control", placeholder: "タイトルを入力", required: true %>
     </div>
-  <% end %>
 
-  <!-- タイトル -->
-  <div class="mb-3">
-    <%= f.label :title, "タイトル", class: "form-label" %>
-    <%= f.text_field :title, class: "form-control", placeholder: "タイトルを入力", required: true %>
-  </div>
-
-  <!-- 内容 -->
-  <div class="mb-3">
-    <%= f.label :content, "内容", class: "form-label" %>
-    <%= f.text_area :content, class: "form-control", placeholder: "投稿の内容を入力", rows: 5, required: true %>
-  </div>
-
-  <!-- 既存の画像を表示 & 削除選択 -->
-  <% if @post.images.attached? %>
-    <h4>現在の画像</h4>
-    <div class="post-images">
-      <% @post.images.each do |image| %>
-        <div class="existing-image">
-          <%= image_tag image.variant(resize: "500x500"), class: "img-fluid rounded mb-3" %>
-          <label>
-            <%= check_box_tag "remove_image[]", image.id, false, class: "remove-image-checkbox" %> 画像を削除
-          </label>
-        </div>
-      <% end %>
+    <!-- 内容 -->
+    <div class="mb-3">
+      <%= f.label :content, "内容", class: "form-label" %>
+      <%= f.text_area :content, class: "form-control", placeholder: "投稿の内容を入力", rows: 5, required: true %>
     </div>
+
+    <!-- カテゴリー選択 -->
+    <div class="mb-3">
+      <%= f.label :category, "カテゴリー", class: "form-label" %>
+      <%= f.select :category, ["技術", "趣味", "日常", "その他"], {}, class: "form-control" %>
+    </div>
+
+    <!-- 既存の画像を表示 & 削除選択 -->
+    <% if @post.images.attached? %>
+      <h4>現在の画像</h4>
+      <div class="post-images">
+        <% @post.images.each do |image| %>
+          <div class="existing-image">
+            <%= image_tag image.variant(resize: "500x500"), class: "img-fluid rounded mb-3" %>
+            <label>
+              <%= check_box_tag "remove_image[]", image.id, false, class: "remove-image-checkbox" %> 画像を削除
+            </label>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- 新しい画像アップロード -->
+    <div class="mb-3">
+      <%= f.label :images, "画像を追加または変更", class: "form-label" %>
+      <%= f.file_field :images, multiple: true, class: "form-control" %>
+    </div>
+
+    <!-- 画像プレビュー -->
+    <div class="mb-3" id="image-preview">
+      <p class="text-muted">画像プレビューはここに表示されます</p>
+    </div>
+
+    <!-- タグ入力 -->
+    <div class="mb-3">
+      <%= f.label :tag_list, "タグ（カンマ区切り）", class: "form-label" %>
+      <%= f.text_field :tag_list, value: @post.tag_list.join(', '), class: "form-control", placeholder: "例: Ruby, Rails, API" %>
+      <small class="form-text text-muted">各タグはカンマで区切って入力してください。</small>
+    </div>
+
+    <!-- 更新ボタン -->
+    <div class="d-grid">
+      <%= f.submit "更新", class: "btn btn-primary" %>
+    </div>
+    
   <% end %>
-
-  <!-- 新しい画像アップロード -->
-  <div class="mb-3">
-    <%= f.label :images, "画像を追加または変更", class: "form-label" %>
-    <%= f.file_field :images, multiple: true, class: "form-control" %>
+<% else %>
+  <div class="alert alert-danger">
+    <p>指定された投稿は存在しません。</p>
   </div>
-
-  <!-- 画像プレビュー -->
-  <div class="mb-3" id="image-preview">
-    <p class="text-muted">画像プレビューはここに表示されます</p>
-  </div>
-
-  <!-- タグ入力 -->
-  <div class="mb-3">
-    <%= f.label :tag_list, "タグ（カンマ区切り）", class: "form-label" %>
-    <%= f.text_field :tag_list, value: @post.tag_list.join(', '), class: "form-control", placeholder: "例: Ruby, Rails, API" %>
-    <small class="form-text text-muted">各タグはカンマで区切って入力してください。</small>
-  </div>
-
-  <!-- 更新ボタン -->
-  <div class="d-grid">
-    <%= f.submit "更新", class: "btn btn-primary" %>
-  </div>
+  <%= link_to "投稿一覧へ戻る", admin_posts_path, class: "btn btn-secondary" %>
 <% end %>
 
 <!-- 戻る & 投稿一覧 -->

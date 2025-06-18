@@ -96,3 +96,18 @@ ja:
       x_days: "%{count}日前"
       about_x_months: "%{count}か月前"
       about_x_years: "%{count}年前"
+
+  time:
+    formats:
+      # デフォルト: 2025-06-18 18:55:32
+      default: "%Y-%m-%d %H:%M:%S"
+      # :short   : 2025/06/18 18:55
+      short:   "%Y/%m/%d %H:%M"
+      # :long    : 2025年06月18日(水) 18時55分
+      long:    "%Y年%m月%d日(%a) %H時%M分"
+
+  date:
+    formats:
+      default: "%Y-%m-%d"
+      short:   "%Y/%m/%d"
+      long:    "%Y年%m月%d日(%a)"
