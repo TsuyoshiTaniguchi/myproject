@@ -4,9 +4,9 @@ require "securerandom"
 
 puts "── Seeding ──"
 
-# ─────────────────────────────
+
 # 1. Admin
-# ─────────────────────────────
+
 # ENV または Rails.credentials から一度だけ取得
 admin_email    = ENV.fetch("ADMIN_EMAIL")    { Rails.application.credentials.dig(:admin, :email) }
 admin_password = ENV.fetch("ADMIN_PASSWORD") { Rails.application.credentials.dig(:admin, :password) }
