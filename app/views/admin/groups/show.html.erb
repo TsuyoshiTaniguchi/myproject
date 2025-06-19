@@ -56,7 +56,7 @@
             <% case @group.privacy
               when "public_visibility" then privacy_text = "公開"
               when "restricted_visibility" then privacy_text = "メンバーのみ"
-              when "private_visibility" then privacy_text = "非公開"
+              when "private_visibility" then privacy_text = "管理者のみ"
               else privacy_text = "-" end %>
             <%= privacy_text %>
           </p>
@@ -89,7 +89,7 @@
 
         <div class="mt-3">
           <%= link_to "編集", edit_admin_group_path(@group), class: "btn btn-warning btn-sm mr-2" %>
-          <%= link_to "🗑️削除", admin_group_path(@group),
+          <%= link_to "削除", admin_group_path(@group),
                       method: :delete,
                       data: { confirm: "⚠️ 本当にこのグループを削除しますか？ この操作は取り消せません！" },
                       class: "btn btn-danger btn-sm" %>
@@ -116,7 +116,7 @@
               <td><%= membership.role %></td>
               <td>
                 <% unless membership.role == "admin" %>
-                  <%= button_to "🗑️削除", reject_admin_group_membership_path(@group, membership),
+                  <%= button_to "削除", reject_admin_group_membership_path(@group, membership),
                                   method: :delete, class: "btn btn-danger btn-sm",
                                   data: { confirm: "本当に削除しますか？" } %>
                 <% end %>

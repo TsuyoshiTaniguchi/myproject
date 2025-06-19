@@ -25,7 +25,7 @@
             options_for_select([["すべて", ""],
                                 ["公開", "public_visibility"],
                                 ["メンバーのみ", "restricted_visibility"],
-                                ["非公開", "private_visibility"]], params[:privacy]),
+                                ["管理者のみ", "private_visibility"]], params[:privacy]),
             class: "form-control" %>
     </div>
     <%= f.submit "検索", class: "btn btn-primary" %>
@@ -37,14 +37,14 @@
   <table class="table table-hover admin-groups">
     <thead class="table-dark text-center">
       <tr>
-        <th>グループ名</th>
-        <th>カテゴリ</th>
-        <th>プライバシー</th>
-        <th>参加ポリシー</th>
-        <th>作成日時</th>
-        <th>通報状況</th>
-        <th>参加リクエスト</th>
-        <th>操作</th>
+        <th style="white-space: nowrap;">グループ名</th>
+        <th style="white-space: nowrap;">カテゴリ</th>
+        <th style="white-space: nowrap;">プライバシー</th>
+        <th style="white-space: nowrap;">参加ポリシー</th>
+        <th style="white-space: nowrap;">作成日時</th>
+        <th style="white-space: nowrap;">通報状況</th>
+        <th style="white-space: nowrap;">参加リクエスト</th>
+        <th style="white-space: nowrap;">操作</th>
       </tr>
     </thead>
     <tbody>
@@ -60,13 +60,22 @@
             <% case group.privacy
                when "public_visibility" then text = "公開"
                when "restricted_visibility" then text = "メンバーのみ"
-               when "private_visibility" then text = "非公開"
+               when "private_visibility" then text = "管理者のみ"
                else text = "-"
                end %>
             <%= text %>
           </td>
           <td data-label="参加ポリシー" class="text-center">
-            <%= group.join_policy == "open" ? "誰でも参加可能" : (group.join_policy == "invite_only" ? "承認制" : "-") %>
+            <% case group.join_policy %>
+            <% when "open" %>
+              誰でも参加可能
+            <% when "admin_only" %>
+              管理者のみ参加を許可
+            <% when "invite_only" %>
+              承認制
+            <% else %>
+              -
+            <% end %>
           </td>
           <td data-label="作成日時" class="text-center">
             <%= l(group.created_at, format: :short) %>
@@ -90,7 +99,7 @@
             <div class="btn-group" role="group" aria-label="操作">
               <%= link_to "詳細", admin_group_path(group), class: "btn btn-info btn-sm" %>
               <%= link_to "編集", edit_admin_group_path(group), class: "btn btn-warning btn-sm" %>
-              <%= link_to "🗑️削除", admin_group_path(group),
+              <%= link_to "削除", admin_group_path(group),
                           method: :delete,
                           data: { confirm: "本当に削除しますか？" },
                           class: "btn btn-danger btn-sm" %>

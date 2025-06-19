@@ -1,25 +1,30 @@
 <h1 class="mt-5 mt-4">グループ一覧</h1>
 
-<form action="/groups" method="get"
-      class="d-flex align-items-center mb-3">
-  <input type="text" name="query" id="query"
-         value="<%= h(@query) %>"
-         placeholder="グループを検索..."
-         class="form-control flex-grow-1 mr-2" style="max-width:400px;">
-  <input type="submit" value="検索" class="btn btn-primary">
-</form>
-
 <% if user_signed_in? && !current_user.guest_user? %>
-  <div class="d-flex justify-content-end mt-4">
-    <%= link_to "➕ 新しいグループを作成",
-                new_group_path,
-                class: "btn btn-success font-weight-bold" %>
-  </div>
+  <%= link_to "➕ 新しいグループ作成", new_group_path, class: "btn btn-success btn-sm" %>
 <% end %>
 
-<% active_search  = @query.present? %>
-<% active_popular = !@query.present? %>
+<!-- 検索フォーム：グループ名・説明のキーワード検索＋公開範囲フィルタ -->
+<%= form_with url: groups_path, method: :get, local: true, html: { class: "d-flex align-items-center mb-3" } do |f| %>
+  <%= f.text_field :query,
+                   value: params[:query],
+                   placeholder: "グループ名や説明を検索...",
+                   class: "form-control flex-grow-1 mr-2",
+                   style: "max-width:400px;" %>
+  
+  <div class="input-group flex-fill mr-2">
+    <%= select_tag :privacy,
+          options_for_select([["すべて", ""], ["公開", "public_visibility"], ["メンバーのみ", "restricted_visibility"]],
+                             params[:privacy]),
+          class: "form-control" %>
+  </div>
+  
+  <%= f.submit "検索", class: "btn btn-primary" %>
+<% end %>
 
+<!-- タブ切替 -->
+<% active_search  = params[:query].present? %>
+<% active_popular = !params[:query].present? %>
 <ul class="nav nav-pills nav-justified mt-3">
   <li class="nav-item">
     <a class="nav-link font-weight-bold <%= 'active' if active_search %>"
@@ -38,13 +43,11 @@
 </ul>
 
 <div class="tab-content mt-4">
-
-  <!-- 🔍 検索結果 -->
-  <div class="tab-pane fade <%= 'show active' if active_search %>"
-       id="search_results">
-    <% if @query.present? %>
+  <!-- 🔍 検索結果タブ -->
+  <div class="tab-pane fade <%= 'show active' if active_search %>" id="search_results">
+    <% if params[:query].present? %>
       <div class="alert alert-info font-weight-bold">
-        <h2>「<%= h(@query) %>」の検索結果</h2>
+        <h2>「<%= h(params[:query]) %>」の検索結果</h2>
       </div>
       <% if @groups.any? %>
         <div class="row">
@@ -60,9 +63,8 @@
     <% end %>
   </div>
 
-  <!-- ⭐ 人気グループ -->
-  <div class="tab-pane fade <%= 'show active' if active_popular %>"
-       id="popular_groups">
+  <!-- ⭐ 人気グループタブ -->
+  <div class="tab-pane fade <%= 'show active' if active_popular %>" id="popular_groups">
     <% if @popular_groups.any? %>
       <div class="row">
         <% @popular_groups.each do |group| %>
@@ -75,7 +77,7 @@
   </div>
 
   <% if user_signed_in? && !current_user.guest_user? %>
-    <!-- 👥 参加中 -->
+    <!-- 👥 参加中グループタブ -->
     <div class="tab-pane fade" id="joined_groups">
       <% if @joined_groups.any? %>
         <div class="row">
@@ -88,5 +90,4 @@
       <% end %>
     </div>
   <% end %>
-
 </div>

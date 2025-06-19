@@ -5,41 +5,47 @@ class Public::GroupsController < ApplicationController
 
 
   def index
-    # params[:user_id] が存在するかチェックし、ユーザーを取得
-    @user = User.find_by(id: params[:user_id])
-    @groups = @user ? Group.where(id: @user.memberships.pluck(:group_id)) : Group.all
-    @joined_groups = current_user.joined_groups
-
-    # 検索キーワードの取得
+    # デフォルトは「すべて」＝公開とメンバーのみ
+    default_privacy = ["public_visibility", "restricted_visibility"]
+  
+    if params[:privacy].present?
+      # もしフォームで「公開」または「メンバーのみ」が選ばれているならその値で絞り込む
+      @groups = Group.where(privacy: params[:privacy])
+    else
+      # 何も選択されていなければデフォルトで両方表示する
+      @groups = Group.where(privacy: default_privacy)
+    end
+  
+    # 検索キーワードによる絞り込み（グループ名または説明）
     @query = params[:query]
-
     if @query.present?
-      # 検索を柔軟にするため、カタカナをひらがなへ変換し、小文字化
       normalized_query = @query.tr('ァ-ン', 'ぁ-ん').downcase
-
-      # グループ名の検索（大文字小文字を区別せずマッチ）
-      @groups = @groups.where("LOWER(name) LIKE ?", "%#{@query.downcase}%")
-                       .or(@groups.where("LOWER(name) LIKE ?", "%#{normalized_query}%"))
-                       .where(privacy: ["public_visibility", "restricted_visibility"])
+      @groups = @groups.where(
+        "(LOWER(name) LIKE ? OR LOWER(description) LIKE ?)",
+        "%#{@query.downcase}%",
+        "%#{normalized_query}%"
+      )
     end
-
-    @groups = @groups.includes(:memberships)
-
-    # 参加中のグループを取得
-    @joined_groups = Group.joins(:memberships)
-                          .where(memberships: { user_id: current_user.id, role: ["member", "owner"] })
-                          .includes(:memberships)
-
-    # 人気グループの取得
-    @popular_groups = Group.public_visibility
-                          .joins(:memberships)
-                          .group('groups.id')
-                          .order('COUNT(memberships.id) DESC')
-                          .limit(6)
-
-    # 既存の処理があればその後に続ける（たとえば @groups, @joined_groups など）
+  
+    @groups = @groups.order(created_at: :desc)
+                     .includes(:memberships)
+  
+    # ログイン済みの場合は参加中のグループを取得
+    if user_signed_in?
+      @joined_groups = Group.joins(:memberships)
+                            .where(memberships: { user_id: current_user.id, role: ["member", "owner"] })
+                            .includes(:memberships)
+    else
+      @joined_groups = Group.none
     end
-
+  
+    # 人気グループ（公開＋メンバーのみを対象）
+    @popular_groups = Group.where(privacy: default_privacy)
+                           .joins(:memberships)
+                           .group('groups.id')
+                           .order('COUNT(memberships.id) DESC')
+                           .limit(6)
+  end
 
   def show
     @group = Group.find(params[:id])
@@ -52,11 +58,19 @@ class Public::GroupsController < ApplicationController
     # 最近のアクティビティ用（最新5件の投稿）
     @recent_posts = @group.posts.order(created_at: :desc).limit(5)
   
+    # 承認待ちの参加リクエスト（オーナー管理タブ用）
+    # 承認待ちのメンバーは、@group.memberships のうち role が "pending" のもの (オーナーIDは除外)
+    @pending_members = @group.memberships.where(role: "pending").where.not(user_id: @group.owner_id)
+  
+    # 所有グループ一覧（オーナー管理タブ用）
+    # current_user がオーナーの場合、所有しているグループ一覧を取得
+    @owned_groups = current_user.owned_groups
+  
     # Membership 経由で、role が "member" または "owner" のユーザーを取得（最新3件）
     @new_members = @group.memberships.where(role: ["member", "owner"])
-                                      .order(created_at: :desc)
-                                      .limit(3)
-                                      .map(&:user)
+                                    .order(created_at: :desc)
+                                    .limit(3)
+                                    .map(&:user)
   
     session[:return_to] = request.original_url
   end

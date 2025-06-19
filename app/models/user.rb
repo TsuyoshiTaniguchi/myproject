@@ -13,6 +13,8 @@ class User < ApplicationRecord
   has_many :groups, through: :memberships
   has_many :joined_groups, -> { where(memberships: { role: ["member", "owner"] }) },
            through: :memberships, source: :group
+  has_many :owned_groups, class_name: "Group", foreign_key: "owner_id"
+
   has_many :likes, as: :likeable, dependent: :destroy
   has_many :notifications, dependent: :destroy
   has_many :daily_reports, class_name: "::DailyReport"

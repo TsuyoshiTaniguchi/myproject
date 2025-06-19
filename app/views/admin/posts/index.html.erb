@@ -72,7 +72,7 @@
           <td data-label="操作" class="text-center">
             <div class="btn-group" role="group" aria-label="操作">
               <%= link_to "詳細", admin_post_path(post), class: "btn btn-info btn-sm" %>
-              <%= link_to "🗑️削除", admin_post_path(post),
+              <%= link_to "削除", admin_post_path(post),
                           method: :delete,
                           data: { confirm: "⚠️ 本当に削除しますか？" },
                           class: "btn btn-danger btn-sm" %>

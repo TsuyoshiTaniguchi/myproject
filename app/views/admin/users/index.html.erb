@@ -90,7 +90,7 @@
           <div class="btn-group" role="group">
             <%= link_to "詳細", admin_user_path(user), class: "btn btn-primary btn-sm" %>
             <% if user.status == "active" %>
-              <%= link_to "🗑️削除", admin_user_path(user),
+              <%= link_to "削除", admin_user_path(user),
                     method: :delete,
                     class: "btn btn-danger btn-sm",
                     data: { confirm: "⚠️ 本当に削除しますか？" } %>

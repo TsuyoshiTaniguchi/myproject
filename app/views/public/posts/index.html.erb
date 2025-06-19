@@ -1,6 +1,6 @@
 <h1 class="mt-5 mb-4">投稿一覧</h1>
 
-<!-- ── 投稿フィルター ─────────────────────────── -->
+<!-- 投稿フィルター -->
 <div class="btn-group mb-3">
   <%= link_to "すべての投稿",
               posts_path,
@@ -13,7 +13,7 @@
   <% end %>
 </div>
 
-<!-- ── 検索バー ─────────────────────────────── -->
+<!-- 検索バー -->
 <div class="mb-3">
   <%= form_with url: posts_path, method: :get, local: true, class: "form-inline w-100" do |f| %>
     <div class="input-group flex-fill mr-2">
@@ -29,7 +29,7 @@
   <% end %>
 </div>
 
-<!-- ── 投稿タイムライン ───────────────────────── -->
+<!-- 投稿タイムライン -->
 <% if @posts.any? %>
   <div class="timeline">
     <% @posts.each do |post| %>
@@ -90,7 +90,7 @@
           <% end %>
 
           <!-- いいねボタン -->
-          <% unless guest_blocked? %>  <!-- ★ ゲストはいいね不可 -->
+          <% unless guest_blocked? %>  <!-- ゲストはいいね不可 -->
             <div id="post-likes-<%= post.id %>">
               <%= render 'public/likes/like_button', post: post %>
             </div>
@@ -123,7 +123,7 @@
 <% else %>
   <div class="alert alert-info">
     <p>まだ投稿がありません。</p>
-    <% unless guest_blocked? %>  <!-- ★ ゲストには新規投稿誘導を隠す -->
+    <% unless guest_blocked? %>  <!-- ゲストには新規投稿誘導を隠す -->
       <p>最初の投稿をしてみませんか？</p>
       <%= link_to "新規投稿する", new_post_path, class: "btn btn-primary" %>
     <% end %>
@@ -134,7 +134,7 @@
 <div class="d-flex justify-content-center flex-wrap mb-3">
   <%= link_to "マイページ", users_mypage_path, class: "btn btn-outline-secondary btn-lg mr-2 mb-2" %>
 
-  <% unless guest_blocked? %>  <!-- ★ ゲストは新規投稿ボタン非表示 -->
+  <% unless guest_blocked? %>  <!-- ゲストは新規投稿ボタン非表示 -->
     <%= link_to "新規投稿", new_post_path, class: "btn btn-primary btn-lg mr-2 mb-2" %>
   <% end %>
 

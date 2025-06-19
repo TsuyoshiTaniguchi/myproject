@@ -1,65 +1,71 @@
-<h1>グループ編集</h1>
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <h1 class="mb-4 text-center font-weight-bold">グループ編集</h1>
 
-<%= form_with model: @group, url: admin_group_path(@group), local: true, multipart: true do |f| %>
-  <div class="form-group">
-    <%= f.label :name, "グループ名" %>
-    <%= f.text_field :name, class: "form-control", placeholder: "グループ名を入力してください" %>
-  </div>
+      <%= form_with model: @group, url: admin_group_path(@group), local: true, multipart: true do |f| %>
+        <div class="form-group">
+          <%= f.label :name, "グループ名" %>
+          <%= f.text_field :name, class: "form-control", placeholder: "グループ名を入力してください" %>
+        </div>
 
-  <div class="form-group">
-    <%= f.label :description, "グループの説明" %>
-    <%= f.text_area :description, class: "form-control", rows: 4, placeholder: "グループの説明を入力してください" %>
-  </div>
+        <div class="form-group">
+          <%= f.label :description, "グループの説明" %>
+          <%= f.text_area :description, class: "form-control", rows: 4, placeholder: "グループの説明を入力してください" %>
+        </div>
 
-  <div class="form-group">
-    <%= f.label :group_image, "グループ画像" %>
-    <%= f.file_field :group_image, class: "form-control" %>
-    <% if @group.group_image.attached? %>
-      <div class="mt-2">
-        <%= image_tag @group.group_image.variant(resize_to_limit: [200,200]), class: "img-thumbnail" %>
-        <%= link_to "画像を削除", remove_group_image_admin_group_path(@group),
-                    method: :delete, class: "btn btn-danger mt-2" %>
-      </div>
-    <% end %>
-  </div>
+        <div class="form-group">
+          <%= f.label :group_image, "グループ画像" %>
+          <%= f.file_field :group_image, class: "form-control" %>
+          <% if @group.group_image.attached? %>
+            <div class="mt-2">
+              <%= image_tag @group.group_image.variant(resize_to_limit: [200,200]), class: "img-thumbnail" %>
+              <%= link_to "画像を削除", remove_group_image_admin_group_path(@group),
+                          method: :delete, class: "btn btn-danger mt-2" %>
+            </div>
+          <% end %>
+        </div>
 
-  <div class="form-group">
-    <%= f.label :category, "グループのカテゴリー" %>
-    <%= f.select :category, Group.categories.keys.map { |key| [I18n.t("enums.group.category.#{key}"), key] },
-                 {}, class: "form-control" %>
-  </div>
+        <div class="form-group">
+          <%= f.label :category, "グループのカテゴリー" %>
+          <%= f.select :category, Group.categories.keys.map { |key| [I18n.t("enums.group.category.#{key}"), key] },
+                      {}, class: "form-control" %>
+        </div>
 
-  <div class="form-group">
-    <%= f.label :privacy, "投稿の公開範囲" %>
-    <%= f.select :privacy, Group.privacies.keys.map { |key| [I18n.t("enums.group.privacy.#{key}"), key] },
-                 {}, class: "form-control" %>
-  </div>
+        <div class="form-group">
+          <%= f.label :privacy, "投稿の公開範囲" %>
+          <%= f.select :privacy, Group.privacies.keys.map { |key| [I18n.t("enums.group.privacy.#{key}"), key] },
+                      {}, class: "form-control" %>
+        </div>
 
-  <div class="form-group">
-    <%= f.label :join_policy, "参加ルール" %>
-    <%= f.select :join_policy, Group.join_policies.keys.map { |key| [I18n.t("enums.group.join_policy.#{key}"), key] },
-                 {}, class: "form-control" %>
-  </div>
+        <div class="form-group">
+          <%= f.label :join_policy, "参加ルール" %>
+          <%= f.select :join_policy, Group.join_policies.keys.map { |key| [I18n.t("enums.group.join_policy.#{key}"), key] },
+                      {}, class: "form-control" %>
+        </div>
 
-  <% if @group.reported? %>
-    <p class="text-danger">⚠️ このグループは通報されています。</p>
-    <%= link_to "通報を解除する", unreport_admin_group_path(@group),
-                method: :patch, class: "btn btn-warning" %>
-  <% end %>
+        <% if @group.reported? %>
+          <p class="text-danger">⚠️ このグループは通報されています。</p>
+          <%= link_to "通報を解除する", unreport_admin_group_path(@group),
+                      method: :patch, class: "btn btn-warning" %>
+        <% end %>
 
-  <div class="mt-3">
-    <%= f.submit "更新する", class: "btn btn-primary" %>
-    <%= link_to "戻る", admin_groups_path, class: "btn btn-secondary" %>
-  </div>
-<% end %>
-
-<% if @group.errors.any? %>
-  <div class="alert alert-danger mt-3">
-    <h4>入力エラーがあります：</h4>
-    <ul>
-      <% @group.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
+        <div class="mt-3">
+          <%= f.submit "更新する", class: "btn btn-primary" %>
+          <%= link_to "戻る", admin_groups_path, class: "btn btn-secondary" %>
+        </div>
       <% end %>
-    </ul>
+
+      <% if @group.errors.any? %>
+        <div class="alert alert-danger mt-3">
+          <h4>入力エラーがあります：</h4>
+          <ul>
+            <% @group.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+    </div>
   </div>
-<% end %>
+</div>
