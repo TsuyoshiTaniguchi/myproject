@@ -124,7 +124,7 @@
                   <% end %>
                 </td>
                 <td class="text-center">
-                  <%= link_to "削除", admin_user_path(user),
+                  <%= link_to "🗑️削除", admin_user_path(user),
                               method: :delete,
                               data: { confirm: "本当に削除しますか？" },
                               class: "btn btn-danger btn-sm" %>
@@ -163,8 +163,8 @@
                 </td>
                 <td class="text-center">
                   <div class="btn-group" role="group" aria-label="操作">
-                    <%= link_to "編集", edit_admin_group_path(group), class: "btn btn-warning btn-sm" %>
-                    <%= link_to "削除", admin_group_path(group),
+                    <%= link_to "✏️編集", edit_admin_group_path(group), class: "btn btn-warning btn-sm" %>
+                    <%= link_to "🗑️削除", admin_group_path(group),
                                 method: :delete,
                                 data: { confirm: "本当に削除しますか？" },
                                 class: "btn btn-danger btn-sm" %>
@@ -248,7 +248,7 @@
                   <% end %>
                 </td>
                 <td class="text-center">
-                  <%= link_to "削除", admin_comment_path(comment),
+                  <%= link_to "🗑️削除", admin_comment_path(comment),
                               method: :delete,
                               data: { confirm: "本当に削除しますか？" },
                               class: "btn btn-danger btn-sm" %>

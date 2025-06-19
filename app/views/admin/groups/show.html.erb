@@ -54,11 +54,10 @@
           <p>
             <strong>公開範囲：</strong>
             <% case @group.privacy
-               when "public_visibility" then privacy_text = "公開"
-               when "restricted_visibility" then privacy_text = "メンバーのみ"
-               when "private_visibility" then privacy_text = "非公開"
-               else privacy_text = "-"
-               end %>
+              when "public_visibility" then privacy_text = "公開"
+              when "restricted_visibility" then privacy_text = "メンバーのみ"
+              when "private_visibility" then privacy_text = "非公開"
+              else privacy_text = "-" end %>
             <%= privacy_text %>
           </p>
           <p>
@@ -67,29 +66,37 @@
               管理者のみ承認（※ユーザー作成グループのため、この設定は実際には適用されません）
             <% else %>
               <% case @group.join_policy
-                 when "open" then join_text = "誰でも参加可能"
-                 when "invite_only" then join_text = "承認制"
-                 when "admin_only" then join_text = "管理者のみ承認"
-                 else join_text = "-"
-                 end %>
+                when "open" then join_text = "誰でも参加可能"
+                when "invite_only" then join_text = "承認制"
+                when "admin_only" then join_text = "管理者のみ承認"
+                else join_text = "-" end %>
               <%= join_text %>
             <% end %>
           </p>
+
           <% if @group.reported? %>
             <div class="alert alert-danger mt-3" role="alert">
               ⚠️ このグループは通報済みです。
             </div>
+            <!-- 通報解除ボタンを追加 -->
+            <div class="mt-3">
+              <%= link_to "⚠️ 通報を解除する", unreport_admin_group_path(@group),
+                          method: :patch,
+                          data: { confirm: "本当に通報を解除しますか？" },
+                          class: "btn btn-outline-secondary btn-sm" %>
+            </div>
           <% end %>
-          <div class="mt-3">
-            <%= link_to "編集", edit_admin_group_path(@group), class: "btn btn-warning btn-sm mr-2" %>
-            <%= link_to "削除", admin_group_path(@group),
-                        method: :delete,
-                        data: { confirm: "⚠️ 本当にこのグループを削除しますか？ この操作は取り消せません！" },
-                        class: "btn btn-danger btn-sm" %>
-          </div>
+
+        <div class="mt-3">
+          <%= link_to "編集", edit_admin_group_path(@group), class: "btn btn-warning btn-sm mr-2" %>
+          <%= link_to "🗑️削除", admin_group_path(@group),
+                      method: :delete,
+                      data: { confirm: "⚠️ 本当にこのグループを削除しますか？ この操作は取り消せません！" },
+                      class: "btn btn-danger btn-sm" %>
         </div>
       </div>
     </div>
+  </div>
 
     <!-- メンバー管理タブ -->
     <div class="tab-pane fade" id="members" role="tabpanel" aria-labelledby="members-tab">
@@ -109,7 +116,7 @@
               <td><%= membership.role %></td>
               <td>
                 <% unless membership.role == "admin" %>
-                  <%= button_to "削除", reject_admin_group_membership_path(@group, membership),
+                  <%= button_to "🗑️削除", reject_admin_group_membership_path(@group, membership),
                                   method: :delete, class: "btn btn-danger btn-sm",
                                   data: { confirm: "本当に削除しますか？" } %>
                 <% end %>

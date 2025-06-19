@@ -36,7 +36,7 @@
     <% end %>
 
     <div class="d-flex flex-wrap gap-2 mt-3">
-      <%= button_to "削除", admin_comment_path(@comment), method: :delete, data: { confirm: "⚠️ 本当に削除しますか？ この操作は取り消せません！" }, class: "btn btn-danger" %>
+      <%= button_to "🗑️削除", admin_comment_path(@comment), method: :delete, data: { confirm: "⚠️ 本当に削除しますか？ この操作は取り消せません！" }, class: "btn btn-danger" %>
       <%= link_to "コメント一覧へ戻る", admin_comments_path, class: "btn btn-secondary" %>
     </div>
   </div>
