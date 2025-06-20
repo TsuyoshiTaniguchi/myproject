@@ -154,7 +154,9 @@ Rails.application.routes.draw do
 
     # ユーザー管理
     resources :users, only: %i[index show edit update destroy create] do
-      collection { get :search }
+      collection do
+        get :search
+      end
       member do
         patch :unreport        # 通報解除
         patch :toggle_status   # ステータス切り替え
@@ -162,6 +164,8 @@ Rails.application.routes.draw do
         get   :following
       end
     end
+    # 日報管理（詳細＆削除のみ許可）
+    resources :daily_reports, only: %i[show destroy]
 
     # グループ管理
     resources :groups, only: %i[index show new create edit update destroy] do

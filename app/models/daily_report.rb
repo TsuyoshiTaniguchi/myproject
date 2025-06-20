@@ -5,6 +5,22 @@ class DailyReport < ApplicationRecord
   # 公開／非公開の設定
   enum visibility: { public_report: 0, private_report: 1 }
 
+  # 管理者は全件、本人は全件、それ以外は公開のみ取得する
+  scope :accessible_for, ->(viewer, owner_id) {
+    # viewer が Admin モデルかどうか
+    is_admin = viewer.is_a?(Admin)
+    # viewer が User モデルで owner_id と同じかどうか
+    is_owner = viewer.respond_to?(:id) && viewer.id == owner_id
+
+    if is_admin || is_owner
+      where(user_id: owner_id)
+    else
+      where(user_id: owner_id, visibility: :public_report)
+    end
+  }
+
+
+
   # バリデーション
   validates :date,     presence: true
   validates :location, presence: true

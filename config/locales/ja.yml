@@ -77,6 +77,11 @@ ja:
       signed_up: "ユーザー登録が完了しました。"
       signed_up_but_inactive: "ユーザー登録が完了しましたが、アカウントが有効ではありません。"
 
+      updated:                  "アカウント情報を更新しました。"
+
+      user:
+        updated:                "アカウント情報を更新しました。"
+
     sessions:
       signed_in: "ログインしました"
       signed_out: "ログアウトしました"

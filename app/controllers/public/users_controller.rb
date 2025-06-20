@@ -1,6 +1,9 @@
 class Public::UsersController < ApplicationController
   before_action :authenticate_user!
   before_action :restrict_guest_access, only: [:edit, :update, :withdraw]
+  before_action :set_user, only: [:edit, :update, :mypage, :show, :withdraw]
+
+
 
   def index
     # ログインユーザー、管理者、ゲストユーザーを除外
@@ -39,14 +42,40 @@ class Public::UsersController < ApplicationController
     end
   end
 
+  MAX_PORTFOLIO_FILES = 5
+
   def update
-    @user = current_user  # もしくは適切なユーザーの取得方法
-    if @user.update(user_params)
+    # 0) 削除チェックされたファイルがあれば先に purge
+    if params[:user][:remove_portfolio_file_ids].present?
+      params[:user].delete(:remove_portfolio_file_ids).each do |blob_id|
+        attachment = @user.portfolio_files.find_by(blob_id: blob_id)
+        attachment&.purge_later
+      end
+    end
+
+    # 1) 追加分ファイルを取得して params から除去（update時に渡さない）
+    new_files = params[:user].delete(:portfolio_files) || []
+
+    # 2) プロフィールその他属性を更新
+    if @user.update(user_update_params)
+      # 3) 属性更新が成功したら、件数チェックしてから新規ファイルだけ attach
+      if new_files.any?
+        total_after = @user.portfolio_files.count + new_files.size
+        if total_after <= MAX_PORTFOLIO_FILES
+          @user.portfolio_files.attach(new_files)
+        else
+          # 超過していたらエラー
+          flash.now[:alert] = "ポートフォリオは最大#{MAX_PORTFOLIO_FILES}件までです。現在#{@user.portfolio_files.count}件、追加#{new_files.size}件で合計#{total_after}件は登録できません。"
+          return render :edit
+        end
+      end
+
       redirect_to user_path(@user), notice: "プロフィールが更新されました。"
     else
       render :edit, alert: "更新に失敗しました。"
     end
   end
+
 
   def show
     @user = User.find(params[:id])
@@ -155,9 +184,26 @@ class Public::UsersController < ApplicationController
     end
   end
 
-  def user_params
-    params.require(:user).permit(:name, :email, :personal_statement, :growth_story, :portfolio_url, :portfolio_file, :profile_image, :daily_reports_public)
+  def set_user
+    @user = current_user
   end
+
+  # portfolio_files, remove_portfolio_file_ids はここでは permit しない
+  # ポートフォリオ用ファイル関連はここではpermitせず、
+  # attach/purgeは上記ロジックで行う
+  def user_update_params
+    params.require(:user).permit(
+      :name,
+      :email,
+      :personal_statement,
+      :growth_story,
+      :daily_reports_public,
+      :portfolio_url,
+      :profile_image
+    )
+  end
+
+
 
   def ensure_guest_user
     @user = User.find(params[:id])

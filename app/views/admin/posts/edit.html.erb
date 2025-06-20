@@ -1,7 +1,7 @@
 <div class="container mt-4">
   <div class="row justify-content-center">
     <div class="col-md-8">
-      <h1 class="mb-4 text-center font-weight-bold">投稿の編集</h2>
+      <h2 class="mb-4 text-center font-weight-bold">投稿の編集</h2>
 
       <% if @post %>
         <%= form_with model: @post, url: admin_post_path(@post), method: :patch, local: true, html: { class: "card p-4 shadow-sm needs-validation", novalidate: true } do |f| %>

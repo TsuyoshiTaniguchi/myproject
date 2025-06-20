@@ -26,13 +26,15 @@ class Admin::UsersController < ApplicationController
 
   def show
     @user = User.find(params[:id])
-    if @user.daily_reports.respond_to?(:paginate)
-      @daily_reports = @user.daily_reports.order(date: :desc).paginate(page: params[:page], per_page: 10)
-    else
-      @daily_reports = @user.daily_reports.order(date: :desc)
-    end
+    # 管理者画面なら current_admin を渡すのがベター
+    viewer = current_admin || current_user
+
+    @daily_reports = DailyReport
+                       .accessible_for(viewer, @user.id)
+                       .order(date: :desc)
+                       .page(params[:page])  # Kaminari: 現在ページ
+                       .per(10)              # 1ページあたり10件
   end
-  
 
   def edit
     @user = User.find(params[:id])

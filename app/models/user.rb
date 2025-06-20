@@ -3,7 +3,6 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
-         
   # スコープ：アクティブユーザーのみ取得
   scope :active, -> { where(status: statuses[:active]) }
 
@@ -45,13 +44,17 @@ class User < ApplicationRecord
   validates :email, presence: true, uniqueness: true
   validates :personal_statement, length: { maximum: 500 }
   validates :reported, inclusion: { in: [true, false] }
+  validates :portfolio_url,
+  format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]),
+            message: "は有効なURL形式で入力してください" },
+  allow_blank: true
+  # 添付ファイルのバリデーションを登録
+  validate :validate_portfolio_files
 
   before_validation :set_default_status, on: :create
 
-
   # 既存列 role:string default:"user" をそのまま使う
   enum role: { guest: "guest", user: "user", admin: "admin" }
-
 
   # 引数のユーザーをすでにフォローしているか？
   def following?(other_user)
@@ -108,7 +111,30 @@ class User < ApplicationRecord
 
   private
 
+  def validate_portfolio_files
+    return unless portfolio_files.attached?
+
+    # 件数チェック
+    if portfolio_files.count > 5
+      errors.add(:portfolio_files, "は最大5つまでアップロードできます")
+    end
+
+    portfolio_files.each do |file|
+      # MIMEタイプチェック
+      unless file.content_type.in?(%w[image/png image/jpeg application/pdf])
+        errors.add(:portfolio_files, "はPNG・JPEG・PDFのみアップロードできます")
+      end
+
+      # サイズチェック
+      if file.byte_size > 5.megabytes
+        errors.add(:portfolio_files, "は5MB以内のファイルにしてください")
+      end
+    end
+  end
+
+
   def set_default_status
     self.status ||= "active"
   end
+  
 end

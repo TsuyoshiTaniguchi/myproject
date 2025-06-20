@@ -204,67 +204,58 @@
     </div>
 
     <!-- ライフログタブ -->
-    <div class="tab-pane fade" id="daily" role="tabpanel" aria-labelledby="daily-tab">
-
-      <!-- 日報タイムライン部分（ページネーションなし） -->
+    <!-- app/views/admin/users/show.html.erb のライフログタブ -->
+    <div class="tab-pane fade" id="daily" role="tabpanel">
       <div class="card mb-4">
         <div class="card-header">
           <h3 class="mb-0">ライフログ＜日報履歴＞</h3>
         </div>
-        <div class="card-body">
-          <ul class="list-group">
+        <div class="card-body p-0">
+          <ul class="list-group m-0">
             <% if @daily_reports.any? %>
               <% @daily_reports.each do |report| %>
                 <li class="list-group-item">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                      <i class="fas fa-calendar-alt me-2"></i>
-                      <strong><%= report.date.strftime("%Y年%m月%d日") %></strong>
-                      <!-- 公開／非公開の切替フォーム -->
-                      <%= form_with model: report,
-                                    url: daily_report_path(report),
-                                    method: :patch,
-                                    local: true,
-                                    class: "d-inline" do |f| %>
-                        <div class="input-group input-group-sm">
-                          <%= f.select :visibility,
-                            [["公開", "public_report"], ["非公開", "private_report"]],
-                            { selected: report.visibility },
-                            class: "form-select" %>
-                          <button type="submit" class="btn btn-outline-secondary">
-                            <i class="fas <%= report.visibility == 'public_report' ? 'fa-toggle-on text-success' : 'fa-toggle-off text-muted' %>"></i>
-                          </button>
-                        </div>
-                      <% end %>
+                  <div class="d-flex justify-content-between">
+                    <div class="w-100">
+                      <!-- 日付＋場所 -->
+                      <div class="d-flex align-items-center">
+                        <i class="fas fa-calendar-alt me-2"></i>
+                        <strong class="me-4"><%= report.date.strftime("%Y年%-m月%-d日") %></strong>
+                        <% if report.location.present? %>
+                          <span class="text-muted small d-flex align-items-center">
+                            　<i class="fas fa-map-marker-alt me-1"></i>
+                            <%= report.location %>
+                          </span>
+                        <% end %>
+                      </div>
+                      <!-- 本文 -->
+                      <div class="mt-2">
+                        <%= simple_format(report.content, {}, wrapper_tag: "p", class: "mb-1") %>
+                      </div>
                     </div>
-                    <div>
-                      <%= link_to "詳細", daily_report_path(report), class: "btn btn-sm btn-outline-primary me-2" %>
-                      <%= link_to "編集", edit_daily_report_path(report), class: "btn btn-warning btn-sm me-2" %>
-                      <%= link_to "削除", report,
+    
+                    <!-- 削除ボタン -->
+                    <div class="ms-3 flex-shrink-0">
+                      <%= link_to "削除",
+                                  admin_daily_report_path(report),
                                   method: :delete,
-                                  data: { confirm: "本当に削除しますか？" },
-                                  class: "btn btn-danger btn-sm" %>
+                                  data: { confirm: "この日報を削除してよろしいですか？" },
+                                  class: "btn btn-sm btn-danger" %>
                     </div>
-                  </div>
-                  <div class="mt-2">
-                    <p>
-                      <i class="fas fa-map-marker-alt me-1"></i>
-                      <strong>場所:</strong> <%= report.location %>
-                    </p>
-                    <p>
-                      <i class="fas fa-align-left me-1"></i>
-                      <%= truncate(report.content, length: 100) %>
-                    </p>
                   </div>
                 </li>
               <% end %>
             <% else %>
               <li class="list-group-item text-center text-muted">
-                まだ日報がありません。新規作成してください。
+                日報はまだありません。
               </li>
             <% end %>
           </ul>
-          <!-- ページネーションリンクは削除 -->
+        </div>
+    
+        <!-- ページネーション -->
+        <div class="card-footer text-center">
+          <%= paginate @daily_reports %>
         </div>
       </div>
     </div>

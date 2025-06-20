@@ -2,21 +2,25 @@
 
   <!-- タブナビ -->
   <ul class="nav nav-tabs" id="profileTab" role="tablist">
-    <% { overview: "概要", portfolio: "ポートフォリオ", files: "ファイル", story: "自己PR" }.each_with_index do |(key,label), i| %>
+    <% { overview: "概要",
+         portfolio: "ポートフォリオ",
+         story:     "自己PR" }.each_with_index do |(key, label), i| %>
       <li class="nav-item">
-        <button
+        <a
           class="nav-link <%= 'active' if i.zero? %>"
           id="tab-<%= key %>"
           data-toggle="tab"
-          data-target="#pane-<%= key %>"
-          type="button" role="tab"
+          href="#pane-<%= key %>"
+          role="tab"
           aria-controls="pane-<%= key %>"
-          aria-selected="<%= i.zero? %>">
+          aria-selected="<%= i.zero? %>"
+        >
           <%= label %>
-        </button>
+        </a>
       </li>
     <% end %>
   </ul>
+
 
   <!-- タブコンテンツ -->
   <div class="tab-content p-3 border border-top-0 mb-4">
@@ -114,43 +118,51 @@
     </div>
   </div>
 
-    <!-- ポートフォリオURL -->
+   <!-- 2. ポートフォリオ（リンク＋ファイル） -->
     <div class="tab-pane fade" id="pane-portfolio" role="tabpanel">
-      <h5>ポートフォリオリンク</h5>
-      <% if user.portfolio_url.present? %>
-        <p><%= link_to user.portfolio_url, user.portfolio_url,
-                       class: "text-primary", target: "_blank", rel: "noopener" %></p>
-      <% else %>
-        <p class="text-muted small mb-0">リンク未設定です。</p>
-      <% end %>
-    </div>
+      <h5>ポートフォリオ</h5>
 
-    <!-- ファイル -->
-    <div class="tab-pane fade" id="pane-files" role="tabpanel">
-      <h5>アップロードファイル</h5>
+      <!-- リンク -->
+      <% if user.portfolio_url.present? %>
+        <p>
+          <strong>リンク：</strong>
+          <%= link_to user.portfolio_url, user.portfolio_url,
+                      class: "text-primary",
+                      target: "_blank", rel: "noopener" %>
+        </p>
+      <% else %>
+        <p class="text-muted small">ポートフォリオリンクは未設定です。</p>
+      <% end %>
+
+      <!-- アップロードファイル -->
+      <h5 class="mt-3">アップロードファイル</h5>
       <% if user.portfolio_files.attached? %>
         <ul class="list-group list-group-flush">
-          <% user.portfolio_files.each do |f| %>
+          <% user.portfolio_files.each do |file| %>
             <li class="list-group-item d-flex align-items-center py-2">
-              <% if f.content_type.start_with?("image/") %>
-                <%= link_to url_for(f), target: "_blank", class: "me-3" do %>
-                  <%= image_tag f.variant(resize_to_limit: [80,80]),
+              <% if file.image? %>
+                <%= link_to url_for(file), target: "_blank", class: "me-3" do %>
+                  <%= image_tag file.variant(resize_to_limit: [80,80]),
                                 class: "img-thumbnail" %>
                 <% end %>
               <% else %>
                 <i class="fas fa-file-alt fa-2x text-secondary me-3"></i>
               <% end %>
               <div>
-                <%= link_to f.filename.to_s, url_for(f), target: "_blank" %><br>
-                <small class="text-muted"><%= number_to_human_size(f.byte_size) %></small>
+                <%= link_to file.filename.to_s, url_for(file),
+                            target: "_blank" %><br>
+                <small class="text-muted">
+                  <%= number_to_human_size(file.byte_size) %>
+                </small>
               </div>
             </li>
           <% end %>
         </ul>
       <% else %>
-        <p class="text-muted small mb-0">ファイルがありません。</p>
+        <p class="text-muted small">ファイルはありません。</p>
       <% end %>
     </div>
+
 
     <!-- 自己PR -->
     <div class="tab-pane fade" id="pane-story" role="tabpanel">

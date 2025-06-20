@@ -9,7 +9,6 @@
           <%= f.label :name, "名前", class: "form-label" %>
           <%= f.text_field :name, class: "form-control", placeholder: "名前を入力" %>
         </div>
-
         <div class="mb-3">
           <%= f.label :email, "メールアドレス", class: "form-label" %>
           <%= f.email_field :email, class: "form-control", placeholder: "example@example.com" %>
@@ -22,7 +21,7 @@
             ※ あなたの自信や魅力をひとことで伝えてみましょう。シンプルに、あなたらしさを表現してみよう。
           </p>
           <%= f.label :personal_statement, "自己PR概要", class: "form-label" %>
-          <%= f.text_area :personal_statement, class: "form-control", rows: 4, 
+          <%= f.text_area :personal_statement, class: "form-control", rows: 4,
                           placeholder: "例）温かい人柄とアイデアが自慢です…" %>
         </div>
 
@@ -33,90 +32,73 @@
             ※ あなたがこれまでに積み重ねてきた経験や学びのお話を聞かせください。未来への夢や目標などもぜひ！
           </p>
           <%= f.label :growth_story, "成長ストーリー（詳細）", class: "form-label" %>
-          <%= f.text_area :growth_story, class: "form-control", rows: 6, 
+          <%= f.text_area :growth_story, class: "form-control", rows: 6,
                           placeholder: "例）学生時代の小さな挑戦から、社会での経験まで…温かいお話をお聞かせください…" %>
         </div>
 
         <!-- ライフログ表示選択 -->
-        <div class="form-group">
-          <%= f.label :daily_reports_public, "ライフログ＜日報＞を公開する" %>
+        <div class="form-group mb-4">
+          <%= f.label :daily_reports_public, "ライフログ＜日報＞を公開する", class: "form-label" %>
           <%= f.check_box :daily_reports_public %>
         </div>
 
-        <!-- ポートフォリオURL・サービス選択 -->
+        <!-- 新：ポートフォリオURL入力欄だけ -->
         <div class="mb-3">
-          <%= f.label :portfolio_url, "ポートフォリオURLを選択または入力", class: "form-label" %>
-          <!-- Bootstrap 4 では select に form-control を使う -->
-          <select class="form-control mb-2" id="portfolio_platform">
-            <option value="">サービスを選択</option>
-            <option value="github">GitHub</option>
-            <option value="behance">Behance</option>
-            <option value="dribbble">Dribbble</option>
-            <option value="custom">その他（手入力）</option>
-          </select>
-        </div>
-
-        <div class="mb-3" id="portfolio_username_field" style="display: none;">
-          <%= f.label :portfolio_username, "ユーザー名を入力", class: "form-label" %>
-          <%= f.text_field :portfolio_username, class: "form-control", placeholder: "ユーザー名を入力" %>
-        </div>
-
-        <div class="mb-3" id="portfolio_url_field">
           <%= f.label :portfolio_url, "ポートフォリオURL", class: "form-label" %>
-          <%= f.text_field :portfolio_url, class: "form-control", placeholder: "https://example.com" %>
+          <%= f.text_field :portfolio_url,
+                           class: "form-control",
+                           placeholder: "https://example.com" %>
         </div>
 
-        <!-- JavaScript で選択状況に応じた表示切替 -->
-        <script>
-          document.addEventListener("DOMContentLoaded", function() {
-            const portfolioPlatform = document.getElementById("portfolio_platform");
-            const usernameField = document.getElementById("portfolio_username_field");
-            const urlField = document.getElementById("portfolio_url_field");
-            const urlInput = document.querySelector("[name='user[portfolio_url]']");
-            const portfolioUsernameInput = document.querySelector("[name='user[portfolio_username]']");
-            
-            portfolioPlatform.addEventListener("change", function() {
-              const selectedService = this.value;
-              if (selectedService === "custom") {
-                usernameField.style.display = "none";
-                urlField.style.display = "block";
-                urlInput.value = "";
-              } else if (selectedService === "github" || selectedService === "behance" || selectedService === "dribbble") {
-                usernameField.style.display = "block";
-                urlField.style.display = "none";
-                urlInput.value = "";
-              }
-            });
-            
-            if (portfolioUsernameInput) {
-              portfolioUsernameInput.addEventListener("input", function() {
-                const selectedService = portfolioPlatform.value;
-                if (selectedService === "github") {
-                  urlInput.value = `https://github.com/${this.value}`;
-                } else if (selectedService === "behance") {
-                  urlInput.value = `https://www.behance.net/${this.value}`;
-                } else if (selectedService === "dribbble") {
-                  urlInput.value = `https://dribbble.com/${this.value}`;
-                }
-              });
-            }
-          });
-        </script>
-
+        <!-- ポートフォリオのファイルアップロード -->
+        <!-- 既存ファイルの一覧＆削除チェック -->
+        <% if @user.portfolio_files.attached? %>
+          <div class="mb-3">
+            <p class="form-label">現在アップロードされているファイル</p>
+            <% @user.portfolio_files.each do |file| %>
+              <div class="d-flex align-items-center mb-2">
+                <% if file.image? %>
+                  <%= image_tag file.variant(resize_to_limit: [80,80]),
+                                class: "img-thumbnail me-2" %>
+                <% else %>
+                  <i class="fas fa-file-alt fa-2x text-secondary me-2"></i>
+                <% end %>
+                <span class="me-3"><%= file.filename %></span>
+                <div class="form-check">
+                  <%= check_box_tag "user[remove_portfolio_file_ids][]",
+                                    file.blob.id,
+                                    false,
+                                    id: "remove_file_#{file.blob.id}",
+                                    class: "form-check-input" %>
+                  <%= label_tag "remove_file_#{file.blob.id}",
+                                "削除",
+                                class: "form-check-label" %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      
+        <!-- 新規ファイルアップロード欄 -->
         <div class="mb-3">
-          <%= f.label :portfolio_files, "ポートフォリオのファイルをアップロード", class: "form-label" %>
-          <%= f.file_field :portfolio_files, multiple: true, class: "form-control" %>
+          <%= f.label :portfolio_files, "ポートフォリオのファイルを追加アップロード", class: "form-label" %>
+          <%= f.file_field :portfolio_files,
+                           multiple: true,
+                           class: "form-control" %>
         </div>
+      
 
         <!-- プロフィール画像 プレビュー -->
         <div class="mb-3 text-center">
           <% if @user.profile_image.attached? %>
-            <%= image_tag @user.profile_image.variant(resize: "200x200"), class: "rounded-circle mb-3 border" %>
+            <%= image_tag @user.profile_image.variant(resize: "200x200"),
+                          class: "rounded-circle mb-3 border" %>
           <% else %>
-            <%= image_tag "no_image.jpg", class: "rounded-circle mb-3 border", width: 200, height: 200 %>
+            <%= image_tag "no_image.jpg",
+                          class: "rounded-circle mb-3 border",
+                          width: 200, height: 200 %>
           <% end %>
         </div>
-
         <div class="mb-3">
           <%= f.label :profile_image, "プロフィール画像を変更", class: "form-label" %>
           <%= f.file_field :profile_image, accept: "image/*", class: "form-control" %>
@@ -127,7 +109,6 @@
           <%= f.submit "更新する", class: "btn btn-primary px-4" %>
         </div>
       <% end %>
-      </div>
     </div>
   </div>
 </div>

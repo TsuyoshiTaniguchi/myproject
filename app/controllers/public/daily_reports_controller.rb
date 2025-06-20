@@ -5,61 +5,28 @@ class Public::DailyReportsController < ApplicationController
 
   # GET /daily_reports
   def index
-    # @user がまだセットされていない場合は、current_user を使う
     @user ||= current_user
+    base_reports = DailyReport.accessible_for(current_user, @user.id).order(date: :desc)
+    filtered     = apply_filters(base_reports)
   
-    # トップレベルの DailyReport を明示的に取得する
-    dr = Object.const_get('DailyReport')
-  
-    # 管理者または対象ユーザー自身ならそのユーザーの日報を全件取得、
-    # 一般ユーザーなら公開設定の日報のみ取得
-    reports = if current_user.admin? || current_user == @user
-                dr.where(user: @user)
-              else
-                dr.where(
-                  user: @user,
-                  visibility: dr.visibilities[:public_report]
-                )
-              end.order(date: :desc)
-  
-    # 期間フィルタ
-    if params[:date_range].present?
-      start_date = Date.today - params[:date_range].to_i.days
-      reports = reports.where('date >= ?', start_date)
-    end
-  
-    # キーワード検索
-    if params[:keyword].present?
-      reports = reports.where('content LIKE ?', "%#{params[:keyword]}%")
-    end
-  
-    # 一般ユーザーかつフィルタ無しの場合はキャッシュ利用（24時間）
-    if !current_user.admin? && params.slice(:date_range, :keyword).empty?
-      cache_key = "daily_reports/#{@user.id}"
-      @daily_reports = Rails.cache.fetch(cache_key, expires_in: 24.hours) do
-        reports.limit(30).to_a
-      end
-    else
-      @daily_reports = reports
-    end
+    @daily_reports = cacheable?(@user) ? cached_reports(filtered) : filtered
   
     respond_to do |format|
       format.html
       format.json { render json: @daily_reports }
     end
   end
+  
 
   # GET /daily_reports/:id
   def show
     # @daily_report は set_daily_report で取得済み
   end
 
-  # GET /daily_reports/new
   def new
     @daily_report = current_user.daily_reports.build
   end
 
-  # POST /daily_reports
   def create
     @daily_report = current_user.daily_reports.build(daily_report_params)
     @daily_report.visibility = "public_report"  # 公開設定
@@ -157,14 +124,30 @@ class Public::DailyReportsController < ApplicationController
 
   private
 
+  def apply_filters(relation)
+    relation = relation.where('date >= ?', Date.today - params[:date_range].to_i.days) if params[:date_range].present?
+    relation = relation.where('content LIKE ?', "%#{params[:keyword]}%")        if params[:keyword].present?
+    relation
+  end
+  
+  def cacheable?(user)
+    !current_user.admin? && user == current_user && params.slice(:date_range, :keyword).empty?
+  end
+  
+  def cached_reports(relation)
+    Rails.cache.fetch("daily_reports/#{@user.id}", expires_in: 24.hours) do
+      relation.limit(30).to_a
+    end
+  end
+
   def set_user
     @user = params[:user_id].present? ? User.find(params[:user_id]) : current_user
   end
 
   def set_daily_report
-    # トップレベルの DailyReport を明示的に参照する
-    scope = current_user.admin? ? ::DailyReport.all : current_user.daily_reports
-    @daily_report = scope.find(params[:id])
+    @daily_report = DailyReport
+                      .accessible_for(current_user, @user.id)
+                      .find(params[:id])
   rescue ActiveRecord::RecordNotFound
     redirect_to daily_reports_path, alert: '日報が見つかりませんでした。'
   end
