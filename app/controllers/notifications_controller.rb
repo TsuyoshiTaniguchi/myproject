@@ -52,19 +52,31 @@ class NotificationsController < ApplicationController
   def notification_redirect_path(n)
     case n.notification_type
     when "comment"
-      post_path(n.source.post)
+      # source（Comment）があり、さらに post が存在するかをチェック
+      if n.source&.post
+        post_path(n.source.post)
+      else
+        notifications_path  # フォールバック
+      end
+
     when "like"
-      post_path(n.source.likeable)
+      # source（Like）があり、likeable（投稿）があるかをチェック
+      if n.source&.likeable
+        post_path(n.source.likeable)
+      else
+        notifications_path
+      end
+
     when "membership_request", "membership_approval", "membership_rejection"
-      # 拒否通知の場合、Membership が物理削除されると n.source は nil になり得るため、
-      # その場合はフォールバックとして groups_path (または適切なパス) を返す
-      if n.source.present? && n.source.group.present?
+      # source（Membership）があり、group があるかをチェック
+      if n.source&.group
         group_path(n.source.group)
       else
         groups_path
       end
+
     else
-      root_path
+      notifications_path
     end
   end
 end

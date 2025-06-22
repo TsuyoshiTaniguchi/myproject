@@ -22,6 +22,7 @@ class Public::UsersController < ApplicationController
     @user = current_user
     following_ids = @user.following.pluck(:id)
     @daily_reports = DailyReport.where(user_id: current_user.id)
+    @daily_reports = @user.daily_reports.order(date: :desc).page(params[:page]).per(10)
 
     # 投稿取得後、明示的に array に変換してフィルタリング
     posts = Post.where(user_id: following_ids)
@@ -78,20 +79,22 @@ class Public::UsersController < ApplicationController
 
 
   def show
-    @user = User.find(params[:id])
+    @user            = User.find(params[:id])
     @following_users = @user.following
-  
-    # 投稿のフィルタリング
-    own_posts = filter_posts(@user.posts.to_a)
-    followed_user_ids = current_user.following.pluck(:id)
-    followed_posts = filter_posts(Post.where(user_id: followed_user_ids).to_a)
-    @posts = (own_posts + followed_posts).sort_by(&:created_at).reverse
-  
-    if @user.daily_reports_public?
-      @daily_reports = @user.daily_reports.public_report.order(date: :desc)
-    else
-      @daily_reports = [] # もしくは別メッセージを表示
-    end
+
+    # 投稿フィルタリング（既存ロジック）
+    own_posts          = filter_posts(@user.posts.to_a)
+    followed_user_ids  = current_user.following.pluck(:id)
+    followed_posts     = filter_posts(Post.where(user_id: followed_user_ids).to_a)
+    @posts             = (own_posts + followed_posts).sort_by(&:created_at).reverse
+
+    # ここから日報ロジック
+    # “自分のと公開済み”だけ accessible_for で拾い、
+    # 日報は公開／非公開を問わず“全部”取得してページネート
+    @daily_reports = @user.daily_reports
+                          .order(date: :desc)
+                          .page(params[:page])
+                          .per(10)
   end
 
   # 退会確認
@@ -142,20 +145,37 @@ class Public::UsersController < ApplicationController
 
 
   def daily_reports
-    @daily_reports = DailyReport.where(user_id: params[:id])
+    # 1) @userをIDから取得
+    @user = User.find(params[:id])
+
+    # 2) アクセス制御済みレポートを日付降順で取得
+    reports = DailyReport
+                .accessible_for(current_user, @user.id)
+                .order(date: :desc)
+
+    # 3) Kaminariで10件ずつページネート（HTML用）
+    @daily_reports = reports.page(params[:page]).per(10)
 
     respond_to do |format|
       format.html
       format.json do
-        render json: @daily_reports.map do |report|
+        # カレンダー用JSONはページネートせず全件返す
+        events = reports.map do |r|
           {
-            title: report.title,
-            start: report.date.iso8601,
-            description: report.content,
-            user: report.user.name
+            id:          r.id,
+            title:       r.location.presence || r.content.truncate(30),
+            start:       r.date.iso8601,
+            description: r.content,
+            user:        r.user.name,
+            # 自分のページなら show、それ以外は compact に誘導
+            url:         (@user == current_user) ?
+                           daily_report_path(r) :
+                           compact_daily_report_path(r)
           }
-        end  # JSON のレスポンスに description や user を含め、拡張性を確保
-      end    # フロントエンド側でより多くの情報が扱えるように
+        end
+
+        render json: events
+      end
     end
   end
 

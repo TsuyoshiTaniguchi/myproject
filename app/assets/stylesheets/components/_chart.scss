@@ -1,7 +1,16 @@
 #performanceChart,
 #growthChart,
 #futureGrowthChart {
-  max-width: 400px !important;
+  /* 親コンテナ幅いっぱいまで伸ばす */
+  width: 100% !important;
+
+  /* 最大でも800pxまでに制限 */
+  max-width: 800px !important;
+
+  /* 高さは固定 */
   height: 300px !important;
+
   display: block;
+  margin-left: auto;
+  margin-right: auto;
 }

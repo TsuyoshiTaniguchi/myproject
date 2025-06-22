@@ -26,7 +26,7 @@ class Public::GroupsController < ApplicationController
         "%#{normalized_query}%"
       )
     end
-  
+
     @groups = @groups.order(created_at: :desc)
                      .includes(:memberships)
   
@@ -208,8 +208,19 @@ class Public::GroupsController < ApplicationController
     unless current_user == @group.owner
       return redirect_to group_path(@group), alert: "この操作はグループオーナーのみ可能です。"
     end
-    # "status" ではなく "role" で保留中の参加リクエストを取得
+  
+    # 保留中の参加リクエストを取得
     @pending_members = @group.memberships.where(role: "pending")
+    # show 画面で利用している他の変数もセットする
+    @posts = @group.posts.order(created_at: :desc).page(params[:page]).per(10)
+    @recent_posts = @group.posts.order(created_at: :desc).limit(5)
+    @new_members = @group.memberships.where(role: ["member", "owner"])
+                                     .order(created_at: :desc)
+                                     .limit(3)
+                                     .map(&:user)
+    
+    # これで、show テンプレート内で参照されるすべての変数が定義されるのでエラーは解消される
+    render :show
   end
 
   def approve_membership

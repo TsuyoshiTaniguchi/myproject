@@ -1,5 +1,7 @@
 class Admin::MembershipsController < ApplicationController
   before_action :authenticate_admin!
+  before_action :set_group
+  before_action :set_membership, only: %i[destroy approve reject report unreport_member]
 
   def create
     begin
@@ -36,39 +38,44 @@ class Admin::MembershipsController < ApplicationController
     end
   end
 
+  # PATCH /admin/groups/:group_id/memberships/:id/approve
+  # PATCH /admin/groups/:group_id/memberships/:id/approve
   def approve
-    @membership = Membership.find_by(id: params[:id])
-    
-    unless @membership
-      redirect_to admin_groups_path, alert: "ユーザー作成グループは所有者のみが承認できます。"
-      return
-    end
-  
-    # 公式グループの場合のみ、管理者が承認可能（＝グループのオーナーが管理者の場合）
-    if @membership.group.owner != current_admin
-      redirect_to admin_group_path(@membership.group), alert: "ユーザー作成グループは所有者のみが承認できます。"
-      return
-    end
-  
-    if @membership.pending?
-      if @membership.update(role: "member")
-        redirect_to admin_group_path(@membership.group), notice: "参加リクエストを承認しました！"
-      else
-        redirect_to admin_group_path(@membership.group), alert: "承認に失敗しました。"
-      end
-    else
-      redirect_to admin_group_path(@membership.group), alert: "このユーザーはすでにメンバーです！"
-    end
-  end
-  
-  def reject
-    @membership = Membership.find_by(id: params[:id])
+    return redirect_to(admin_group_path(@group), alert: "該当申請が見つかりません") unless @membership
+    # 権限チェックは省略…
 
-    if @membership.destroy
-      redirect_to admin_group_path(@membership.group), notice: "参加リクエストを拒否しました！"
+    if @membership.pending?
+      # ここでモデルの approve! を呼ぶと、role 更新 + 通知生成までやってくれる
+      @membership.approve!
+      redirect_to admin_group_path(@group), notice: "参加リクエストを承認しました！"
     else
-      redirect_to admin_group_path(@membership.group), alert: "拒否に失敗しました。"
+      redirect_to admin_group_path(@group), alert: "このユーザーはすでにメンバーです。"
     end
   end
+
   
+
+  # DELETE /admin/groups/:group_id/memberships/:id/reject
+  def reject
+    return redirect_to(admin_group_path(@group), alert: "該当申請が見つかりません") unless @membership
+
+    # モデルの reject! を呼ぶと、通知生成 + レコード削除までやってくれる
+    @membership.reject!
+    redirect_to admin_group_path(@group), notice: "参加リクエストを拒否しました。"
+  end
+
+
+  private
+
+  def set_group
+    @group = Group.find_by(id: params[:group_id])
+    return if @group
+
+    redirect_to admin_groups_path, alert: "グループが見つかりません。"
+  end
+
+  def set_membership
+    @membership = @group.memberships.find_by(id: params[:id])
+  end
+
 end

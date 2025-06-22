@@ -36,7 +36,12 @@ window.Chart = Chart;                // HTML 直書き用に公開
 // ===== 外部モジュール =====
 import { initCalendar }   from "./calendar"; // packs/calendar.js
 import { initMapIfNeeded } from "./maps";    // packs/maps.js ※下で解説
-import { initPerformanceChart } from "./daily_reports";  // ★追加
+import { initPerformanceChart } from "./daily_reports";
+import "./location";
+import "./like_toggle";
+
+
+
 
 
 
@@ -119,40 +124,3 @@ document.addEventListener("turbolinks:load", () => {
   // 直接 URL で日報タブが開かれていた場合
   if (document.querySelector("#daily_reports.show.active")) initCalendar();
 });
-
-// 例えば、app/javascript/packs/custom.js 内で
-window.getLocation = function() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      function(position) {
-        console.log("Latitude:", position.coords.latitude, "Longitude:", position.coords.longitude);
-        // ここで他の処理を実装
-      },
-      function(error) {
-        console.error("位置情報の取得に失敗しました:", error);
-      }
-    );
-  } else {
-    console.error("このブラウザは位置情報取得に対応していません。");
-  }
-};
-
-//  いいねボタンをでリロードなしに更新(現在うまく行っていない為リロードありで対応、将来用に残しています)
-// document.addEventListener("DOMContentLoaded", function () {
-//   console.log("ページ完全ロード完了 ");
-  
-//   var dropdownToggle = document.querySelector(".dropdown-toggle");
-  
-//   if (dropdownToggle) {
-//     dropdownToggle.addEventListener("click", function (event) {
-//       event.stopPropagation();
-//       var dropdownMenu = document.querySelector(".dropdown-menu");
-//       if (dropdownMenu) {
-//         dropdownMenu.classList.toggle("show");
-//       }
-//     });
-//   } else {
-//     console.warn("⚠️ `.dropdown-toggle` が見つかりません！");
-//   }
-// });
-

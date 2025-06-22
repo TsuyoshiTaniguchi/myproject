@@ -19,6 +19,18 @@ class DailyReport < ApplicationRecord
     end
   }
 
+  reverse_geocoded_by :latitude, :longitude do |report, results|
+    geo = results&.first or next
+
+    # Geocoder::Result の city メソッドで「市区町村」取得を試みる
+    # なければ state（都道府県）、country（国名）にフォールバック
+    report.location =
+      geo.city.presence ||
+      geo.state.presence ||
+      geo.country.presence ||
+      report.location
+  end
+
 
 
   # バリデーション
@@ -34,6 +46,21 @@ class DailyReport < ApplicationRecord
   validates :future_goal_value, numericality: { allow_nil: true, greater_than: 0, less_than_or_equal_to: 100 }
   validates :future_goal_days, numericality: { only_integer: true, greater_than: 0 }, allow_nil: true
 
+  # app/models/daily_report.rb
+  scope :accessible_for, ->(current_user, user_id) {
+    where(user_id: user_id)
+      .yield_self { |rel|
+        if current_user.admin?
+          rel
+        elsif current_user.id == user_id
+          rel
+        else
+          rel.where(visibility: 'public_report')
+        end
+      }
+  }
+
+
   # 前回の日報を取得するメソッド
   def previous_report
     self.class.where(user_id: user_id).where('date < ?', date).order(date: :desc).first
@@ -47,4 +74,5 @@ class DailyReport < ApplicationRecord
       nil
     end
   end
+
 end

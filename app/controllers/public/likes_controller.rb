@@ -3,26 +3,25 @@ class Public::LikesController < ApplicationController
   before_action :set_post
 
   def create
-    @like = @post.likes.create(user: current_user)
-    redirect_to request.referrer || posts_path, notice: "いいねしました！"
+    like = @post.likes.create!(user: current_user)
+    respond_to do |f|
+      f.html { redirect_back(fallback_location: posts_path) }
+      f.json { render json: { liked: true,  count: @post.likes.count, like_id: like.id } }
+    end
   end
   
   def destroy
-    @post = Post.find(params[:post_id])
-    @like = @post.likes.find_by(user_id: current_user.id)
-  
-    @like.destroy if @like.present?
-  
-    redirect_to request.referrer || posts_path, notice: "いいねを解除しました！"
+    like = @post.likes.find_by!(user: current_user)
+    like.destroy!
+    respond_to do |f|
+      f.html { redirect_back(fallback_location: posts_path) }
+      f.json { render json: { liked: false, count: @post.likes.count, like_id: nil } }
+    end
   end
-
-
+  
 
   private
-
   def set_post
     @post = Post.find(params[:post_id])
   end
-
-
 end

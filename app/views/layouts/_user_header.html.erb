@@ -47,7 +47,7 @@
           </li>
           <!-- ログアウト -->
           <li class="nav-item">
-            <%= button_to logout_path, method: :post, class: "nav-link logout", form: { class: "d-inline" } do %>
+            <%= link_to logout_path, method: :post, class: "nav-link logout" do %>
               <i class="fas fa-sign-out-alt"></i>
             <% end %>
           </li>

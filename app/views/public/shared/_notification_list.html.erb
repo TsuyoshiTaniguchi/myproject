@@ -5,71 +5,91 @@
 <% if notifications.any? %>
   <div class="list-group">
     <% notifications.each do |notification| %>
-      <% message, path, verb = case notification.notification_type
-         when "membership_request"
-           mem, grp = notification.source, notification.source.group
-           [
-             "<i class='bi bi-person-plus'></i> #{mem.user.name} さんが「#{grp.name}」に参加申請しました",
-             group_path(grp),
-             :get
-           ]
+      <% 
+        message, path, verb = case notification.notification_type
+        when "membership_request"
+          mem, grp = notification.source, notification.source.group
+          [
+            "<i class='bi bi-person-plus'></i> #{mem.user.name} さんが「#{grp.name}」に参加申請しました",
+            group_path(grp),
+            :get
+          ]
 
-         when "membership_approval"
-           mem, grp = notification.source, notification.source.group
-           [
-             "<i class='bi bi-check2-circle'></i> あなたの「#{grp.name}」参加申請が承認されました！",
-             group_path(grp),
-             :get
-           ]
+        when "membership_approval"
+          mem, grp = notification.source, notification.source.group
+          [
+            "<i class='bi bi-check2-circle'></i> あなたの「#{grp.name}」参加申請が承認されました！
+            ",
+            group_path(grp),
+            :get
+          ]
 
-         when "membership_rejection"
-           mem, grp = notification.source, notification.source.group
-           [
-             "<i class='bi bi-x-circle'></i> あなたの「#{grp.name}」参加申請が却下されました…",
-             group_path(grp),
-             :get
-           ]
+        when "membership_rejection"
+          mem, grp = notification.source, notification.source.group
+          [
+            "<i class='bi bi-x-circle'></i> あなたの「#{grp.name}」参加申請が却下されました…",
+            group_path(grp),
+            :get
+          ]
 
-         when "post_report", "comment_report", "member_report", "group_reported"
-           [
-             notification.formatted_content,
-             notification_path(notification),
-             :patch
-           ]
+        when "post_report", "comment_report", "member_report", "group_reported"
+          [
+            notification.formatted_content,
+            notification_path(notification),
+            :patch
+          ]
 
-         when "admin_alert"
-           [
-             notification.formatted_content,
-             notifications_path,
-             :get
-           ]
+        when "admin_alert"
+          [
+            notification.formatted_content,
+            notifications_path,
+            :get
+          ]
 
-         else
-           # 通知タイプにない過去の Comment／Like は source_type でフォールバック
-           case notification.source_type
-           when "Comment"
-             c = notification.source
-             [
-               "<i class='bi bi-chat-left-text'></i> #{c.user.name} さんがあなたの投稿にコメントしました！",
-               notification_path(notification),
-               :patch
-             ]
-           when "Like"
-             l = notification.source
-             [
-               "<i class='bi bi-hand-thumbs-up'></i> #{l.user.name} さんがあなたの投稿をいいねしました！",
-               notification_path(notification),
-               :patch
-             ]
-           else
-             [
-               "<i class='bi bi-bell'></i> 新しい通知があります！",
-               notifications_path,
-               :get
-             ]
-           end
-         end %>
+        else
+          # 過去の Comment/Like フォールバック
+          case notification.source_type
+          when "Comment"
+            if notification.source&.user
+              c = notification.source
+              [
+                "<i class='bi bi-chat-left-text'></i> #{c.user.name} さんがあなたの投稿にコメントしました！",
+                notification_path(notification),
+                :patch
+              ]
+            else
+              [
+                "<i class='bi bi-chat-left-text'></i> （コメントが削除されました）",
+                "#",
+                nil
+              ]
+            end
 
+          when "Like"
+            if notification.source&.user
+              l = notification.source
+              [
+                "<i class='bi bi-hand-thumbs-up'></i> #{l.user.name} さんがあなたの投稿をいいねしました！",
+                notification_path(notification),
+                :patch
+              ]
+            else
+              [
+                "<i class='bi bi-hand-thumbs-up'></i> （ユーザーが退会／投稿が削除されました）",
+                "#",
+                nil
+              ]
+            end
+
+          else
+            [
+              "<i class='bi bi-bell'></i> 新しい通知があります！",
+              notifications_path,
+              :get
+            ]
+          end
+        end
+      %>
       <%= link_to message.html_safe,
                   path,
                   method: verb,

@@ -1,36 +1,54 @@
 class Public::DailyReportsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_user
-  before_action :set_daily_report, only: %i[show edit update destroy]
+
+  # 公開済み or 自分のもの → show, compact
+  before_action :find_public_daily_report, only: %i[show compact]
+  # 自分のものだけ → edit, update, destroy
+  before_action :find_owned_daily_report,  only: %i[edit update destroy]
 
   # GET /daily_reports
   def index
     @user ||= current_user
-    base_reports = DailyReport.accessible_for(current_user, @user.id).order(date: :desc)
+    base_reports = DailyReport.accessible_for(current_user, @user.id)
+                              .order(date: :desc)
     filtered     = apply_filters(base_reports)
-  
+
     @daily_reports = cacheable?(@user) ? cached_reports(filtered) : filtered
-  
+
     respond_to do |format|
       format.html
       format.json { render json: @daily_reports }
     end
   end
-  
 
   # GET /daily_reports/:id
   def show
-    # @daily_report は set_daily_report で取得済み
+    # @daily_report は find_public_daily_report で取得済み
+    if @daily_report.user == current_user
+      scope = @daily_report.user.daily_reports
+    else
+      scope = @daily_report.user.daily_reports.where(visibility: 'public_report')
+    end
+    @prev = scope.where('date < ?', @daily_report.date).order(date: :desc).first
+    @next = scope.where('date > ?', @daily_report.date).order(date: :asc).first
   end
 
+  # GET /daily_reports/new
   def new
     @daily_report = current_user.daily_reports.build
+    if (last_report = current_user.daily_reports.order(date: :desc).first)
+      # 例として、未来の目標値と目標日数を前日から引き継ぐ
+      @daily_report.future_goal_value = last_report.future_goal_value
+      @daily_report.future_goal_days  = last_report.future_goal_days
+    end  
   end
 
+  # POST /daily_reports
   def create
-    @daily_report = current_user.daily_reports.build(daily_report_params)
-    @daily_report.visibility = "public_report"  # 公開設定
-  
+    @daily_report             = current_user.daily_reports.build(daily_report_params)
+    @daily_report.visibility  = "public_report"
+
     if @daily_report.save
       Rails.cache.delete("daily_reports/#{@user.id}")
       redirect_to daily_reports_path, notice: '日報が作成されました。'
@@ -41,20 +59,29 @@ class Public::DailyReportsController < ApplicationController
   end
 
   # GET /daily_reports/:id/edit
-  def edit; end
+  def edit
+    # @daily_report は find_owned_daily_report で取得済み
+  end
 
   # PATCH/PUT /daily_reports/:id
   def update
-    @daily_report = current_user.daily_reports.find(params[:id])
-    if @daily_report.update(daily_report_params)
-      Rails.cache.delete("daily_reports/#{current_user.id}")
-      flash[:notice] = "公開設定が更新されました。"
-      redirect_to daily_reports_path
-    else
-      flash.now[:alert] = "更新に失敗しました。"
-      render :edit
-    end
+    success = @daily_report.update(daily_report_params)
+    Rails.cache.delete("daily_reports/#{current_user.id}") if success
+  
+    respond_to do |format|
+      format.html do
+        if success
+          flash[:notice] = "更新が完了しました。"
+          redirect_to params[:return_to].presence || daily_report_path(@daily_report)
+        else
+          flash.now[:alert] = "更新に失敗しました。"
+          render :edit
+        end
+      end
+      format.js   # ← これで update.js.erb を返す
+    end  
   end
+  
 
   # DELETE /daily_reports/:id
   def destroy
@@ -65,16 +92,24 @@ class Public::DailyReportsController < ApplicationController
 
   # GET /daily_reports/calendar_data.json
   def calendar_data
+    # set_user で @user をセットしています
     events = @user.daily_reports.map do |r|
       {
         id:    r.id,
         title: r.location.presence || r.content.truncate(30),
         start: r.date.iso8601,
-        url:   daily_report_path(r)
+        # @user（表示しているページのユーザー）が current_user なら show、
+        # それ以外のユーザーなら compact へ飛ばす
+        url:   @user == current_user ?
+                daily_report_path(r) :
+                compact_daily_report_path(r)
       }
     end
+  
     render json: events
   end
+  
+  
 
   # GET /daily_reports/performance_data.json
   def performance_data
@@ -98,19 +133,18 @@ class Public::DailyReportsController < ApplicationController
     goal_val    = last_report&.future_goal_value.to_i
     days_ahead  = last_report&.future_goal_days.to_i
 
-    unless goal_val.positive? && days_ahead.positive?
+    if goal_val.positive? && days_ahead.positive?
+      future_dates = (1..days_ahead).map { |i| (Date.today + i).strftime('%Y-%m-%d') }
+      predicted_levels = future_dates.each_with_index.map do |_, idx|
+        ratio = (idx + 1).to_f / days_ahead
+        (today_val + (goal_val - today_val) * ratio).round(1)
+      end
+      render json: { future_dates: future_dates, predicted_levels: predicted_levels }
+    else
       dates  = (1..5).map { |i| (Date.today + i).strftime('%Y-%m-%d') }
       levels = Array.new(dates.size, today_val)
-      return render json: { future_dates: dates, predicted_levels: levels }
+      render json: { future_dates: dates, predicted_levels: levels }
     end
-
-    future_dates = (1..days_ahead).map { |i| (Date.today + i).strftime('%Y-%m-%d') }
-    predicted_levels = future_dates.each_with_index.map do |_, idx|
-      ratio = (idx + 1).to_f / days_ahead
-      (today_val + (goal_val - today_val) * ratio).round(1)
-    end
-
-    render json: { future_dates: future_dates, predicted_levels: predicted_levels }
   end
 
   # GET /daily_reports/growth_data.json
@@ -122,34 +156,69 @@ class Public::DailyReportsController < ApplicationController
     }
   end
 
+  # GET /daily_reports/:id/compact
+  def compact
+    # @daily_report, @user は find_public_daily_report でセット済み
+  
+    # 他人のレポートなら公開済みのみ、自分のなら全件をベースに
+    scope = if @user == current_user
+      @user.daily_reports
+    else
+      @user.daily_reports.where(visibility: 'public_report')
+    end
+  
+    # 前後の日報（公開済or本人）のみを探す
+    @prev = scope
+              .where('date < ?', @daily_report.date)
+              .order(date: :desc)
+              .first
+    @next = scope
+              .where('date > ?', @daily_report.date)
+              .order(date: :asc)
+              .first
+  end
+
   private
 
+  # show/compact 用: 他人は公開済みのみ、自分は全件
+  def find_public_daily_report
+    @daily_report = DailyReport.find(params[:id])
+    @user         = @daily_report.user
+
+    unless @daily_report.user == current_user || @daily_report.public_report?
+      redirect_to daily_reports_path, alert: 'この日報は公開されていません。'
+    end
+  end
+
+  # edit/update/destroy 用: 自分のものだけ
+  def find_owned_daily_report
+    @daily_report = current_user.daily_reports.find(params[:id])
+    @user         = current_user
+  end
+
+  # 既存ヘルパー類
   def apply_filters(relation)
     relation = relation.where('date >= ?', Date.today - params[:date_range].to_i.days) if params[:date_range].present?
     relation = relation.where('content LIKE ?', "%#{params[:keyword]}%")        if params[:keyword].present?
     relation
   end
-  
+
   def cacheable?(user)
     !current_user.admin? && user == current_user && params.slice(:date_range, :keyword).empty?
   end
-  
+
   def cached_reports(relation)
-    Rails.cache.fetch("daily_reports/#{@user.id}", expires_in: 24.hours) do
-      relation.limit(30).to_a
+    cache_key = "daily_report_ids/#{@user.id}"
+    ids = Rails.cache.fetch(cache_key, expires_in: 24.hours) do
+      relation.limit(30).pluck(:id)
     end
+
+    # Integerの配列にしてから改めてロード
+    DailyReport.where(id: Array.wrap(ids)).order(date: :desc)
   end
 
   def set_user
     @user = params[:user_id].present? ? User.find(params[:user_id]) : current_user
-  end
-
-  def set_daily_report
-    @daily_report = DailyReport
-                      .accessible_for(current_user, @user.id)
-                      .find(params[:id])
-  rescue ActiveRecord::RecordNotFound
-    redirect_to daily_reports_path, alert: '日報が見つかりませんでした。'
   end
 
   def daily_report_params

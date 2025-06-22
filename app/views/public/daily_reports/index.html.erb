@@ -1,11 +1,22 @@
 <!-- app/views/daily_reports/index.html.erb -->
 
-<h1 class="mt-5 mb-4">ライフログ＜日報一覧＞</h1>
+<h1 class="mt-5 mb-4">ライフログ一覧</h1>
 
-<!-- 新規日報作成ボタン -->
-<div class="d-flex justify-content-end mb-3">
-  <%= link_to "新規日報作成", new_daily_report_path, class: "btn btn-primary px-4" %>
-</div>
+<!-- 日報作成ボタン -->
+<%= link_to new_daily_report_path,
+            class: "btn btn-primary btn-lg rounded-circle shadow position-fixed",
+            style: "bottom:24px; right:24px; z-index:1050;",
+            title: "ライフログ作成",
+            data: { toggle: "tooltip", placement: "left" } do %>
+  <i class="fas fa-plus"></i>
+<% end %>
+
+<script>
+  $(function(){
+    $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
+
 
 <!-- 総合説明エリア：グラフと指標の全体概要 -->
 <div class="alert alert-info mb-4">
@@ -61,7 +72,6 @@
              data-goal-value="<%= @daily_reports.last&.future_goal_value.to_i %>"
              data-goal-days="<%= @daily_reports.last&.future_goal_days.to_i %>"
              style="position: relative; width:100%; max-width:800px; height:300px; margin:0 auto;">
-          <!-- ここに daily_reports.js がキャンバスを生成します -->
         </div>
         <p class="small text-muted mt-2">
           ※ グラフには、日々の記録に基づく実績と、目標に向けた推移が示されています。
@@ -77,7 +87,7 @@
         <h3 class="mb-0">位置情報</h3>
       </div>
       <div class="card-body">
-         <div id="map" style="width:100%; height:400px;"></div>
+         <div id="map" style="width:100%; height:420px;"></div>
          <p class="small text-muted mt-2">
            ※ 各日報の登録された位置情報が地図上に表示されます。
          </p>
@@ -114,59 +124,91 @@
   </div>
 </div>
 
-<!-- タイムライン：日報履歴（List Group 方式） -->
-<div class="card mb-4">
-  <div class="card-header">
-    <h3 class="mb-0">日報履歴（タイムライン）</h3>
-  </div>
-  <div class="card-body">
-    <ul class="list-group">
-      <% if @daily_reports.any? %>
-        <% @daily_reports.each do |report| %>
-          <li class="list-group-item">
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <!-- 日付アイコンと表示 -->
-                <i class="fas fa-calendar-alt me-2"></i>
-                <strong><%= report.date.strftime("%Y年%m月%d日") %></strong>
-                <!-- 公開／非公開の切替フォーム -->
-                <%= form_with model: report,
-                              url: daily_report_path(report),
-                              method: :patch,
-                              local: true,
-                              class: "d-inline" do |f| %>
-                  <div class="input-group input-group-sm">
-                    <%= f.select :visibility,
-                    [["公開", "public_report"], ["非公開", "private_report"]],
-                        { selected: report.visibility },
-                        class: "form-select" %>
-                    <button type="submit" class="btn btn-outline-secondary">
-                      <i class="fas <%= report.visibility == 'public_report' ? 'fa-toggle-on text-success' : 'fa-toggle-off text-muted' %>"></i>
-                    </button>
+  <!-- app/views/public/daily_reports/index.html.erb -->
+  <!-- app/views/public/daily_reports/index.html.erb -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h3 class="mb-0">ライフログ履歴</h3>
+    </div>
+  
+    <div class="card-body">
+      <ul class="list-group">
+        <% if @daily_reports.any? %>
+          <% @daily_reports.each do |report| %>
+            <li class="list-group-item">
+              <div class="row align-items-center">
+  
+                <!-- 左カラム：日付と場所＋公開切替 -->
+                <div class="col-md-4">
+                  <div class="d-flex align-items-center mb-2">
+                    <i class="fas fa-calendar-alt me-2"></i>
+                    <strong><%= report.date.strftime("%Y年%m月%d日") %></strong>
+                    <span class="ms-3">
+                      <i class="fas fa-map-marker-alt me-1"></i>
+                      <%= report.location %>
+                    </span>
                   </div>
-                <% end %>
+  
+                  <!-- 公開／非公開切替フォーム -->
+                  <div>
+                    <%= render "visibility_toggle", report: report %>
+                  </div>
+                </div>  <!-- ← 左カラム閉じ -->
+  
+                <!-- 中央カラム：投稿内容と学び・改善点 -->
+                <div class="col-md-4">
+                  <div style="min-height:100px;">
+                    <p class="mb-1">
+                      <i class="fas fa-align-left me-1"></i>
+                      <%= simple_format(report.content) %>
+                    </p>
+                    <% if report.learning.present? %>
+                      <div class="mt-2 border-top pt-2">
+                        <h6 class="mb-1 text-success">
+                          <i class="fas fa-lightbulb me-1"></i>学びと改善点
+                        </h6>
+                        <p class="mb-0"><%= simple_format(report.learning) %></p>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+  
+                <!-- 右カラム：アクションボタンと投稿時間 -->
+                <div class="col-md-4 text-end pe-3">
+                  <div class="mb-2">
+                    <%= link_to "詳細",
+                                daily_report_path(report),
+                                class: "btn btn-sm btn-outline-primary me-1" %>
+                    <% if report.user == current_user %>
+                      <%= link_to "編集",
+                                  edit_daily_report_path(report),
+                                  class: "btn btn-warning btn-sm me-1" %>
+                      <%= link_to "削除",
+                                  daily_report_path(report),
+                                  method: :delete,
+                                  data: { confirm: "本当に削除しますか？" },
+                                  class: "btn btn-danger btn-sm me-1" %>
+                    <% end %>
+                  </div>
+                  <div>
+                    <small class="text-muted">
+                      <i class="far fa-clock me-1"></i>投稿時間:
+                      <%= report.created_at.strftime("%Y-%m-%d %H:%M") %>
+                    </small>
+                  </div>
+                </div>
+  
               </div>
-              <div>
-                <%= link_to "詳細", daily_report_path(report), class: "btn btn-sm btn-outline-primary me-2" %>
-                <% if report.user == current_user %>
-                  <%= link_to "編集", edit_daily_report_path(report), class: "btn btn-warning btn-sm me-2" %>
-                  <%= link_to "削除", report, method: :delete, data: { confirm: "本当に削除しますか？" }, class: "btn btn-danger btn-sm" %>
-                <% end %>
-              </div>
-            </div>
-            <div class="mt-2">
-              <!-- 場所と内容の表示（アイコン付き） -->
-              <p><i class="fas fa-map-marker-alt me-1"></i><strong>場所:</strong> <%= report.location %></p>
-              <p><i class="fas fa-align-left me-1"></i><%= truncate(report.content, length: 100) %></p>
-            </div>
+            </li>
+          <% end %>
+        <% else %>
+          <li class="list-group-item text-center text-muted">
+            まだ日報がありません。新規作成してください。
           </li>
         <% end %>
-      <% else %>
-        <li class="list-group-item text-center text-muted">まだ日報がありません。新規作成してください。</li>
-      <% end %>
-    </ul>
+      </ul>
+    </div>
   </div>
-</div>
 
 <!-- フッターリンク：マイページへ -->
 <div class="text-center mt-4">

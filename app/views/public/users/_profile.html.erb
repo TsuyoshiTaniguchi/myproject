@@ -166,11 +166,22 @@
 
     <!-- 自己PR -->
     <div class="tab-pane fade" id="pane-story" role="tabpanel">
-      <h5>自己PR・成長ストーリー</h5>
+      <h5 class="mb-2">自己PR概要</h5>
       <% if user.personal_statement.present? %>
-        <%= simple_format(user.personal_statement) %>
+        <div class="border rounded p-3 mb-4 bg-light">
+          <%= simple_format(user.personal_statement) %>
+        </div>
       <% else %>
-        <p class="text-muted small mb-0">未入力です。</p>
+        <p class="text-muted small mb-4">自己PR概要が未入力です。</p>
+      <% end %>
+
+      <h5 class="mb-2">成長ストーリー（詳細）</h5>
+      <% if user.growth_story.present? %>
+        <div class="border rounded p-3 mb-4 bg-light">
+          <%= simple_format(user.growth_story) %>
+        </div>
+      <% else %>
+        <p class="text-muted small">成長ストーリーが未入力です。</p>
       <% end %>
     </div>
   </div>

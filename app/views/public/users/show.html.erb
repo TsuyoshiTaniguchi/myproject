@@ -1,7 +1,7 @@
 <div class="container mt-4">
   <h1 class="mb-4"><%= @user.name %>さんのプロフィール</h1>
 
-  <!-- タブ切り替え（マイページと統一） -->
+  <!-- タブ切り替え -->
   <ul class="nav nav-pills mb-3" id="userProfileTab" role="tablist">
     <li class="nav-item">
       <a class="nav-link active"
@@ -27,6 +27,8 @@
       </a>
     </li>
 
+    <%# ↓ 成長ストーリータブを削除 %>
+    <!--
     <li class="nav-item">
       <a class="nav-link"
          id="selfpr-tab"
@@ -35,11 +37,12 @@
          role="tab"
          aria-controls="selfpr"
          aria-selected="false">
-        自己PR詳細（成長ストーリー）
+        成長ストーリー（詳細）
       </a>
     </li>
+    -->
 
-    <% unless guest_blocked? %>  <!-- ゲストには日報タブごと非表示 -->
+    <% unless guest_blocked? %>
       <li class="nav-item">
         <a class="nav-link"
            id="daily_reports-tab"
@@ -48,7 +51,7 @@
            role="tab"
            aria-controls="daily_reports"
            aria-selected="false">
-          ライフログ＜日報管理＞
+          ライフログ管理
         </a>
       </li>
     <% end %>
@@ -61,7 +64,8 @@
          id="profile"
          role="tabpanel"
          aria-labelledby="profile-tab">
-      <%= render partial: "public/users/profile", locals: { user: @user, show_actions: false } %>
+      <%= render partial: "public/users/profile",
+                 locals: { user: @user, show_actions: false } %>
     </div>
 
     <!-- 投稿一覧 -->
@@ -73,7 +77,8 @@
                  locals: { user: @user, show_create_button: false, show_edit_button: false } %>
     </div>
 
-    <!-- 自己PR詳細（成長ストーリー） -->
+    <%# ↓ 成長ストーリーコンテンツも削除 %>
+    <!--
     <div class="tab-pane fade"
          id="selfpr"
          role="tabpanel"
@@ -92,9 +97,10 @@
         </p>
       <% end %>
     </div>
+    -->
 
-    <% unless guest_blocked? %> <!-- ゲストにはコンテンツも非表示 -->
-      <!-- ライフログ（日報管理） -->
+    <% unless guest_blocked? %>
+      <!-- ライフログ管理 -->
       <div class="tab-pane fade"
            id="daily_reports"
            role="tabpanel"
@@ -104,8 +110,8 @@
     <% end %>
   </div>
 
-  <!-- ユーザー一覧ボタン（閲覧は許可する） -->
   <div class="text-center mt-4">
-    <%= link_to "ユーザー一覧", users_path, class: "btn btn-lg btn-outline-secondary px-4" %>
+    <%= link_to "ユーザー一覧", users_path,
+                class: "btn btn-lg btn-outline-secondary px-4" %>
   </div>
 </div>

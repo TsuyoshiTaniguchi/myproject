@@ -6,7 +6,11 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
-    <!-- アプリ固有 SCSS（Sprockets 側） -->
+    <!-- API キー用の meta -->
+    <meta name="google-maps-api-key"
+          content="<%= ENV['GOOGLE_MAPS_API_KEY'] %>">
+
+    <!-- アプリ固有 SCSS -->
     <%= stylesheet_link_tag 'application',
           media: 'all',
           'data-turbolinks-track': 'reload' %>
@@ -30,10 +34,10 @@
 
   <body class="d-flex flex-column vh-100" style="background-color:#F8F9FA;">
 
-    <!-- ===== ヘッダー ===== -->
+    <!-- ヘッダー -->
     <%= render 'layouts/user_header' %>
 
-    <!-- ===== メイン ===== -->
+    <!-- メイン -->
     <main class="mb-auto">
       <% if flash[:notice].present? %>
         <p class="text-success px-3"><%= flash[:notice] %></p>
@@ -45,7 +49,7 @@
       <%= yield %>
     </main>
 
-    <!-- ===== フッター ===== -->
+    <!-- フッター -->
     <%= render 'layouts/footer' %>
 
   </body>

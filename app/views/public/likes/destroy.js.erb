@@ -1,1 +1,6 @@
-$("#post-likes-<%= @post.id %>").replaceWith("<%= escape_javascript(render partial: 'public/likes/like_button', locals: { post: @post }) %>");
+// app/views/public/likes/create.js.erb
+// app/views/public/likes/destroy.js.erb
+
+$("#post-likes-<%= @post.id %>").html(
+  "<%= j render('public/likes/like_button', post: @post) %>"
+);

@@ -113,14 +113,12 @@ class Public::MembershipsController < ApplicationController
   
   def reject_membership
     if @membership.pending?
-      @membership.reject!     
-      redirect_to manage_group_group_membership_path(@group), notice: "参加リクエストを拒否しました！"
+      @membership.reject!      
+      redirect_to manage_group_group_path(@group), notice: "参加リクエストを拒否しました！"
     else
-      redirect_to manage_group_group_membership_path(@group), alert: "処理できませんでした。"
+      redirect_to manage_group_group_path(@group), alert: "処理できませんでした。"
     end
   end
-  
-
 
   def owner_dashboard
     @owned_groups = Group.where(owner_id: current_user.id)

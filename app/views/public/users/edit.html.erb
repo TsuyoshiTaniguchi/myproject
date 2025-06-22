@@ -42,7 +42,7 @@
           <%= f.check_box :daily_reports_public %>
         </div>
 
-        <!-- 新：ポートフォリオURL入力欄だけ -->
+        <!-- ポートフォリオURL入力欄だけ -->
         <div class="mb-3">
           <%= f.label :portfolio_url, "ポートフォリオURL", class: "form-label" %>
           <%= f.text_field :portfolio_url,
@@ -51,7 +51,6 @@
         </div>
 
         <!-- ポートフォリオのファイルアップロード -->
-        <!-- 既存ファイルの一覧＆削除チェック -->
         <% if @user.portfolio_files.attached? %>
           <div class="mb-3">
             <p class="form-label">現在アップロードされているファイル</p>

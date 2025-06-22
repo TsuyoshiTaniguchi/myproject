@@ -37,19 +37,17 @@ class Admin::GroupsController < ApplicationController
 
   def show
     @group = Group.find(params[:id])
-
-    # 「新しいメンバー」: role: "member" で取得
-    @new_members = @group.memberships
-                         .where(role: "member")
-                         .order(created_at: :desc)
-                         .limit(5)
-                         .map(&:user)
-
-    # 承認待ちメンバー: role: "pending" で取得、オーナーは除外
+    @memberships = @group.memberships
+                         .where(role: %w[member owner])
+                         .joins(:user)
+                         .includes(:user)
     @pending_memberships = @group.memberships
-                                 .where(role: "pending")
+                                 .where(role: :pending)
                                  .where.not(user_id: @group.owner_id)
+                                 .joins(:user)
+                                 .includes(:user)
   end
+  
 
   def new
     @group = Group.new

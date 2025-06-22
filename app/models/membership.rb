@@ -1,6 +1,7 @@
 class Membership < ApplicationRecord
-  belongs_to :user
-  belongs_to :group
+  belongs_to :user,   optional: false
+  belongs_to :group,  optional: false
+
 
   # Membership が消えるとき、source: self の通知も消す
   has_many :notifications, as: :source, dependent: :destroy
@@ -8,12 +9,23 @@ class Membership < ApplicationRecord
   # enum は pending→member→owner の順に
   enum role: { pending: "pending", member: "member", owner: "owner" }
 
+  validates :user,  presence: true
+  validates :group, presence: true
   validates :user_id, uniqueness: { scope: :group_id,
                                     message: "このユーザーはすでにメンバーです" }
 
 
   # 申請が来たときオーナーに通知
   after_create :notify_owner_if_pending
+
+  
+  scope :pending_non_owner, ->(owner_id) {
+    where(role: :pending)
+      .where.not(user_id: owner_id)
+      .joins(:user)
+      .includes(:user)
+  }
+
 
 
   # 承認時の処理

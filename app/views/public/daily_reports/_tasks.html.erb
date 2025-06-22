@@ -47,10 +47,15 @@
 </div>
 
 <!-- 単一タスク追加フォーム -->
-<h5>新しいタスクを追加</h5>
-<%= form_with model: [daily_report, Task.new], local: true do |f| %>
-  <div class="input-group mb-3">
-    <%= f.text_field :title, placeholder: "タスク内容を入力", required: true, class: "form-control" %>
-    <button class="btn btn-primary" type="submit">追加</button>
+<h4 class="mt-4">新しいタスクを追加</h4>
+<%= form_with model: [daily_report, Task.new],
+              local: true,
+              html: { class: "form-inline mb-3" } do |f| %>
+  <div class="form-group mr-2 mb-2">
+    <%= f.text_field :title,
+         placeholder: "タスク内容を入力",
+         required: true,
+         class: "form-control" %>
   </div>
+  <%= f.submit "追加", class: "btn btn-primary mb-2" %>
 <% end %>

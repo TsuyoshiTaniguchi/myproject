@@ -4,17 +4,14 @@ ja:
       status:
         active: "アクティブ"
         withdrawn: "退会済み"
-
-    group: 
+    group:
       category:
         official_label: "公式グループ"
         user_created_label: "ユーザー作成グループ"
-
       privacy:
         public_visibility: "公開"
         private_visibility: "管理者のみ"
         restricted_visibility: "メンバーのみ"
-
       join_policy:
         open: "誰でも参加可能"
         admin_only: "管理者のみが参加を許可"
@@ -24,18 +21,13 @@ ja:
     attributes:
       user:
         status: "ステータス"
-
       group:
         category: "カテゴリ"
         privacy: "プライバシー"
-
       daily_report:
         date: "日付"
         content: "活動内容"
         location: "場所"
-
-
-
     errors:
       models:
         user:
@@ -48,7 +40,6 @@ ja:
               blank: "パスワードを入力してください"
             password_confirmation:
               confirmation: "パスワードが一致しません"
-
         post:
           attributes:
             group:
@@ -57,6 +48,10 @@ ja:
               blank: "グループを選択してください"
             content:
               too_short: "内容が短すぎます"
+        daily_report:
+          attributes:
+            future_goal_days:
+              greater_than: "は %{count} より大きな値にしてください"
 
   errors:
     messages:
@@ -72,16 +67,12 @@ ja:
       already_authenticated: "すでにログインしています。"
       unauthenticated: "ログインが必要です。"
       not_found_in_database: "認証情報が見つかりません。"
-
     registrations:
       signed_up: "ユーザー登録が完了しました。"
       signed_up_but_inactive: "ユーザー登録が完了しましたが、アカウントが有効ではありません。"
-
-      updated:                  "アカウント情報を更新しました。"
-
+      updated: "アカウント情報を更新しました。"
       user:
-        updated:                "アカウント情報を更新しました。"
-
+        updated: "アカウント情報を更新しました。"
     sessions:
       signed_in: "ログインしました"
       signed_out: "ログアウトしました"
@@ -90,7 +81,6 @@ ja:
       admin:
         signed_out: "管理者がログアウトしました"
         not_found_in_database: "管理者の認証情報が見つかりません。"
-        invalid: "メールアドレスまたはパスワードが正しくありません。"
         invalid: "メールアドレスまたはパスワードが正しくありません。"
 
   datetime:
@@ -104,15 +94,12 @@ ja:
 
   time:
     formats:
-      # デフォルト: 2025-06-18 18:55:32
       default: "%Y-%m-%d %H:%M:%S"
-      # :short   : 2025/06/18 18:55
-      short:   "%Y/%m/%d %H:%M"
-      # :long    : 2025年06月18日(水) 18時55分
-      long:    "%Y年%m月%d日(%a) %H時%M分"
+      short: "%Y/%m/%d %H:%M"
+      long: "%Y年%m月%d日(%a) %H時%M分"
 
   date:
     formats:
       default: "%Y-%m-%d"
-      short:   "%Y/%m/%d"
-      long:    "%Y年%m月%d日(%a)"
+      short: "%Y/%m/%d"
+      long: "%Y年%m月%d日(%a)"

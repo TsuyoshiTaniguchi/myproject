@@ -33,7 +33,7 @@
          role="tab"
          aria-controls="daily_reports"
          aria-selected="false">
-        ライフログ＜日報管理＞
+        ライフログ管理
       </a>
     </li>
     <li class="nav-item">
@@ -85,44 +85,76 @@
       </div>
       <!-- アクションボタン -->
       <div class="d-flex justify-content-between mb-3">
-        <%= link_to "新規日報作成", new_daily_report_path, class: "btn btn-primary px-4" %>
-        <%= link_to "日報一覧へ移動", daily_reports_path, class: "btn btn-outline-secondary px-4" %>
+        <%= link_to "ライフログ作成", new_daily_report_path, class: "btn btn-primary px-4" %>
+        <%= link_to "ライフログ一覧へ移動", daily_reports_path, class: "btn btn-outline-secondary px-4" %>
       </div>
       <!-- 日報テーブル -->
-      <div class="table-responsive">
-        <table class="table mb-3">
-          <thead class="thead-light">
-            <tr>
-              <th>日付</th>
-              <th>内容</th>
-              <th>公開設定</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% @daily_reports.each do |report| %>
-              <tr>
-                <td><%= report.date %></td>
-                <td><%= report.content.truncate(50) %></td>
-                <td>
-                  <% if report.visibility == "public_report" %>
-                    <span class="badge badge-success">公開</span>
-                  <% else %>
-                    <span class="badge badge-secondary">非公開</span>
-                  <% end %>
-                </td>
-                <td>
-                  <%= link_to "編集", edit_daily_report_path(report), class: "btn btn-sm btn-warning mr-1" %>
-                  <%= link_to "削除", daily_report_path(report),
-                              method: :delete,
-                              data: { confirm: "本当に削除しますか？" },
-                              class: "btn btn-sm btn-danger" %>
-                </td>
-              </tr>
+      <!-- app/views/public/daily_reports/_daily_reports_section.html.erb -->
+<div class="table-responsive">
+  <table class="table table-bordered table-hover">
+    <thead class="thead-light text-center">
+      <tr>
+        <th style="width:120px;">日付</th>
+        <th>内容</th>
+        <th style="width:100px;">公開状態</th>
+        <th style="width:200px;">操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @daily_reports.each do |report| %>
+        <tr class="align-middle">
+          <!-- 日付（リンクは削除し、純粋なテキスト表示） -->
+          <td class="text-center">
+            <%= report.date.strftime("%-m/%-d（%a）") %>
+          </td>
+          <!-- 内容 -->
+          <td><%= truncate(report.content, length: 50) %></td>
+          <!-- 公開状態 -->
+          <td class="text-center">
+            <% if report.public_report? %>
+              <span class="badge badge-success">公開</span>
+            <% else %>
+              <span class="badge badge-secondary">非公開</span>
             <% end %>
-          </tbody>
-        </table>
-      </div>
+          </td>
+          <!-- 操作：通常詳細、簡易詳細、編集、削除 の各ボタンを表示 -->
+          <td class="text-center">
+            <div class="btn-group btn-group-sm" role="group">
+              <%= link_to daily_report_path(report),
+                          class: "btn btn-outline-primary",
+                          title: "通常詳細を見る" do %>
+                <i class="fas fa-eye"></i>
+              <% end %>
+              <%= link_to compact_daily_report_path(report),
+                          class: "btn btn-outline-info",
+                          title: "簡易詳細を見る",
+                          onclick: "event.stopPropagation();" do %>
+                <i class="fas fa-eye"></i>
+              <% end %>
+              <%= link_to edit_daily_report_path(report),
+                          class: "btn btn-outline-warning",
+                          title: "編集" do %>
+                <i class="fas fa-pencil-alt"></i>
+              <% end %>
+              <%= link_to daily_report_path(report),
+                          method: :delete,
+                          data: { confirm: "本当に削除しますか？" },
+                          class: "btn btn-outline-danger",
+                          title: "削除" do %>
+                <i class="fas fa-trash-alt"></i>
+              <% end %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<!-- ページネーション -->
+<div class="d-flex justify-content-center">
+  <%= paginate @daily_reports %>
+</div>
       <!-- グラフ -->
       <%= render 'public/daily_reports/performance_chart' %>
     </div>
@@ -134,13 +166,12 @@
       aria-labelledby="notifications-tab">
     <h3 class="mb-3">未読通知一覧</h3>
 
-    <% notifications = current_user.notifications
-        .unread
-        .reject { |n|
-          # 自分がLike/Commentした通知は除外
+    <% notifications = Notification.where(user_id: @user.id, read: false)
+        .reject do |n|
           %w[Like Comment].include?(n.source_type) &&
-          n.source.user_id == current_user.id
-        } %>
+          n.source&.user_id == current_user.id
+        end
+    %>
 
     <% if notifications.any? %>
       <%= render "public/shared/notification_list",

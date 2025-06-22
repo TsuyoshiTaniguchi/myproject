@@ -4,7 +4,7 @@ class Comment < ApplicationRecord
   belongs_to :user
   belongs_to :post
 
-  has_one :notification, as: :source, dependent: :destroy
+  has_many :notifications, as: :source, dependent: :destroy
 
   validates :content, presence: true, length: { maximum: 500 }
 

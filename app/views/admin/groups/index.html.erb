@@ -3,106 +3,115 @@
 </h1>
 
 <div class="mb-3">
-  <!-- ソート・フィルタボタンと新規グループ作成ボタンを横並びに -->
+  <!-- ソート／新規グループ作成ボタン -->
   <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
     <div class="d-flex flex-wrap gap-2">
       <%= link_to "新しい順", admin_groups_path(sort: "newest"), class: "btn btn-outline-primary btn-sm" %>
-      <%= link_to "古い順", admin_groups_path(sort: "oldest"), class: "btn btn-outline-primary btn-sm" %>
-      <%= link_to "公式グループ", admin_groups_path(category: "official_label"), class: "btn btn-outline-info btn-sm" %>
+      <%= link_to "古い順",   admin_groups_path(sort: "oldest"), class: "btn btn-outline-primary btn-sm" %>
+      <%= link_to "公式グループ",         admin_groups_path(category: "official_label"),    class: "btn btn-outline-info btn-sm" %>
       <%= link_to "ユーザー作成グループ", admin_groups_path(category: "user_created_label"), class: "btn btn-outline-info btn-sm" %>
-      <%= link_to "すべて表示", admin_groups_path, class: "btn btn-secondary btn-sm" %>
+      <%= link_to "通報済みのグループのみ表示", admin_groups_path(reported_only: true), class: "btn btn-outline-danger btn-sm" %>
+      <%= link_to "すべてのグループを表示",           admin_groups_path,                                 class: "btn btn-secondary btn-sm" %>
     </div>
-    <div>
-      <%= link_to "新規グループ作成", new_admin_group_path, class: "btn btn-success btn-sm" %>
-    </div>
+    <%= link_to "新規グループ作成", new_admin_group_path, class: "btn btn-success btn-sm" %>
   </div>
 
-  <!-- 検索フォーム -->
-  <%= form_with url: admin_groups_path, method: :get, local: true, html: { class: "d-flex align-items-center mb-3" } do |f| %>
-    <%= f.text_field :query, value: params[:query], placeholder: "グループ名や説明を検索...", class: "form-control flex-grow-1 mr-2", style: "max-width:400px;" %>
-    <div class="input-group flex-fill mr-2">
+  <!-- 元のまま動いていた検索フォーム -->
+  <%= form_with url: admin_groups_path, method: :get, local: true,
+                html: { class: "d-flex align-items-center mb-3 flex-wrap gap-2" } do |f| %>
+    <%= f.text_field :query,
+          value: params[:query],
+          id:    "query",
+          class: "form-control flex-grow-1 mr-2",
+          style: "max-width:400px;",
+          placeholder: "グループ名や説明を検索..." %>
+
+    <div class="input-group flex-fill mr-2" style="max-width:200px;">
       <%= select_tag :privacy,
-            options_for_select([["すべて", ""],
-                                ["公開", "public_visibility"],
-                                ["メンバーのみ", "restricted_visibility"],
-                                ["管理者のみ", "private_visibility"]], params[:privacy]),
+            options_for_select([
+              ["すべて", ""],
+              ["公開", "public_visibility"],
+              ["メンバーのみ", "restricted_visibility"],
+              ["管理者のみ", "private_visibility"]
+            ], params[:privacy]),
             class: "form-control" %>
     </div>
+
     <%= f.submit "検索", class: "btn btn-primary" %>
   <% end %>
 </div>
 
-<!-- グループ一覧 -->
-<div class="table-responsive-lg">
-  <table class="table table-hover admin-groups">
+<div class="table-responsive">
+  <table class="table table-hover table-sm admin-groups">
     <thead class="table-dark text-center">
       <tr>
-        <th style="white-space: nowrap;">グループ名</th>
-        <th style="white-space: nowrap;">カテゴリ</th>
-        <th style="white-space: nowrap;">プライバシー</th>
-        <th style="white-space: nowrap;">参加ポリシー</th>
-        <th style="white-space: nowrap;">作成日時</th>
-        <th style="white-space: nowrap;">通報状況</th>
-        <th style="white-space: nowrap;">参加リクエスト</th>
-        <th style="white-space: nowrap;">操作</th>
+        <th>グループ名</th>
+        <th class="d-none d-md-table-cell">カテゴリ</th>
+        <th class="d-none d-lg-table-cell">プライバシー</th>
+        <th class="d-none d-xl-table-cell">参加ポリシー</th>
+        <th class="d-none d-lg-table-cell">作成日時</th>
+        <th class="d-none d-lg-table-cell">通報状況</th>
+        <th class="d-none d-xl-table-cell">参加リクエスト</th>
+        <th>操作</th>
       </tr>
     </thead>
     <tbody>
       <% @groups.each do |group| %>
-        <tr id="group_<%= group.id %>" class="align-middle <%= 'table-warning' if group.reported? %>">
-          <td data-label="グループ名">
-            <%= link_to group.name, admin_group_path(group), class: "fw-bold text-dark" %>
+        <tr class="<%= 'table-warning' if group.reported? %>">
+          <!-- グループ名は省略せず折り返す -->
+          <td class="text-wrap">
+            <%= link_to group.name,
+                        admin_group_path(group),
+                        class: "d-block",
+                        style: "white-space: normal;" %>
           </td>
-          <td data-label="カテゴリ" class="text-center">
-            <%= group.category == "official_label" ? "公式グループ" : "ユーザー作成グループ" %>
+
+          <!-- 中くらい以上の画面で表示 -->
+          <td class="text-center d-none d-md-table-cell">
+            <%= group.category == "official_label" ? "公式" : "ユーザー作成" %>
           </td>
-          <td data-label="プライバシー" class="text-center">
-            <% case group.privacy
-               when "public_visibility" then text = "公開"
-               when "restricted_visibility" then text = "メンバーのみ"
-               when "private_visibility" then text = "管理者のみ"
-               else text = "-"
-               end %>
-            <%= text %>
+
+          <!-- 大きい画面のみ -->
+          <td class="text-center d-none d-lg-table-cell">
+            <%= { "public_visibility"=>"公開",
+                   "restricted_visibility"=>"メンバーのみ",
+                   "private_visibility"=>"管理者のみ"
+                 }[group.privacy] || "-" %>
           </td>
-          <td data-label="参加ポリシー" class="text-center">
-            <% case group.join_policy %>
-            <% when "open" %>
-              誰でも参加可能
-            <% when "admin_only" %>
-              管理者のみ参加を許可
-            <% when "invite_only" %>
-              承認制
-            <% else %>
-              -
-            <% end %>
+
+          <td class="text-center d-none d-xl-table-cell">
+            <%= { "open"=>"誰でも",
+                   "admin_only"=>"管理者のみ",
+                   "invite_only"=>"承認制"
+                 }[group.join_policy] || "-" %>
           </td>
-          <td data-label="作成日時" class="text-center">
+
+          <td class="text-center d-none d-lg-table-cell">
             <%= l(group.created_at, format: :short) %>
           </td>
-          <td data-label="通報状況" class="text-center">
-            <% if group.reported? %>
-              <span class="badge badge-danger">通報済み</span>
-            <% else %>
-              <span class="badge badge-success">正常</span>
-            <% end %>
+
+          <td class="text-center d-none d-lg-table-cell">
+            <span class="badge <%= group.reported? ? 'badge-danger' : 'badge-success' %>">
+              <%= group.reported? ? "通報済み" : "正常" %>
+            </span>
           </td>
-          <td data-label="参加リクエスト" class="text-center">
-            <% pending_count = group.memberships.where(role: "pending").count %>
-            <% if pending_count > 0 %>
-              <span class="badge badge-warning"><%= pending_count %>件</span>
-            <% else %>
-              <span class="badge badge-secondary">なし</span>
-            <% end %>
+
+          <td class="text-center d-none d-xl-table-cell">
+            <% pending = group.memberships.pending.count %>
+            <span class="badge <%= pending.positive? ? 'badge-warning' : 'badge-secondary' %>">
+              <%= pending.positive? ? "#{pending}件" : "なし" %>
+            </span>
           </td>
-          <td data-label="操作" class="text-center">
-            <div class="btn-group" role="group" aria-label="操作">
-              <%= link_to "詳細", admin_group_path(group), class: "btn btn-info btn-sm" %>
-              <%= link_to "編集", edit_admin_group_path(group), class: "btn btn-warning btn-sm" %>
-              <%= link_to "削除", admin_group_path(group),
+
+          <!-- 操作は常に表示 -->
+          <td class="text-center">
+            <div class="btn-group btn-group-sm">
+              <%= link_to "詳細",  admin_group_path(group), class: "btn btn-info" %>
+              <%= link_to "編集",  edit_admin_group_path(group), class: "btn btn-warning" %>
+              <%= link_to "削除",  admin_group_path(group),
                           method: :delete,
                           data: { confirm: "本当に削除しますか？" },
-                          class: "btn btn-danger btn-sm" %>
+                          class: "btn btn-danger" %>
             </div>
           </td>
         </tr>

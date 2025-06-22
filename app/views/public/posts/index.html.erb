@@ -31,103 +31,112 @@
 
 <!-- 投稿タイムライン -->
 <% if @posts.any? %>
-  <div class="timeline">
-    <% @posts.each do |post| %>
-      <div class="timeline-item mb-4 p-3 border rounded">
-        <div class="timeline-content">
-          <!-- ユーザーアイコンと名前 -->
-          <div class="d-flex align-items-center mb-2">
-            <% if post.user.profile_image.attached? %>
-              <%= image_tag post.user.profile_image.variant(resize_to_fill: [50, 50]),
-                            class: "rounded-circle mr-2" %>
+    <div class="timeline">
+      <% @posts.each do |post| %>
+        <div class="timeline-item mb-4 p-3 border rounded">
+          <div class="timeline-content">
+
+            <!-- ユーザーアイコン・名前・カテゴリ／タグ を同じ行に -->
+            <div class="d-flex align-items-center mb-2">
+              <% if post.user.profile_image.attached? %>
+                <%= image_tag post.user.profile_image.variant(resize_to_fill: [50, 50]),
+                              class: "rounded-circle mr-2" %>
+              <% end %>
+              <div class="mr-auto">
+                <h5 class="mb-0">
+                  <%= link_to post.user.name, user_path(post.user),
+                              class: "text-decoration-none" %>
+                </h5>
+                <small class="text-muted"><%= time_ago_in_words(post.created_at) %></small>
+              </div>
+
+              <%# カテゴリ＆タグを一行にまとめて表示 %>
+              <div class="d-flex align-items-center mb-2">
+                <% if post.category.present? %>
+                  <span class="mr-2">
+                    <strong>カテゴリ:</strong>
+                    <span class="badge badge-primary ml-1"><%= post.category %></span>
+                  </span>
+                <% end %>
+              
+                <% if post.tag_list.present? %>
+                  <%# 左側に境界線を入れる %>
+                  <div class="border-left pl-3 ml-3">
+                    <strong>タグ:</strong>
+                    <% post.tag_list.each do |tag| %>
+                      <%= link_to tag,
+                                  posts_path(tag: tag),
+                                  class: "badge badge-info ml-1 mb-1" %>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+
+            <!-- タイトル -->
+            <h2 class="h5 mb-3">
+              <%= link_to post.title, post_path(post),
+                          class: "text-decoration-none font-weight-bold" %>
+            </h2>
+
+            <!-- 画像（あれば） -->
+            <% if post.images.attached? %>
+              <div class="post-images mb-3 d-flex flex-wrap">
+                <% post.images.each do |img| %>
+                  <%= image_tag img.variant(resize: "400x400"),
+                                class: "img-fluid mb-2 mr-2",
+                                style: "max-width:48%;" %>
+                <% end %>
+              </div>
             <% end %>
-            <div>
-              <h5 class="mb-0">
-                <%= link_to post.user.name, user_path(post.user), class: "text-decoration-none" %>
-              </h5>
-              <small class="text-muted"><%= time_ago_in_words(post.created_at) %></small>
-            </div>
+
+            <!-- 本文 -->
+            <p class="mb-3"><%= sanitize(post.content) %></p>
+
+            <!-- コードスニペット -->
+            <% if post.code_snippet.present? %>
+              <pre class="code-block mb-3"><%= sanitize(post.code_snippet) %></pre>
+            <% end %>
+
+            <!-- いいね & コメント -->
+            <% unless guest_blocked? %>
+              <div class="d-flex align-items-center">
+                <div id="post-likes-<%= post.id %>" class="mr-3">
+                  <%= render 'public/likes/like_button', post: post %>
+                </div>
+                <%= link_to "💬 コメント (#{post.comments.count})",
+                            post_path(post),
+                            class: "btn btn-outline-secondary btn-sm" %>
+              </div>
+            <% end %>
+
+            <!-- 編集／削除（本人 & 非ゲスト） -->
+            <% if post.user == current_user && !guest_blocked? %>
+              <div class="d-flex mt-2">
+                <%= link_to "編集", edit_post_path(post),
+                            class: "btn btn-warning btn-sm mr-2" %>
+                <%= link_to "削除", post_path(post),
+                            method: :delete,
+                            data: { confirm: "本当に削除しますか？" },
+                            class: "btn btn-danger btn-sm" %>
+              </div>
+            <% end %>
+
           </div>
-
-          <!-- タイトル -->
-          <h2>
-            <%= link_to post.title, post_path(post), class: "text-decoration-none font-weight-bold" %>
-          </h2>
-
-          <!-- カテゴリ -->
-          <% if post.category.present? %>
-            <div class="mb-2">
-              <strong>カテゴリ:</strong>
-              <span class="badge badge-primary ml-1"><%= post.category %></span>
-            </div>
-          <% end %>
-
-          <!-- タグ -->
-          <% if post.tag_list.present? %>
-            <div class="mb-2">
-              <strong>タグ:</strong>
-              <% post.tag_list.each do |tag| %>
-                <%= link_to tag, posts_path(tag: tag), class: "badge badge-info mr-1 ml-1" %>
-              <% end %>
-            </div>
-          <% end %>
-
-          <!-- 本文サマリ -->
-          <p><%= sanitize(truncate(post.content, length: 200)) %></p>
-
-          <!-- 画像 -->
-          <% if post.images.attached? %>
-            <div class="post-images mb-3">
-              <% post.images.each do |image| %>
-                <%= image_tag image.variant(resize: "400x400"), class: "img-thumbnail mb-2" %>
-              <% end %>
-            </div>
-          <% end %>
-
-          <!-- コード -->
-          <% if post.code_snippet.present? %>
-            <pre class="code-block"><%= sanitize(post.code_snippet) %></pre>
-          <% end %>
-
-          <!-- いいねボタン -->
-          <% unless guest_blocked? %>  <!-- ゲストはいいね不可 -->
-            <div id="post-likes-<%= post.id %>">
-              <%= render 'public/likes/like_button', post: post %>
-            </div>
-          <% end %>
-
-          <!-- コメントリンク（閲覧は許可） -->
-          <div class="d-flex mt-3">
-            <% comment_count = post.comments.count %>
-            <%= link_to "💬 コメント (#{comment_count})", post_path(post),
-                        class: "btn btn-outline-secondary btn-sm mr-2" %>
-          </div>
-
-          <!-- 編集／削除（本人 & 非ゲスト） -->
-          <% if post.user == current_user && !guest_blocked? %>
-            <div class="d-flex mt-2">
-              <%= link_to "編集", edit_post_path(post), class: "btn btn-warning btn-sm mr-2" %>
-              <%= link_to "削除", post_path(post),
-                          method: :delete,
-                          data: { confirm: "本当に削除しますか？" },
-                          class: "btn btn-danger btn-sm" %>
-            </div>
-          <% end %>
         </div>
-      </div>
-    <% end %>
-  </div>
+      <% end %>
+    </div>
 
-  <!-- ページネーション -->
-  <%= paginate @posts %>
-<% else %>
-  <div class="alert alert-info">
-    <p>まだ投稿がありません。</p>
-    <% unless guest_blocked? %>  <!-- ゲストには新規投稿誘導を隠す -->
-      <p>最初の投稿をしてみませんか？</p>
-      <%= link_to "新規投稿する", new_post_path, class: "btn btn-primary" %>
-    <% end %>
-  </div>
+    <!-- ページネーション -->
+    <%= paginate @posts %>
+  <% else %>
+    <div class="alert alert-info">
+      <p>まだ投稿がありません。</p>
+      <% unless guest_blocked? %>
+        <p>最初の投稿をしてみませんか？</p>
+        <%= link_to "新規投稿する", new_post_path, class: "btn btn-primary" %>
+      <% end %>
+    </div>
 <% end %>
 
 <!-- アクションボタン-->

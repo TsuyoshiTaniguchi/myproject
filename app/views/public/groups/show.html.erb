@@ -46,7 +46,7 @@
             <div class="text-center">
               <p><strong>作成日:</strong> <%= @group.created_at.strftime("%Y-%m-%d") %></p>
               <p><strong>オーナー:</strong> <%= @group.owner&.name || "未設定" %></p>
-              <p><strong>メンバー数:</strong> <%= @group.users.count %> 人</p>
+              <p><strong>メンバー数:</strong> <%= @group.memberships.where(role: ["member", "owner"]).count %> 人</p>
             </div>
           </div>
           <!-- 右側：グループ名、説明、カテゴリ・公開範囲・参加ルール、参加／脱退、通報 -->
@@ -227,12 +227,12 @@
                     <td>
                       <% if membership.user.present? %>
                         <div class="btn-group" role="group">
-                          <%= button_to "✅ 承認", approve_membership_group_membership_path(@group, membership),
-                                method: :patch,
-                                class: "btn btn-success btn-sm", form_class: "d-inline" %>
-                          <%= button_to "❌ 拒否", reject_membership_group_membership_path(@group, membership),
-                                method: :delete,
-                                class: "btn btn-danger btn-sm", form_class: "d-inline" %>
+                        <%= button_to "✅ 承認", approve_group_membership_path(@group, membership),
+                                      method: :patch,
+                                      class: "btn btn-success btn-sm", form_class: "d-inline" %>
+                        <%= button_to "❌ 拒否", reject_group_membership_path(@group, membership),
+                                      method: :delete,
+                                      class: "btn btn-danger btn-sm", form_class: "d-inline" %>
                         </div>
                       <% else %>
                         <p class="text-muted mb-0">ユーザー情報が見つかりません。</p>
@@ -264,7 +264,7 @@
       <% end %>
     </div>
     <div class="card-body">
-      <% if @group.privacy == "public_visibility" || @group.users.include?(current_user) %>
+      <% if @group.privacy == "public_visibility" || @group.memberships.exists?(user: current_user, role: "member") || current_user == @group.owner %>
         <% if @posts.any? %>
           <div class="timeline">
             <% @posts.order(created_at: :desc).limit(10).each do |post| %>

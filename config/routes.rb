@@ -47,6 +47,10 @@ Rails.application.routes.draw do
 
     # 日報 (DailyReports)
     resources :daily_reports, only: [:index, :show, :new, :create, :edit, :update, :destroy] do
+      member do
+        get :compact    # → compact_daily_report_path が生成される
+      end
+  
       collection do
         get :calendar_data      # /daily_reports/calendar_data(.:format)
         get :performance_data   # /daily_reports/performance_data(.:format)
@@ -120,8 +124,8 @@ Rails.application.routes.draw do
        # メンバーシップ承認／拒否／通報／解除
        resources :memberships, only: %i[create destroy] do
          member do
-           patch  :approve             # /groups/:group_id/memberships/:id/approve
-           delete :reject              # /groups/:group_id/memberships/:id/reject
+           patch :approve, action: :approve_membership             # /groups/:group_id/memberships/:id/approve
+           delete :reject, action: :reject_membership              # /groups/:group_id/memberships/:id/reject
            patch  :report,   action: :report_member   # /…/report
            patch  :unreport, action: :unreport_member # /…/unreport
          end

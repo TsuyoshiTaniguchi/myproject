@@ -1,91 +1,119 @@
-<!-- app/views/public/daily_reports/_status.html.erb -->
-<h3>進行状況・達成度</h3>
-
+<h3 class="mb-4">進行状況・達成度</h3>
 <div class="row">
-  <!-- 目標達成率 -->
+  <!-- 目標達成率カード -->
   <div class="col-md-6">
-    <h4>目標達成率</h4>
+    <div class="card mb-4">
+      <div class="card-header bg-light">
+        <h5 class="mb-0">目標達成率</h5>
+      </div>
+      <div class="card-body">
+        <% fv = @daily_report.future_goal_value.to_i %>
+        <% completed_count  = @daily_report.tasks.where(completed: true).count %>
+        <% total_count      = @daily_report.tasks.count %>
+        <% task_score       = total_count.positive? ? (completed_count.to_f / total_count * 10).round(1) : nil %>
+        <% rate             = (fv.positive? && task_score) ? (task_score.to_f / fv * 100).round(1) : nil %>
 
-    <% fv = @daily_report.future_goal_value.to_i %>
-    <% completed_count  = @daily_report.tasks.where(completed: true).count %>
-    <% total_count      = @daily_report.tasks.count %>
-    <% task_score       = total_count.positive? ? (completed_count.to_f / total_count * 10).round(1) : nil %>
-    <% rate             = (fv.positive? && task_score) ? (task_score.to_f / fv * 100).round(1) : nil %>
-
-    <% if fv.positive? %>
-      <p>目標値: <strong><%= fv %></strong></p>
-      <% if task_score %>
-        <p>タスク達成度スコア: <strong><%= task_score %></strong>/10</p>
-        <p>達成率: <strong><%= rate %>%</strong></p>
-        <div class="progress">
-          <div class="progress-bar progress-bar-striped"
-               role="progressbar"
-               style="width: <%= rate %>%;"
-               aria-valuenow="<%= rate %>"
-               aria-valuemin="0"
-               aria-valuemax="100">
-          </div>
-        </div>
-      <% else %>
-        <p class="text-muted">タスクが登録されていないため、スコアを算出できません</p>
-      <% end %>
-    <% else %>
-      <p class="text-muted">将来の目標値（future_goal_value）が設定されていません</p>
-    <% end %>
-  </div>
-
-  <!-- タスク管理＋自動算出スコア -->
-  <div class="col-md-6">
-    <h4>タスク管理</h4>
-    <% if total_count.positive? %>
-      <p>
-        [完了したタスク数／合計タスク数]  
-        <strong><%= completed_count %>／<%= total_count %></strong>
-      </p>
-      <ul class="list-group">
-        <% @daily_report.tasks.each do |task| %>
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            <% if task.completed? %>
-              ✅ <strong><%= task.title %></strong>
-            <% else %>
-              ⏳ <%= task.title %>
-            <% end %>
-          </li>
+        <% if fv.positive? %>
+          <p>目標値: <strong><%= fv %></strong></p>
+          <% if task_score %>
+            <p>タスク達成度スコア: <strong><%= task_score %></strong>/10</p>
+            <p>達成率: <strong><%= rate %>%</strong></p>
+            <div class="progress">
+              <div class="progress-bar progress-bar-striped bg-success"
+                   role="progressbar"
+                   style="width: <%= rate %>%"
+                   aria-valuenow="<%= rate %>"
+                   aria-valuemin="0"
+                   aria-valuemax="100">
+              </div>
+            </div>
+          <% else %>
+            <p class="text-muted">タスクが登録されていないため、スコアを算出できません</p>
+          <% end %>
+        <% else %>
+          <p class="text-muted">将来の目標値が設定されていません</p>
         <% end %>
-      </ul>
-    <% else %>
-      <p class="text-muted">タスクが登録されていません</p>
-    <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- タスク管理カード -->
+  <div class="col-md-6">
+    <div class="card mb-4">
+      <div class="card-header bg-light">
+        <h5 class="mb-0">タスク管理</h5>
+      </div>
+      <div class="card-body">
+        <% if total_count.positive? %>
+          <p>
+            [完了したタスク数／合計タスク数]
+            <strong><%= completed_count %>／<%= total_count %></strong>
+          </p>
+          <ul class="list-group list-group-flush">
+            <% @daily_report.tasks.each do |task| %>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <% if task.completed? %>
+                  <span class="text-success">✅</span>
+                  <strong class="ml-2"><%= task.title %></strong>
+                <% else %>
+                  <span class="text-secondary">⏳</span>
+                  <span class="ml-2"><%= task.title %></span>
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="text-muted">タスクが登録されていません</p>
+        <% end %>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- 過去の成果との比較 -->
-<div class="mt-4">
-  <h4>過去の成果との比較</h4>
-  <% if (prev = @daily_report.previous_report) %>
-    <% prev_completed = prev.tasks.where(completed: true).count %>
-    <% prev_total     = prev.tasks.count %>
-    <% prev_score     = prev_total.positive? ? (prev_completed.to_f / prev_total * 10).round(1) : nil %>
-    <% prev_rate      = (fv.positive? && prev_score) ? (prev_score.to_f / fv * 100).round(1) : nil %>
+<!-- 過去の成果との比較カード -->
+<div class="card mb-4">
+  <div class="card-header bg-light">
+    <h5 class="mb-0">過去比較 &amp; 自己評価</h5>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <!-- 過去の成果との比較 -->
+      <div class="col-md-6 border-right">
+        <h6>過去の成果との比較</h6>
+        <% if (prev = @daily_report.previous_report) %>
+          <% prev_completed = prev.tasks.where(completed: true).count %>
+          <% prev_total     = prev.tasks.count %>
+          <% prev_score     = prev_total.positive? ? (prev_completed.to_f / prev_total * 10).round(1) : nil %>
+          <% prev_rate      = (@daily_report.future_goal_value.to_i.positive? && prev_score) ? (prev_score.to_f / @daily_report.future_goal_value * 100).round(1) : nil %>
 
-    <p>前回の達成度スコア: <strong><%= prev_score || '―' %></strong>/10</p>
-    <p>前回の達成率: <strong><%= prev_rate ? "#{prev_rate}%" : '―' %></strong></p>
-    <%= link_to "過去の日報を見る", daily_report_path(prev), class: "btn btn-outline-secondary btn-sm" %>
-  <% else %>
-    <p class="text-muted">比較できるデータがありません。</p>
-  <% end %>
-</div>
+          <p>前回の達成度スコア: <strong><%= prev_score || '―' %></strong>/10</p>
+          <p>前回の達成率: <strong><%= prev_rate ? "#{prev_rate}%" : '―' %></strong></p>
+          <%= link_to "過去の日報を見る",
+                      daily_report_path(prev),
+                      class: "btn btn-outline-secondary btn-sm mt-2" %>
+        <% else %>
+          <p class="text-muted">比較できるデータがありません。</p>
+        <% end %>
+      </div>
 
-<!-- 自己評価 -->
-<div class="mt-4">
-  <h4>自己評価</h4>
-  <% se = @daily_report.self_evaluation %>
-  <p>今日の自己評価: <strong><%= se.presence || "―" %></strong>/5</p>
-
-  <%= form_with model: @daily_report, local: true do |f| %>
-    <div class="d-flex align-items-center">
-      <%= f.select :self_evaluation, (1..5).to_a, { prompt: "自己評価を選択" }, class: "form-control mr-2" %>
-      <%= f.submit "変更", class: "btn btn-sm btn-primary" %>
+      <!-- 自己評価 -->
+      <div class="col-md-6">
+        <h6>自己評価</h6>
+        <% se = @daily_report.self_evaluation %>
+        <p>今日の自己評価: <strong><%= se.presence || "―" %></strong>/5</p>
+        <%= form_with model: @daily_report,
+                      local: true,
+                      html: { class: "d-flex align-items-center flex-nowrap mb-0" } do |f| %>
+        <%= hidden_field_tag :return_to, request.fullpath %>
+        <div class="form-group mb-0 mr-2">
+        <%= f.select :self_evaluation,
+                (1..5).to_a,
+                { prompt: "選択" },
+                class: "form-control form-control-sm" %>
+        </div>
+        <%= f.submit "変更", class: "btn btn-sm btn-primary mb-0" %>
+        <% end %>
+      </div>
     </div>
-  <% end %>
+  </div>
 </div>

@@ -1,8 +1,5 @@
 /* app/assets/stylesheets/components/_user_header.scss */
 // .user-header {
-//   /* 背景やボーダーは好みに合わせて調整 */
-//   background-color: #ffffff;
-//   border-bottom: 2px solid #E0E0E0;
 
   .navbar-brand {
     .logo-img {
@@ -67,7 +64,8 @@
   .logout {
     background-color: rgba(255, 255, 255, 0.2); // 軽い透明感のある背景
     border-radius: 50%;
-    padding: 6px 10px;
+    width: 35px;
+    height: 35px;
     color: #fff !important;
     transition: background-color 0.3s ease;
     display: inline-flex;

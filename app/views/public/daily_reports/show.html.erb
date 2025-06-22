@@ -1,164 +1,205 @@
 <div class="container my-4">
-  <h1 class="mt-5 mb-4">ライフログ＜日報詳細＞</h1>
+  <!-- ページタイトル -->
+  <h1 class="mt-5 mb-4">ライフログ詳細</h1>
 
-  <!-- ナビゲーション -->
+  <!-- この全体ブロックを sticky にする -->
   <div class="sticky-top bg-white py-2" style="z-index: 1000;">
-    <div class="container d-flex justify-content-between">
-      <%= link_to "← 日報一覧に戻る", daily_reports_path, class: "btn btn-outline-secondary" %>
-      <%= link_to "マイページへ", users_mypage_path, class: "btn btn-outline-secondary" %>
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center">
+        
+        <!-- 左側グループ：ライフログ一覧ボタン と 前日ボタン -->
+        <div class="d-flex align-items-center">
+          <%= link_to "ライフログ一覧に戻る", daily_reports_path, class: "btn btn-outline-secondary mr-2" %>
+          <% if @prev %>
+            <%= link_to "← 前日", daily_report_path(@prev), class: "btn btn-outline-secondary" %>
+          <% else %>
+            <span class="btn btn-outline-secondary mr-2 disabled">← 前日</span>
+          <% end %>
+        </div>
+        
+        <!-- 中央：日付表示 -->
+        <h4 class="m-0 text-center flex-grow-1">
+          <%= @daily_report.date.strftime("%-m月%-d日（%a）") %>
+        </h4>
+        
+        <!-- 右側グループ： 翌日ボタン と マイページボタン -->
+        <div class="d-flex align-items-center">
+          <% if @next %>
+            <%= link_to "翌日 →", daily_report_path(@next), class: "btn btn-outline-secondary mr-2" %>
+          <% else %>
+            <span class="btn btn-outline-secondary mr-2 disabled">翌日 →</span>
+          <% end %>
+          <%= link_to "マイページへ", users_mypage_path, class: "btn btn-outline-secondary" %>
+        </div>
+        
+      </div>
     </div>
   </div>
 
-  <!-- インフォボックス：グラフと指標の説明 -->
+  <!-- インフォボックス -->
   <div class="alert alert-info mb-4">
-    <h4>グラフと数字のかんたん説明</h4>
-    <ul>
-      <li>
-        <strong>目標パフォーマンス:</strong>  
-        あなたが目指すスコアです。フォームで「将来の目標値」として入力します。
-      </li>
-      <li>
-        <strong>達成率:</strong>  
-        現在、どれくらい目標に近づいているかをパーセントで示します。
-      </li>
-      <li>
-        <strong>パフォーマンススコア:</strong>  
-        タスクの達成具合と自己評価の平均値です。
-      </li>
-      <li>
-        <strong>予測推移:</strong>  
-        今の結果と目標の差を、設定した日数で埋めるとどのくらいのペースで伸びるかをグラフで示します。
-      </li>
+    <h4 class="mb-3">グラフと数字のかんたん説明</h4>
+    <ul class="mb-0 pl-3">
+      <li><strong>目標パフォーマンス:</strong> フォームで入力したあなたの目指すスコア。</li>
+      <li><strong>達成率:</strong> どれくらい目標に近づいているかを％で表示。</li>
+      <li><strong>パフォーマンススコア:</strong> タスク達成度と自己評価の平均値。</li>
+      <li><strong>予測推移:</strong> 設定した日数で伸びるペースをグラフで表示。</li>
     </ul>
   </div>
 
-  <!-- 日報詳細ページ内のグラフカード -->
+  <!-- パフォーマンス推移グラフ -->
   <div class="card mb-4">
     <div class="card-header">
       <h3 class="mb-0">パフォーマンス推移</h3>
     </div>
     <div class="card-body text-center">
-      <!-- Chart.js 用キャンバスに直接 data 属性で詳細データを埋め込む -->
       <div style="position: relative; height:300px; width:100%;">
         <canvas
           id="performanceChart"
           data-goal-value="<%= @daily_report.future_goal_value.to_i %>"
           data-goal-days="<%= @daily_report.future_goal_days.to_i %>"
           data-dates='<%= [@daily_report.date].to_json.html_safe %>'
-          data-values='<%= [@daily_report.task_achievement].to_json.html_safe %>'
-        ></canvas>
+          data-values='<%= [@daily_report.task_achievement].to_json.html_safe %>'>
+        </canvas>
       </div>
-      <!-- 補足情報 -->
       <% if @daily_report.future_goal_value.present? && @daily_report.future_goal_days.present? %>
-        <% days_passed     = (Date.current - @daily_report.date).to_i %>
-        <% remaining_days  = [@daily_report.future_goal_days - days_passed, 0].max %>
-        <% current_value   = @daily_report.task_achievement.to_i %>
-        <% required_per_day = ((@daily_report.future_goal_value - current_value).to_f / @daily_report.future_goal_days).round(1) %>
-        <div class="mt-3">
-          <span class="mr-4">
-            残り日数：<strong><%= remaining_days %>日</strong>
-          </span>
-          <span>
-            1日あたり必要な改善：<strong><%= required_per_day %>ポイント</strong>
-          </span>
+        <% days_passed    = (Date.current - @daily_report.date).to_i %>
+        <% remaining_days = [@daily_report.future_goal_days - days_passed, 0].max %>
+        <% current_value  = @daily_report.task_achievement.to_i %>
+        <% per_day_needed = ((@daily_report.future_goal_value - current_value).to_f / @daily_report.future_goal_days).round(1) %>
+        <div class="mt-3 d-flex justify-content-center">
+          <span class="mr-4">残り日数：<strong><%= remaining_days %>日</strong></span>
+          <span>1日あたり必要な改善：<strong><%= per_day_needed %>ポイント</strong></span>
         </div>
       <% else %>
-        <p class="text-muted mt-3">
-          ※ 将来の目標設定が未入力です。フォームで目標パフォーマンスと目標達成日数を入力してください。
+        <p class="text-muted mt-3 mb-0">
+          ※ 将来の目標設定が未入力です。フォームで目標パフォーマンスと達成日数を入力してください。
         </p>
       <% end %>
     </div>
   </div>
 
-  <!-- 日報の基本情報 -->
-  <div class="card mb-4">
-    <div class="card-header">
-      <strong><%= @daily_report.date.strftime("%Y年%-m月%-d日") %></strong>
-      &nbsp;–&nbsp;<%= @daily_report.location %>
-    </div>
-    <div class="card-body">
-      <%= simple_format(@daily_report.content) %>
-      <div class="mt-3 text-muted">
-        投稿者: <%= link_to @daily_report.user.name, user_path(@daily_report.user) %>
+  <div class="container my-4">
+    <div class="card mb-4 shadow-sm" style="border-left: .25rem solid #007bff; border-radius: 0.5rem;">
+      <!-- カードヘッダー：日付、曜日、場所 -->
+      <div class="card-header bg-light border-0 py-3">
+        <div class="d-flex align-items-center">
+          <div class="text-primary mr-3">
+            <i class="far fa-calendar-alt fa-2x"></i>
+          </div>
+          <div>
+            <h4 class="mb-1 font-weight-bold"><%= @daily_report.date.strftime("%Y年%-m月%-d日") %></h4>
+            <small class="text-muted"><%= @daily_report.date.strftime("%A") %></small>
+          </div>
+          <div class="ml-auto">
+            <span class="badge badge-pill badge-secondary py-2 px-3">
+              <i class="fas fa-map-marker-alt mr-1"></i>
+              <%= @daily_report.location %>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- カードボディ：活動内容、投稿情報、学び・改善点 -->
+      <div class="card-body">
+        <!-- 活動内容 -->
+        <div class="mb-4">
+          <p class="card-text lead" style="line-height: 1.6;">
+            <%= simple_format(@daily_report.content) %>
+          </p>
+        </div>
+
+        <hr>
+
+        <!-- 投稿情報 -->
+        <div class="d-flex justify-content-between text-muted small mb-3">
+          <div class="d-flex align-items-center">
+            <i class="far fa-clock mr-1"></i>
+            <span>投稿時間: <%= @daily_report.created_at.strftime("%Y-%m-%d %H:%M") %></span>
+          </div>
+          <div class="d-flex align-items-center">
+            <i class="fas fa-user mr-1"></i>
+            <span>
+              投稿者: 
+              <%= link_to @daily_report.user.name, user_path(@daily_report.user), class: "text-reset font-weight-bold" %>
+            </span>
+          </div>
+        </div>
+
+        <!-- 学びと改善点（入力がある場合のみ表示） -->
+        <% if @daily_report.learning.present? %>
+          <div class="mt-4 pt-3 border-top">
+            <h5 class="font-weight-bold text-success mb-3">
+              <i class="fas fa-lightbulb mr-1"></i> 学びと改善点
+            </h5>
+            <p class="card-text lead" style="line-height: 1.6;">
+              <%= simple_format(@daily_report.learning) %>
+            </p>
+          </div>
+        <% end %>
       </div>
     </div>
   </div>
+
 
   <!-- タスク管理 -->
   <%= render "tasks", daily_report: @daily_report %>
 
   <!-- 将来の目標設定 -->
-  <div class="card mb-3">
+  <div class="card mb-4">
     <div class="card-header">
-      <h4>将来の目標設定</h4>
+      <h4 class="mb-0">将来の目標設定</h4>
     </div>
     <div class="card-body">
-      <p>
-        <strong>目標パフォーマンス:</strong>
-        <%= @daily_report.future_goal_value.presence || "未設定" %>
-        <small class="text-muted">(※将来の目標値として入力)</small>
-      </p>
-      <p>
-        <strong>目標達成日数:</strong>
-        <%= @daily_report.future_goal_days.presence || "未設定" %> 日
-      </p>
-      <p class="text-muted">
-        ※ この設定値をもとに、グラフの「予測推移」が算出され、今後の必要改善量が計算されます。
+      <p><strong>目標パフォーマンス:</strong> <%= @daily_report.future_goal_value.presence || "未設定" %></p>
+      <p><strong>目標達成日数:</strong> <%= @daily_report.future_goal_days.presence || "未設定" %>日</p>
+      <p class="text-muted mb-0">
+        ※ この設定値を基に、グラフの予測推移と必要改善量を算出します。
       </p>
     </div>
   </div>
 
-  <!-- 進行状況・達成度 (status partial) -->
+  <!-- ステータス -->
   <%= render "status", daily_report: @daily_report %>
 
-  <!-- パフォーマンススコア & 自己評価 -->
+  <!-- パフォーマンススコア -->
   <div class="card mb-4">
     <div class="card-header">
       <h3 class="mb-0">パフォーマンススコア</h3>
     </div>
     <div class="card-body">
       <% if @daily_report.performance_score.present? %>
-        <p>
+        <p class="mb-2">
           パフォーマンススコア: <strong><%= @daily_report.performance_score %>/10</strong>
-          <small class="text-muted">(タスク達成度と自己評価の平均値)</small>
+          <small class="text-muted">(タスク達成度と自己評価の平均)</small>
         </p>
-        <div class="progress mb-2">
-          <div class="progress-bar progress-bar-striped"
+        <div class="progress mb-3">
+          <div class="progress-bar progress-bar-striped bg-info"
                role="progressbar"
-               style="width: <%= @daily_report.performance_score * 10 %>%;" 
+               style="width: <%= @daily_report.performance_score * 10 %>%"
                aria-valuenow="<%= @daily_report.performance_score %>"
                aria-valuemin="0"
                aria-valuemax="10">
           </div>
         </div>
       <% else %>
-        <p class="text-muted">評価データがありません。</p>
+        <p class="text-muted mb-3">評価データがありません。</p>
       <% end %>
 
-      <!-- 自己評価編集フォーム -->
+      <!-- 自己評価編集 -->
       <div>
-        <p class="mb-1">
-          自己評価: <strong><%= @daily_report.self_evaluation.presence || "―" %>/5</strong>
-        </p>
-        <%= form_with model: @daily_report, local: true do |f| %>
-          <div class="d-flex align-items-center">
-            <%= f.select :self_evaluation, (1..5).to_a, {},
-                  class: "form-control mr-2", prompt: "自己評価を選択" %>
-            <%= f.submit "変更", class: "btn btn-sm btn-primary" %>
-          </div>
-        <% end %>
-        <p class="text-muted mt-2">
-          ※ 毎日の自己評価入力が、パフォーマンススコアの更新に影響します。
+        <p class="text-muted mt-2 mb-0">
+          ※ 毎日の自己評価がスコア更新に影響します。
         </p>
       </div>
     </div>
   </div>
 
-  <!-- この日報に関連する投稿 (関連投稿機能が定義されていれば) -->
+  <!-- 関連投稿 (拡張将来用)
   <% if @daily_report.respond_to?(:posts) && @daily_report.posts.any? %>
     <div class="card mb-4">
       <div class="card-header">
-        <h3 class="h5">この日報に関連する投稿</h3>
+        <h5 class="mb-0">この日報に関連する投稿</h5>
       </div>
       <div class="card-body">
         <div class="row">
@@ -167,15 +208,14 @@
               <div class="card h-100">
                 <div class="card-body">
                   <h5 class="card-title">
-                    <%= link_to post.title, daily_report_post_path(@daily_report, post), class: "stretched-link text-reset" %>
+                    <%= link_to post.title, daily_report_post_path(@daily_report, post),
+                                 class: "stretched-link text-reset" %>
                   </h5>
                   <p class="card-text"><%= truncate(post.content, length: 100) %></p>
                 </div>
-                <div class="card-footer text-muted">
-                  <small>
-                    <%= post.created_at.strftime("%Y-%m-%d") %>　
-                    投稿者: <%= link_to post.user.name, user_path(post.user) %>
-                  </small>
+                <div class="card-footer text-muted small">
+                  <%= post.created_at.strftime("%Y-%m-%d") %>　
+                  投稿者: <%= link_to post.user.name, user_path(post.user) %>
                 </div>
               </div>
             </div>
@@ -183,23 +223,25 @@
         </div>
         <% if @daily_report.posts.count > 6 %>
           <div class="text-center">
-            <%= link_to "もっと見る", daily_report_posts_path(@daily_report), class: "btn btn-outline-secondary" %>
+            <%= link_to "もっと見る", daily_report_posts_path(@daily_report),
+                          class: "btn btn-outline-secondary" %>
           </div>
         <% end %>
       </div>
     </div>
-  <% end %>
+  <% end %> -->
 
-  <!-- 新規投稿ボタン（自分の日報の場合、関連機能を実装しているなら表示） -->
+  <!-- 新規投稿ボタン -->
   <% if @daily_report.user == current_user %>
     <div class="text-center mb-4">
-      <%# ※ 新規投稿機能のルートが未定義の場合は以下をコメントアウトしてください %>
       <%#= link_to "新規投稿", new_daily_report_post_path(@daily_report), class: "btn btn-primary" %>
     </div>
   <% end %>
 
-  <!-- ナビゲーション：日報一覧へ戻る -->
-  <div class="text-center">
-    <%= link_to "日報一覧へ戻る", daily_reports_path, class: "btn btn-secondary" %>
+  <!-- 戻るボタン -->
+  <div class="text-center mb-5">
+    <%= link_to "ライフログ一覧へ戻る", daily_reports_path, class: "btn btn-secondary" %>
   </div>
+
+
 </div>

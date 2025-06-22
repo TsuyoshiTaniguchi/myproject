@@ -1,14 +1,22 @@
-<% if post.liked_by?(current_user) %>
-  <% like = post.likes.find_by(user_id: current_user.id) %> <!--  `like` を明示的に定義 -->
-  <%= form_with url: post_like_path(post, like), method: :delete, class: "button_to" do |f| %>
-    <button class="like-btn active" type="submit">
-      <i class="fas fa-thumbs-up text-primary"></i> <span class="like-count"><%= post.likes.count %></span>
+<!-- app/views/public/likes/_like_button.html.erb -->
+<div id="post-likes-<%= post.id %>"
+     data-post-id="<%= post.id %>">
+  <% if post.liked_by?(current_user) %>
+    <% like = post.likes.find_by(user: current_user) %>
+    <button class="js-like-btn btn btn-primary btn-sm"
+            data-url="<%= post_like_path(post, like) %>"
+            data-method="delete"
+            type="button">
+      <i class="fas fa-thumbs-up"></i>
+      <span class="js-like-count"><%= post.likes.count %></span>
+    </button>
+  <% else %>
+    <button class="js-like-btn btn btn-outline-secondary btn-sm"
+            data-url="<%= post_likes_path(post) %>"
+            data-method="post"
+            type="button">
+      <i class="far fa-thumbs-up"></i>
+      <span class="js-like-count"><%= post.likes.count %></span>
     </button>
   <% end %>
-<% else %>
-  <%= form_with url: post_likes_path(post), method: :post, class: "button_to" do |f| %> <!- `remote: true` を削除 -->
-    <button class="like-btn" type="submit">
-      <i class="far fa-thumbs-up text-secondary"></i> <span class="like-count"><%= post.likes.count %></span>
-    </button>
-  <% end %>
-<% end %>
+</div>

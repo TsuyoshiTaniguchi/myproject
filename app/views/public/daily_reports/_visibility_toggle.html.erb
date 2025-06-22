@@ -1,0 +1,21 @@
+<div id="report-<%= report.id %>-visibility">
+  <%= form_with model: report,
+                url:   daily_report_path(report),  # ← public_ を外す
+                method: :patch,
+                local:  false,                     # Rails 6 では remote: true と同義
+                html:   { class: "d-inline" } do |f| %>
+    <div class="input-group input-group-sm align-items-center">
+      <button type="submit" class="btn btn-outline-secondary btn-sm">
+      <i class="fas <%= report.public_report? ?
+                        "fa-toggle-on text-success" :
+                        "fa-toggle-off text-muted" %>"></i>
+      </button>
+      <%= f.select :visibility,
+                   [["公開","public_report"],["非公開","private_report"]],
+                   { selected: report.visibility },
+                   class:    "form-select form-select-sm",
+                   onchange: "this.form.requestSubmit()" %>
+
+    </div>
+  <% end %>
+</div>

@@ -6,8 +6,12 @@ class Admin::PostsController < ApplicationController
 
   def index
     @posts = Post.includes(:user).with_attached_images
-    @posts = @posts.where(reported: true) if params[:reported_only].present?
-
+    
+    # 「reported_only」が "true" なら、enumで報告状態にある投稿のみ絞り込む
+    if params[:reported_only].to_s == "true"
+      @posts = @posts.where(status: Post.statuses[:reported])
+    end
+  
     case params[:sort]
     when "newest"
       @posts = @posts.order(created_at: :desc)
@@ -16,8 +20,7 @@ class Admin::PostsController < ApplicationController
     else
       @posts = @posts.order(updated_at: :desc)
     end
-
-    # search スコープを使用することで、どの環境でも正しく検索できる
+  
     @posts = @posts.search(params[:query]) if params[:query].present?
   end
 
@@ -34,7 +37,7 @@ class Admin::PostsController < ApplicationController
   def report
     @post = Post.find_by(id: params[:id])
     if @post
-      @post.update(reported: true)  # ✅ `reported` を `true` に更新
+      @post.reported!   # ユーザー側と同様に enum メソッドで status を "reported" に変更
       redirect_to admin_post_path(@post), notice: "投稿を通報しました"
     else
       redirect_to admin_posts_path, alert: "投稿が見つかりません"
@@ -44,19 +47,18 @@ class Admin::PostsController < ApplicationController
   def unreport
     @post = Post.find_by(id: params[:id])
     Rails.logger.info "Unreport action triggered for Post ID: #{@post&.id}"
-  
+    
     if @post&.reported?
       if @post.update(status: :normal)
         redirect_to admin_post_path(@post), notice: "通報を解除しました"
       else
-        Rails.logger.error("Failed to update reported: #{@post.errors.full_messages.join(", ")}")  # エラーをログに記録
+        Rails.logger.error("Failed to update reported: #{@post.errors.full_messages.join(", ")}")
         redirect_to admin_posts_path, alert: "通報解除に失敗しました"
       end
     else
       redirect_to admin_posts_path, alert: "投稿が見つかりません"
     end
   end
-  
 
   def edit
     @post = Post.find_by(id: params[:id])
