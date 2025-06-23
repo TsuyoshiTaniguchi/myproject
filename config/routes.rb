@@ -60,6 +60,7 @@ Rails.application.routes.draw do
       resources :tasks, only: %i[create update destroy] do # タスクはあくまで日報詳細の中で CRUD させるだけ
         collection do
           post :bulk_create  # 一括作成用アクション
+          get  :bulk_create, to: redirect('/daily_reports/%{daily_report_id}')
         end
       end
     end

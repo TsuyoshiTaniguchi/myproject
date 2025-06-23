@@ -5,25 +5,37 @@ import { Chart } from "chart.js";
 
 let chartInstance = null;          // モジュール内で保持
 
-function buildChart(canvas, dates, values, goalValue, goalDays) {
-  // Y 軸最大値を決定
-  const rawMax        = Math.max(...values, 10);
-  const suggestedMax  = Math.ceil(Math.min(rawMax, 50) * 1.2);
+function buildChart(canvas, rawDates, rawValues, goalValue, goalDays) {
+  // 0) 入力の goalValue (1～10) を 0～100 のスケールに正規化
+  const normalizedGoalValue = goalValue * 10;
 
-  // 予測ライン
-  const labels  = [...dates];
+  // 1) 埋め込まれた実績値を 0..100 にクリップ
+  const values = rawValues.map(v => Math.min(Math.max(v, 0), 100));
+
+  // 2) Y 軸最大値を 100 で固定
+  const suggestedMax = 100;
+
+  // 3) 予測ラインをつくる (クリップ込み)
+  const labels  = [...rawDates];
   const predict = [];
   if (goalValue > 0 && goalDays > 0) {
-    const last = values.at(-1);
-    const inc  = (goalValue - last) / goalDays;
+    const last = values.at(-1) ?? 0;
+    // normalizedGoalValue を使って、予測値の増加分を算出
+    const inc  = (normalizedGoalValue - last) / goalDays;
     for (let i = 1; i <= goalDays; i++) {
-      const d = new Date(dates.at(-1));
+      const next = +(last + inc * i).toFixed(1);
+      // 予測値も 0..100 にクリップ
+      predict.push(Math.min(Math.max(next, 0), 100));
+      const d = new Date(rawDates.at(-1));
       d.setDate(d.getDate() + i);
       labels.push(d.toISOString().slice(0, 10));
-      predict.push(+((last ?? 0) + inc * i).toFixed(1));
     }
   }
-  const goalLine = labels.map(() => goalValue);
+
+  // 目標ライン (常に normalizedGoalValue を使用、0..100 にクリップ)
+  const goalLine = labels.map(() =>
+    Math.min(Math.max(normalizedGoalValue, 0), 100)
+  );
 
   chartInstance = new Chart(canvas, {
     type: "line",
@@ -64,7 +76,8 @@ function buildChart(canvas, dates, values, goalValue, goalDays) {
       scales: {
         y: {
           beginAtZero: true,
-          suggestedMax,
+          max: suggestedMax,  // 100 に固定
+          ticks: { stepSize: 10 }
         },
       },
       plugins: {
@@ -77,15 +90,12 @@ function buildChart(canvas, dates, values, goalValue, goalDays) {
 
 // ----------------------- 初期化エクスポート -----------------------
 export const initPerformanceChart = () => {
-  const ChartJS = Chart;               // window に依存しない
-
   const container = document.getElementById("performanceChartContainer");
   const direct    = document.getElementById("performanceChart");
 
-  // ------------- Turbolinks 戻り時の二重生成防止 -------------
-  if (chartInstance) return;
+  if (chartInstance) return;  // Turbolinks 戻りの二重生成防止
 
-  // 一覧ページ：container の中に canvas を作る
+  // canvas の取得 or 生成
   let canvas;
   if (container) {
     container.innerHTML = "";
@@ -93,21 +103,18 @@ export const initPerformanceChart = () => {
     canvas.id    = "performanceChart";
     canvas.style.width  = "100%";
     canvas.style.height = "100%";
-    // goalValue / goalDays を data-* から引き継ぐ
     canvas.dataset.goalValue = container.dataset.goalValue;
     canvas.dataset.goalDays  = container.dataset.goalDays;
     container.appendChild(canvas);
   } else if (direct) {
-    // 詳細ページ：canvas が直置き
     canvas = direct;
   } else {
-    return; // 対象ページではない
+    return;
   }
 
   const goalValue = +canvas.dataset.goalValue || 0;
   const goalDays  = +canvas.dataset.goalDays  || 0;
 
-  // ----------- データ取得（埋め込み or Fetch） -----------
   const parseAndDraw = (dates, values) => {
     if (dates.length && values.length) {
       buildChart(canvas, dates, values, goalValue, goalDays);
@@ -117,23 +124,16 @@ export const initPerformanceChart = () => {
   };
 
   if (canvas.dataset.dates && canvas.dataset.values) {
-    // 詳細ページ：data 属性に JSON が埋め込まれている
-    try {
-      const dates  = JSON.parse(canvas.dataset.dates);
-      const values = JSON.parse(canvas.dataset.values);
-      parseAndDraw(dates, values);
-    } catch (e) {
-      console.error("Embedded data parse error:", e);
-    }
+    // 詳細ページ：埋め込みデータ
+    const dates  = JSON.parse(canvas.dataset.dates);
+    const values = JSON.parse(canvas.dataset.values);
+    parseAndDraw(dates, values);
   } else {
-    // 一覧ページ：API から取得
+    // 一覧ページ：API
     fetch("/daily_reports/performance_data.json")
-      .then(res => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
-      })
+      .then(res => res.ok ? res.json() : Promise.reject(res.status))
       .then(data => parseAndDraw(data.dates || [], data.performance || []))
-      .catch(err => console.error("Performance data fetch error:", err));
+      .catch(err => console.error("Performance data error:", err));
   }
 };
 

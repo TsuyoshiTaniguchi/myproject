@@ -32,13 +32,14 @@ class Public::DailyReportsController < ApplicationController
     end
     @prev = scope.where('date < ?', @daily_report.date).order(date: :desc).first
     @next = scope.where('date > ?', @daily_report.date).order(date: :asc).first
+    
   end
 
   # GET /daily_reports/new
   def new
     @daily_report = current_user.daily_reports.build
     if (last_report = current_user.daily_reports.order(date: :desc).first)
-      # 例として、未来の目標値と目標日数を前日から引き継ぐ
+      # 未来の目標値と目標日数を前日から引き継ぐ
       @daily_report.future_goal_value = last_report.future_goal_value
       @daily_report.future_goal_days  = last_report.future_goal_days
     end  
@@ -72,16 +73,17 @@ class Public::DailyReportsController < ApplicationController
       format.html do
         if success
           flash[:notice] = "更新が完了しました。"
-          redirect_to params[:return_to].presence || daily_report_path(@daily_report)
+          # ← return_to をホワイトリスト化して
+          #    /daily_reports/:id 以外は無視し、show にフォールバック
+          redirect_to safe_return_to || daily_report_path(@daily_report)
         else
           flash.now[:alert] = "更新に失敗しました。"
           render :edit
         end
       end
-      format.js   # ← これで update.js.erb を返す
-    end  
+      format.js   # update.js.erb, toggle 用の JS レスポンスなどもそのまま動きます
+    end
   end
-  
 
   # DELETE /daily_reports/:id
   def destroy
@@ -179,6 +181,13 @@ class Public::DailyReportsController < ApplicationController
   end
 
   private
+
+    # return_to が「/daily_reports/数字」のパスかだけを許可する
+  def safe_return_to
+    rt = params[:return_to].presence
+    return rt if rt && rt.match?(/\A\/daily_reports\/\d+\z/)
+    nil
+  end
 
   # show/compact 用: 他人は公開済みのみ、自分は全件
   def find_public_daily_report

@@ -1,43 +1,40 @@
 module Public
   class TasksController < ApplicationController
+    before_action :authenticate_user!
     before_action :set_daily_report
+    before_action :set_task, only: %i[update destroy]
 
-    def create
-      @task = @daily_report.tasks.build(task_params)
-      if @task.save
-        redirect_back fallback_location: daily_report_path(@daily_report), notice: "タスクを追加しました。"
-      else
-        redirect_back fallback_location: daily_report_path(@daily_report), alert: "タスクの追加に失敗しました。"
+    # HTML と JS 両方受け入れ
+    # → 暗黙ビュー（create.js.erb など）を使わず、常に replace_tasks.js.erb を返す
+    %i[create update destroy bulk_create].each do |action|
+      define_method(action) do
+        case action
+        when :create
+          @daily_report.tasks.create(task_params)
+        when :update
+          @task.update(task_params)
+        when :destroy
+          @task.destroy
+        when :bulk_create
+          titles = params[:titles].to_s.lines.map(&:strip).reject(&:blank?)
+          titles.each { |t| @daily_report.tasks.create(title: t) }
+        end
+
+        respond_to do |format|
+          format.html { redirect_to daily_report_path(@daily_report) }
+          format.js   { render 'public/tasks/replace_tasks' }
+        end
       end
     end
-
-    def update
-      @task = @daily_report.tasks.find(params[:id])
-      if @task.update(task_params)
-        redirect_back fallback_location: daily_report_path(@daily_report), notice: "タスクを更新しました。"
-      else
-        redirect_back fallback_location: daily_report_path(@daily_report), alert: "タスクの更新に失敗しました。"
-      end
-    end
-
-    def destroy
-      @task = @daily_report.tasks.find(params[:id])
-      @task.destroy
-      redirect_back fallback_location: daily_report_path(@daily_report), notice: "タスクを削除しました。"
-    end
-
-    def bulk_create
-      # textarea に入力された「改行区切り文字列」を配列化して一気に作成
-      titles = params[:titles].to_s.split(/\r?\n/).map(&:strip).reject(&:blank?)
-      titles.each { |t| @daily_report.tasks.create(title: t) }
-      redirect_to daily_report_path(@daily_report)
-    end
-  
 
     private
 
     def set_daily_report
-      @daily_report = DailyReport.find(params[:daily_report_id])
+      @daily_report = current_user.daily_reports.find(params[:daily_report_id])
+    end
+
+    def set_task
+      @task = @daily_report.tasks.find(params[:id])
     end
 
     def task_params

@@ -38,13 +38,29 @@
 
   <!-- インフォボックス -->
   <div class="alert alert-info mb-4">
-    <h4 class="mb-3">グラフと数字のかんたん説明</h4>
-    <ul class="mb-0 pl-3">
-      <li><strong>目標パフォーマンス:</strong> フォームで入力したあなたの目指すスコア。</li>
-      <li><strong>達成率:</strong> どれくらい目標に近づいているかを％で表示。</li>
-      <li><strong>パフォーマンススコア:</strong> タスク達成度と自己評価の平均値。</li>
-      <li><strong>予測推移:</strong> 設定した日数で伸びるペースをグラフで表示。</li>
-    </ul>
+    <h4 class="mb-3">グラフの見方ガイド</h4>
+    <div class="alert alert-info mb-4">
+      <ul class="mb-0 pl-3">
+        <li>
+          <strong>目標パフォーマンス:</strong>
+          あなたが「将来の目標スコア」として入力した数値です。<br>
+          ※ 例えば、10点満点の場合、グラフ上では100％の目標ラインとして表示されます。
+        </li>
+        <li>
+          <strong>達成率:</strong>
+          本日のタスクの完了状況と自己評価から算出された実際のパフォーマンスを、100％スケールで示しています。
+        </li>
+        <li>
+          <strong>パフォーマンススコア:</strong>
+          タスク達成度と自己評価（1～5）を基に計算される、現在のパフォーマンスの平均値です。
+        </li>
+        <li>
+          <strong>予測推移:</strong>
+          今日の実績から、設定された「目標日数」の中でどの程度目標に向かって改善するかを、線形補完で予測したものです。<br>
+          ※ 目標スコアや日数は、投稿後も前日の設定を引き継いで再利用されるため、継続して成績が蓄積されます。
+        </li>
+      </ul>
+    </div>
   </div>
 
   <!-- パフォーマンス推移グラフ -->
@@ -58,8 +74,8 @@
           id="performanceChart"
           data-goal-value="<%= @daily_report.future_goal_value.to_i %>"
           data-goal-days="<%= @daily_report.future_goal_days.to_i %>"
-          data-dates='<%= [@daily_report.date].to_json.html_safe %>'
-          data-values='<%= [@daily_report.task_achievement].to_json.html_safe %>'>
+          data-dates='<%= [@daily_report.date.strftime("%Y-%m-%d")].to_json.html_safe %>'
+          data-values='<%= [@daily_report.achievement_rate].to_json.html_safe %>'>
         </canvas>
       </div>
       <% if @daily_report.future_goal_value.present? && @daily_report.future_goal_days.present? %>
@@ -141,57 +157,22 @@
     </div>
   </div>
 
-
-  <!-- タスク管理 -->
-  <%= render "tasks", daily_report: @daily_report %>
-
-  <!-- 将来の目標設定 -->
+  <!-- タスク管理カード（投稿情報と同じ幅の横長カード） -->
   <div class="card mb-4">
-    <div class="card-header">
-      <h4 class="mb-0">将来の目標設定</h4>
+    <div class="card-header bg-light">
+      <h4 class="mb-0">タスク管理</h4>
     </div>
-    <div class="card-body">
-      <p><strong>目標パフォーマンス:</strong> <%= @daily_report.future_goal_value.presence || "未設定" %></p>
-      <p><strong>目標達成日数:</strong> <%= @daily_report.future_goal_days.presence || "未設定" %>日</p>
-      <p class="text-muted mb-0">
-        ※ この設定値を基に、グラフの予測推移と必要改善量を算出します。
-      </p>
+    <div class="card-body p-0">
+      <%= render "public/daily_reports/tasks", daily_report: @daily_report %>
     </div>
   </div>
+  
 
-  <!-- ステータス -->
-  <%= render "status", daily_report: @daily_report %>
 
-  <!-- パフォーマンススコア -->
-  <div class="card mb-4">
-    <div class="card-header">
-      <h3 class="mb-0">パフォーマンススコア</h3>
-    </div>
-    <div class="card-body">
-      <% if @daily_report.performance_score.present? %>
-        <p class="mb-2">
-          パフォーマンススコア: <strong><%= @daily_report.performance_score %>/10</strong>
-          <small class="text-muted">(タスク達成度と自己評価の平均)</small>
-        </p>
-        <div class="progress mb-3">
-          <div class="progress-bar progress-bar-striped bg-info"
-               role="progressbar"
-               style="width: <%= @daily_report.performance_score * 10 %>%"
-               aria-valuenow="<%= @daily_report.performance_score %>"
-               aria-valuemin="0"
-               aria-valuemax="10">
-          </div>
-        </div>
-      <% else %>
-        <p class="text-muted mb-3">評価データがありません。</p>
-      <% end %>
-
-      <!-- 自己評価編集 -->
-      <div>
-        <p class="text-muted mt-2 mb-0">
-          ※ 毎日の自己評価がスコア更新に影響します。
-        </p>
-      </div>
+  <!-- ─── 進行状況・達成度（ステータス） ─── -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <%= render "public/daily_reports/status", daily_report: @daily_report %>
     </div>
   </div>
 
