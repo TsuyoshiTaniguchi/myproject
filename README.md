@@ -38,4 +38,5 @@
 
 
 - Demo: demo@example.com / demo1234  
+- 管理者: admin@example.com / admin123
 - ゲスト: 「ゲストログイン」ボタン

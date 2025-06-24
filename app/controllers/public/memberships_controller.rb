@@ -13,7 +13,6 @@ class Public::MembershipsController < ApplicationController
     end
   end
 
-
   def destroy
     @membership = Membership.find_by(user: current_user, group_id: params[:group_id])
     if @membership.nil?
