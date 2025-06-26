@@ -20,14 +20,20 @@ ja:
   activerecord:
     attributes:
       user:
+        name:  "名前"
+        email: "メールアドレス"
         status: "ステータス"
       group:
+        name:  "グループ名"
         category: "カテゴリ"
         privacy: "プライバシー"
       daily_report:
         date: "日付"
         content: "活動内容"
         location: "場所"
+      post:
+        title: "タイトル"
+        content: "内容"
     errors:
       models:
         user:
@@ -42,12 +48,15 @@ ja:
               confirmation: "パスワードが一致しません"
         post:
           attributes:
+            title:
+              blank: "を入力してください"
             group:
               required: "グループを選択してください"
             group_id:
               blank: "グループを選択してください"
             content:
-              too_short: "内容が短すぎます"
+              blank: "を入力してください"
+              too_short: "が短すぎます"
         daily_report:
           attributes:
             future_goal_days:

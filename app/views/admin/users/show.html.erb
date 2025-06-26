@@ -20,7 +20,7 @@
     </li>
     <li class="nav-item">
       <a class="nav-link" id="daily-tab" data-toggle="tab" href="#daily" role="tab" aria-controls="daily" aria-selected="false">
-        ライフログ＜日報管理＞
+        ライフログ
       </a>
     </li>
   </ul>
@@ -216,7 +216,7 @@
     <div class="tab-pane fade" id="daily" role="tabpanel">
       <div class="card mb-4">
         <div class="card-header">
-          <h3 class="mb-0">ライフログ＜日報履歴＞</h3>
+          <h3 class="mb-0">ライフログ履歴</h3>
         </div>
         <div class="card-body p-0">
           <ul class="list-group m-0">
@@ -242,14 +242,14 @@
                       </div>
                     </div>
     
-                    <!-- 削除ボタン -->
+                    <!-- 削除ボタン 
                     <div class="ms-3 flex-shrink-0">
                       <%= link_to "削除",
                                   admin_daily_report_path(report),
                                   method: :delete,
-                                  data: { confirm: "この日報を削除してよろしいですか？" },
+                                  data: { confirm: "このライフログを削除してよろしいですか？" },
                                   class: "btn btn-sm btn-danger" %>
-                    </div>
+                    </div> --> 
                   </div>
                 </li>
               <% end %>

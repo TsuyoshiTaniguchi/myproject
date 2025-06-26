@@ -159,7 +159,7 @@ class Public::PostsController < ApplicationController
 
   def correct_user
     @post = current_user.posts.find_by(id: params[:id])
-    redirect_to public_posts_path, alert: "権限がありません" if @post.nil?
+    redirect_to posts_path, alert: "権限がありません" if @post.nil?
   end
 
   def restrict_guest_access

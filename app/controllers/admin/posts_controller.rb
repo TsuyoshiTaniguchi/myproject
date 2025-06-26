@@ -6,12 +6,13 @@ class Admin::PostsController < ApplicationController
 
   def index
     @posts = Post.includes(:user).with_attached_images
-    
+  
     # 「reported_only」が "true" なら、enumで報告状態にある投稿のみ絞り込む
     if params[:reported_only].to_s == "true"
       @posts = @posts.where(status: Post.statuses[:reported])
     end
   
+    # ソート順の指定
     case params[:sort]
     when "newest"
       @posts = @posts.order(created_at: :desc)
@@ -21,7 +22,18 @@ class Admin::PostsController < ApplicationController
       @posts = @posts.order(updated_at: :desc)
     end
   
+    # キーワード検索
     @posts = @posts.search(params[:query]) if params[:query].present?
+  
+    # タグ検索 (例: posts テーブルの tags カラムにタグ文字列が保存されている場合)
+    if params[:tag].present?
+      @posts = @posts.tagged_with(params[:tag])
+    end
+  
+    # カテゴリ検索 ("すべて"以外が選択された場合にフィルタを適用)
+    if params[:category].present? && params[:category] != "すべて"
+      @posts = @posts.where(category: params[:category])
+    end
   end
 
   def show

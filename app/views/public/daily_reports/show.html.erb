@@ -5,33 +5,48 @@
   <!-- この全体ブロックを sticky にする -->
   <div class="sticky-top bg-white py-2" style="z-index: 1000;">
     <div class="container">
+      <!-- flex-wrap はデフォルト（wrap も許可）に戻します -->
       <div class="d-flex justify-content-between align-items-center">
-        
-        <!-- 左側グループ：ライフログ一覧ボタン と 前日ボタン -->
-        <div class="d-flex align-items-center">
-          <%= link_to "ライフログ一覧に戻る", daily_reports_path, class: "btn btn-outline-secondary mr-2" %>
+  
+        <!-- 左：折り返さず、縮まない -->
+        <div class="d-flex align-items-center flex-shrink-0">
+          <%= link_to "ライフログ一覧に戻る",
+                      daily_reports_path,
+                      class: "btn btn-outline-secondary mr-2 text-nowrap" %>
           <% if @prev %>
-            <%= link_to "← 前日", daily_report_path(@prev), class: "btn btn-outline-secondary" %>
+            <%= link_to "← 前日",
+                        daily_report_path(@prev),
+                        class: "btn btn-outline-secondary text-nowrap" %>
           <% else %>
-            <span class="btn btn-outline-secondary mr-2 disabled">← 前日</span>
+            <span class="btn btn-outline-secondary mr-2 disabled text-nowrap">
+              ← 前日
+            </span>
           <% end %>
         </div>
-        
-        <!-- 中央：日付表示 -->
-        <h4 class="m-0 text-center flex-grow-1">
-          <%= @daily_report.date.strftime("%-m月%-d日（%a）") %>
-        </h4>
-        
-        <!-- 右側グループ： 翌日ボタン と マイページボタン -->
-        <div class="d-flex align-items-center">
+  
+        <!-- 真ん中：flex-grow して余ったら縮む・省略する -->
+        <div class="flex-grow-1 px-2 text-center" style="min-width: 0;">
+          <h4 class="m-0">
+            <%= @daily_report.date.strftime("%-m月%-d日（%a）") %>
+          </h4>
+        </div>
+  
+        <!-- 右：折り返さず、縮まない -->
+        <div class="d-flex align-items-center flex-shrink-0">
           <% if @next %>
-            <%= link_to "翌日 →", daily_report_path(@next), class: "btn btn-outline-secondary mr-2" %>
+            <%= link_to "翌日 →",
+                        daily_report_path(@next),
+                        class: "btn btn-outline-secondary mr-2 text-nowrap" %>
           <% else %>
-            <span class="btn btn-outline-secondary mr-2 disabled">翌日 →</span>
+            <span class="btn btn-outline-secondary mr-2 disabled text-nowrap">
+              翌日 →
+            </span>
           <% end %>
-          <%= link_to "マイページへ", users_mypage_path, class: "btn btn-outline-secondary" %>
+          <%= link_to "マイページへ",
+                      users_mypage_path,
+                      class: "btn btn-outline-secondary text-nowrap" %>
         </div>
-        
+  
       </div>
     </div>
   </div>

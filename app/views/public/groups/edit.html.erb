@@ -1,5 +1,7 @@
 <div class="container my-4">
   <h1 class="text-center mb-4 font-weight-bold">グループを編集</h1>
+  <%= render partial: "public/shared/error_messages", locals: { resource: @group } %>
+
 
   <div class="card p-4 mb-4">
     <%= form_with model: @group, url: group_path(@group), method: :patch, local: true do |f| %>

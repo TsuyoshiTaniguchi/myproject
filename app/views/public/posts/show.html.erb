@@ -34,7 +34,6 @@
   <p><%= sanitize(@post.content) %></p>
 
   <!-- 編集・削除・通報 -->
-  <!-- app/views/public/posts/show.html.erb -->
   <div class="d-flex mt-3">
     <% if @post.user == current_user %>
       <!-- 編集／削除ボタン -->

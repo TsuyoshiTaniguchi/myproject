@@ -41,6 +41,7 @@ class User < ApplicationRecord
 
   enum status: { active: 0, withdrawn: 1 }
 
+  validates :name, presence: true
   validates :email, presence: true, uniqueness: true
   validates :personal_statement, length: { maximum: 500 }
   validates :reported, inclusion: { in: [true, false] }

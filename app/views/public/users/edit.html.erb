@@ -3,7 +3,11 @@
     <div class="col-md-8">
       <h1 class="mb-4 text-center font-weight-bold">プロフィールを編集</h1>
 
+      <%= render partial: "public/shared/error_messages",
+                locals: { resource: @user } %>
+
       <%= form_with model: @user, local: true, html: { multipart: true } do |f| %>
+
         <!-- 基本情報 -->
         <div class="mb-3">
           <%= f.label :name, "名前", class: "form-label" %>

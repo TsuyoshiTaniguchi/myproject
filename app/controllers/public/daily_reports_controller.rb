@@ -51,7 +51,7 @@ class Public::DailyReportsController < ApplicationController
     @daily_report.visibility  = "public_report"
 
     if @daily_report.save
-      Rails.cache.delete("daily_reports/#{@user.id}")
+      Rails.cache.delete("daily_report_ids/#{@user.id}")
       redirect_to daily_reports_path, notice: '日報が作成されました。'
     else
       flash.now[:alert] = '日報の作成に失敗しました。'
@@ -67,8 +67,8 @@ class Public::DailyReportsController < ApplicationController
   # PATCH/PUT /daily_reports/:id
   def update
     success = @daily_report.update(daily_report_params)
-    Rails.cache.delete("daily_reports/#{current_user.id}") if success
-  
+    Rails.cache.delete("daily_report_ids/#{current_user.id}") if success
+
     respond_to do |format|
       format.html do
         if success
@@ -88,7 +88,7 @@ class Public::DailyReportsController < ApplicationController
   # DELETE /daily_reports/:id
   def destroy
     @daily_report.destroy
-    Rails.cache.delete("daily_reports/#{@user.id}")
+    Rails.cache.delete("daily_report_ids/#{@user.id}")
     redirect_to daily_reports_path, notice: '日報を削除しました。'
   end
 

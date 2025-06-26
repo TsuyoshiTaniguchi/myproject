@@ -80,9 +80,8 @@ class Public::GroupsController < ApplicationController
   end
 
   def create
-    @user = User.find(params[:user_id])
-    @group = @user.groups.new(group_params)
-  
+    @group = current_user.groups.new(group_params)
+    
     # 一般ユーザーの場合、所有者は作成者に設定する
     @group.owner = current_user
     @group.category = "user_created_label" unless current_user.admin?
