@@ -28,9 +28,19 @@ window.getLocation = function() {
         const res  = await fetch(url);
         console.log("▶︎ fetch done, status:", res.status);
         const json = await res.json();
-        console.log("▶︎ body.results[0]:", json.results[0]);
+        console.log("▶︎ geocode response:", json);
 
-        // ─── ここから都道府県＋市区町村抽出ロジック ───
+        // ─── ここからガードを追加 ───
+        if (json.status !== "OK" 
+            || !Array.isArray(json.results) 
+            || json.results.length === 0) {
+          console.error("Geocode API error:", json.status, json.error_message);
+          alert("住所取得に失敗しました: " + (json.error_message || json.status));
+          return;
+        }
+        // ────────────────────────
+
+        // ─── 都道府県＋市区町村抽出ロジック ───
         const comps = json.results[0].address_components;
 
         // 都道府県 (administrative_area_level_1)
@@ -48,16 +58,15 @@ window.getLocation = function() {
 
         const prefecture = prefectureComp ? prefectureComp.long_name : "";
         const city       = cityComp       ? cityComp.long_name       : "";
-        // 半角スペースを挟みたい場合は `"${prefecture} ${city}"` に
         const fullLocation = prefecture + city;
 
         console.log("▶︎ Full location:", fullLocation);
-        // テキストフィールドに自動セット
         document.getElementById("daily_report_location").value = fullLocation;
         // ────────────────────────────────────
 
       } catch (err) {
         console.error("▶︎ fetch error:", err);
+        alert("住所取得中にエラーが発生しました");
       }
     },
     err => {
