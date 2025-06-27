@@ -1,58 +1,64 @@
 <div class="container mt-4">
   <h1 class="mb-4">マイページ</h1>
 
-  <!-- タブ切り替え -->
-  <ul class="nav nav-pills mb-3" id="mypageTab" role="tablist">
-    <li class="nav-item">
-      <a class="nav-link active"
-         id="profile-tab"
-         data-toggle="tab"
-         href="#profile"
-         role="tab"
-         aria-controls="profile"
-         aria-selected="true">
-        プロフィール
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link"
-         id="posts-tab"
-         data-toggle="tab"
-         href="#posts"
-         role="tab"
-         aria-controls="posts"
-         aria-selected="false">
-        投稿一覧
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link"
-         id="daily_reports-tab"
-         data-toggle="tab"
-         href="#daily_reports"
-         role="tab"
-         aria-controls="daily_reports"
-         aria-selected="false">
-        ライフログ管理
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link"
-         id="notifications-tab"
-         data-toggle="tab"
-         href="#notifications"
-         role="tab"
-         aria-controls="notifications"
-         aria-selected="false">
-        通知一覧
-      </a>
-    </li>
-    <li class="nav-item">
-      <%= link_to "アカウント設定",
-                  edit_user_registration_path,
-                  class: "nav-link" %>
-    </li>
-  </ul>
+  <!-- ① overflow-auto で横スクロールを有効化 -->
+  <div class="overflow-auto">
+    <!-- ② flex-nowrap で折り返し禁止 -->
+    <ul class="nav nav-pills mb-3 flex-nowrap"
+        id="mypageTab"
+        role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active"
+           id="profile-tab"
+           data-toggle="tab"
+           href="#profile"
+           role="tab"
+           aria-controls="profile"
+           aria-selected="true">
+          プロフィール
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link"
+           id="posts-tab"
+           data-toggle="tab"
+           href="#posts"
+           role="tab"
+           aria-controls="posts"
+           aria-selected="false">
+          投稿一覧
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link"
+           id="daily_reports-tab"
+           data-toggle="tab"
+           href="#daily_reports"
+           role="tab"
+           aria-controls="daily_reports"
+           aria-selected="false">
+          ライフログ管理
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link"
+           id="notifications-tab"
+           data-toggle="tab"
+           href="#notifications"
+           role="tab"
+           aria-controls="notifications"
+           aria-selected="false">
+          通知一覧
+        </a>
+      </li>
+      <li class="nav-item">
+        <%= link_to "アカウント設定",
+                    edit_user_registration_path,
+                    class: "nav-link" %>
+      </li>
+    </ul>
+  </div>
+
 
   <!-- タブパネル -->
   <div class="tab-content" id="mypageTabContent">

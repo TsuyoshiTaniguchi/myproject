@@ -2,60 +2,45 @@
   <h1 class="mb-4"><%= @user.name %>さんのプロフィール</h1>
 
   <!-- タブ切り替え -->
-  <ul class="nav nav-pills mb-3" id="userProfileTab" role="tablist">
-    <li class="nav-item">
-      <a class="nav-link active"
-         id="profile-tab"
-         data-toggle="tab"
-         href="#profile"
-         role="tab"
-         aria-controls="profile"
-         aria-selected="true">
-        プロフィール
-      </a>
-    </li>
-
-    <li class="nav-item">
-      <a class="nav-link"
-         id="posts-tab"
-         data-toggle="tab"
-         href="#posts"
-         role="tab"
-         aria-controls="posts"
-         aria-selected="false">
-        投稿一覧
-      </a>
-    </li>
-
-    <%# ↓ 成長ストーリータブを削除 %>
-    <!--
-    <li class="nav-item">
-      <a class="nav-link"
-         id="selfpr-tab"
-         data-toggle="tab"
-         href="#selfpr"
-         role="tab"
-         aria-controls="selfpr"
-         aria-selected="false">
-        成長ストーリー（詳細）
-      </a>
-    </li>
-    -->
-
-    <% unless guest_blocked? %>
+  <div class="overflow-auto">
+    <ul class="nav nav-pills mb-3 flex-nowrap" id="userProfileTab" role="tablist">
       <li class="nav-item">
-        <a class="nav-link"
-           id="daily_reports-tab"
+        <a class="nav-link active"
+           id="profile-tab"
            data-toggle="tab"
-           href="#daily_reports"
+           href="#profile"
            role="tab"
-           aria-controls="daily_reports"
-           aria-selected="false">
-          ライフログ管理
+           aria-controls="profile"
+           aria-selected="true">
+          プロフィール
         </a>
       </li>
-    <% end %>
-  </ul>
+      <li class="nav-item">
+        <a class="nav-link"
+           id="posts-tab"
+           data-toggle="tab"
+           href="#posts"
+           role="tab"
+           aria-controls="posts"
+           aria-selected="false">
+          投稿一覧
+        </a>
+      </li>
+      <% unless guest_blocked? %>
+        <li class="nav-item">
+          <a class="nav-link"
+             id="daily_reports-tab"
+             data-toggle="tab"
+             href="#daily_reports"
+             role="tab"
+             aria-controls="daily_reports"
+             aria-selected="false">
+            ライフログ管理
+          </a>
+        </li>
+      <% end %>
+    </ul>
+  </div>
 
   <!-- タブパネル -->
   <div class="tab-content" id="userProfileTabContent">

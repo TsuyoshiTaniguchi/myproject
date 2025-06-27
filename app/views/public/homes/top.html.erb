@@ -10,13 +10,18 @@
     </blockquote>
     <div class="mt-4">
       <% if user_signed_in? %>
-        <%= link_to "マイページへ", users_mypage_path, class: "btn btn-primary btn-lg" %>
+        <%= link_to "マイページへ", users_mypage_path,
+              class: "btn btn-primary btn-lg" %>
       <% else %>
-        <%= link_to "今すぐ始める", new_user_registration_path, class: "btn btn-success btn-lg" %>
-        <span class="mx-2">or</span>
-        <%= link_to "ログインする", new_user_session_path, class: "btn btn-outline-light btn-lg" %>
-        <div class="mt-3">
-          <%= link_to users_guest_sign_in_path, method: :post, class: "btn btn-outline-secondary btn-sm" do %>
+        <div class="d-flex justify-content-center flex-nowrap">
+          <%= link_to "今すぐ始める", new_user_registration_path,
+                class: "btn btn-success btn-lg mr-2" %>
+          <%= link_to "ログインする", new_user_session_path,
+                class: "btn btn-outline-light btn-lg" %>
+        </div>
+        <div class="mt-3 text-center">
+          <%= link_to users_guest_sign_in_path, method: :post,
+                class: "btn btn-outline-secondary btn-sm" do %>
             <i class="fas fa-user"></i> ゲストログイン
           <% end %>
         </div>
@@ -40,7 +45,7 @@
           </div>
         </div>
       </div>
-      <!-- GitHub連携→ プロジェクト実績に変更 -->
+      <!-- プロジェクト実績に変更 -->
       <div class="col-md-3 mb-3">
         <div class="card h-100 shadow-sm">
           <div class="card-body">
