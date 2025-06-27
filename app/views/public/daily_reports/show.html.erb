@@ -1,82 +1,61 @@
 <div class="container my-4">
-  <!-- ページタイトル -->
   <h1 class="mt-5 mb-4">ライフログ詳細</h1>
 
-  <!-- この全体ブロックを sticky にする -->
-  <div class="sticky-top bg-white py-2" style="z-index: 1000;">
+  <!-- ② 下段：一覧に戻る ＆ マイページへ -->
+  <div class="d-flex justify-content-between align-items-center mt-2">
+    <%= link_to "ライフログ一覧に戻る", daily_reports_path,
+                class: "btn btn-outline-primary text-nowrap" %>
+    <%= link_to "マイページへ", users_mypage_path,
+                class: "btn btn-outline-primary text-nowrap" %>
+  </div>
+
+  <div class="sticky-top bg-white py-2">
     <div class="container">
-      <!-- flex-wrap はデフォルト（wrap も許可）に戻します -->
-      <div class="d-flex justify-content-between align-items-center">
-  
-        <!-- 左：折り返さず、縮まない -->
-        <div class="d-flex align-items-center flex-shrink-0">
-          <%= link_to "ライフログ一覧に戻る",
-                      daily_reports_path,
-                      class: "btn btn-outline-secondary mr-2 text-nowrap" %>
-          <% if @prev %>
-            <%= link_to "← 前日",
-                        daily_report_path(@prev),
-                        class: "btn btn-outline-secondary text-nowrap" %>
-          <% else %>
-            <span class="btn btn-outline-secondary mr-2 disabled text-nowrap">
-              ← 前日
-            </span>
-          <% end %>
-        </div>
-  
-        <!-- 真ん中：flex-grow して余ったら縮む・省略する -->
-        <div class="flex-grow-1 px-2 text-center" style="min-width: 0;">
-          <h4 class="m-0">
-            <%= @daily_report.date.strftime("%-m月%-d日（%a）") %>
-          </h4>
-        </div>
-  
-        <!-- 右：折り返さず、縮まない -->
-        <div class="d-flex align-items-center flex-shrink-0">
-          <% if @next %>
-            <%= link_to "翌日 →",
-                        daily_report_path(@next),
-                        class: "btn btn-outline-secondary mr-2 text-nowrap" %>
-          <% else %>
-            <span class="btn btn-outline-secondary mr-2 disabled text-nowrap">
-              翌日 →
-            </span>
-          <% end %>
-          <%= link_to "マイページへ",
-                      users_mypage_path,
-                      class: "btn btn-outline-secondary text-nowrap" %>
-        </div>
-  
+      <!-- ① 上段：前日 ← 日付 → 翌日のみ -->
+      <div class="d-flex justify-content-center align-items-center text-nowrap">
+        <%# 前日ボタン %>
+        <%= link_to (@prev ? "← 前日" : "← 前日"), (@prev ? daily_report_path(@prev) : "#"),
+                    class: "btn btn-outline-secondary#{ @prev ? '' : ' disabled' } mr-3" %>
+
+        <%# 日付 %>
+        <span class="h5 mb-0">
+          <%= @daily_report.date.strftime("%-m月%-d日（%a）") %>
+        </span>
+
+        <%# 翌日ボタン %>
+        <%= link_to (@next ? "翌日 →" : "翌日 →"), (@next ? daily_report_path(@next) : "#"),
+                    class: "btn btn-outline-secondary#{ @next ? '' : ' disabled' } ml-3" %>
       </div>
     </div>
   </div>
 
-  <!-- インフォボックス -->
-  <div class="alert alert-info mb-4">
-    <h4 class="mb-3">グラフの見方ガイド</h4>
-    <div class="alert alert-info mb-4">
-      <ul class="mb-0 pl-3">
-        <li>
-          <strong>目標パフォーマンス:</strong>
-          あなたが「将来の目標スコア」として入力した数値です。<br>
-          ※ 例えば、10点満点の場合、グラフ上では100％の目標ラインとして表示されます。
-        </li>
-        <li>
-          <strong>達成率:</strong>
-          本日のタスクの完了状況と自己評価から算出された実際のパフォーマンスを、100％スケールで示しています。
-        </li>
-        <li>
-          <strong>パフォーマンススコア:</strong>
-          タスク達成度と自己評価（1～5）を基に計算される、現在のパフォーマンスの平均値です。
-        </li>
-        <li>
-          <strong>予測推移:</strong>
-          今日の実績から、設定された「目標日数」の中でどの程度目標に向かって改善するかを、線形補完で予測したものです。<br>
-          ※ 目標スコアや日数は、投稿後も前日の設定を引き継いで再利用されるため、継続して成績が蓄積されます。
-        </li>
-      </ul>
+
+
+  <!-- グラフガイド（Accordion） -->
+  <div class="mb-4">
+    <!-- 単純にボタンと collapse だけに -->
+    <button class="btn btn-link d-flex justify-content-between align-items-center w-100 text-left"
+            type="button"
+            data-toggle="collapse"
+            data-target="#guideCollapse"
+            aria-expanded="false"
+            aria-controls="guideCollapse">
+      <span class="h5 mb-0">グラフの見方ガイド</span>
+      <i class="fas fa-chevron-down"></i>
+    </button>
+
+    <div class="collapse mt-2" id="guideCollapse">
+      <div class="alert alert-info">
+        <ul class="mb-0 pl-3">
+          <li><strong>目標パフォーマンス:</strong> あなたが「将来の目標スコア」として入力した数値です。</li>
+          <li><strong>達成率:</strong> 本日のタスクの完了状況と自己評価から算出された実際のパフォーマンスを示します。</li>
+          <li><strong>パフォーマンススコア:</strong> タスク達成度と自己評価（1～5）を基に計算される平均値です。</li>
+          <li><strong>予測推移:</strong> 今日の実績から目標日に向けた改善度合いを線形補完で予測します。</li>
+        </ul>
+      </div>
     </div>
   </div>
+
 
   <!-- パフォーマンス推移グラフ -->
   <div class="card mb-4">
@@ -84,7 +63,7 @@
       <h3 class="mb-0">パフォーマンス推移</h3>
     </div>
     <div class="card-body text-center">
-      <div style="position: relative; height:300px; width:100%;">
+      <div class="overflow-auto" style="height:300px;">
         <canvas
           id="performanceChart"
           data-goal-value="<%= @daily_report.future_goal_value.to_i %>"
@@ -99,8 +78,12 @@
         <% current_value  = @daily_report.task_achievement.to_i %>
         <% per_day_needed = ((@daily_report.future_goal_value - current_value).to_f / @daily_report.future_goal_days).round(1) %>
         <div class="mt-3 d-flex justify-content-center">
-          <span class="mr-4">残り日数：<strong><%= remaining_days %>日</strong></span>
-          <span>1日あたり必要な改善：<strong><%= per_day_needed %>ポイント</strong></span>
+          <span class="mr-4 small text-nowrap flex-shrink-0">
+            残り日数：<strong><%= remaining_days %>日</strong>
+          </span>
+          <span class="small text-nowrap flex-shrink-0">
+            1日あたり必要な改善：<strong><%= per_day_needed %>ポイント</strong>
+          </span>
         </div>
       <% else %>
         <p class="text-muted mt-3 mb-0">
@@ -110,7 +93,8 @@
     </div>
   </div>
 
-  <div class="container my-4">
+
+  <div class="mb-4">
     <div class="card mb-4 shadow-sm" style="border-left: .25rem solid #007bff; border-radius: 0.5rem;">
       <!-- カードヘッダー：日付、曜日、場所 -->
       <div class="card-header bg-light border-0 py-3">
@@ -236,8 +220,7 @@
 
   <!-- 戻るボタン -->
   <div class="text-center mb-5">
-    <%= link_to "ライフログ一覧へ戻る", daily_reports_path, class: "btn btn-secondary" %>
+    <%= link_to "ライフログ一覧へ戻る", daily_reports_path, class: "btn btn-outline-secondary text-nowrap" %>
+    <%= link_to "マイページへ", users_mypage_path, class: "btn btn-outline-secondary text-nowrap" %>
   </div>
-
-
 </div>
