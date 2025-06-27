@@ -1,63 +1,85 @@
 <div class="container mt-4">
   <h1 class="mb-4">マイページ</h1>
 
-  <!-- ① overflow-auto で横スクロールを有効化 -->
   <div class="overflow-auto">
-    <!-- ② flex-nowrap で折り返し禁止 -->
-    <ul class="nav nav-pills mb-3 flex-nowrap"
+    <ul class="nav nav-pills mb-3 flex-nowrap overflow-auto"
         id="mypageTab"
         role="tablist">
-      <li class="nav-item">
-        <a class="nav-link active"
+      <!-- プロフィール -->
+      <li class="nav-item flex-fill text-center">
+        <a class="nav-link active small text-nowrap px-2"
            id="profile-tab"
            data-toggle="tab"
            href="#profile"
            role="tab"
            aria-controls="profile"
            aria-selected="true">
-          プロフィール
+          <i class="fas fa-user mr-1"></i>
+          <span class="d-none d-sm-inline">プロフィール</span>
         </a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link"
+
+      <!-- 投稿一覧 -->
+      <li class="nav-item flex-fill text-center">
+        <a class="nav-link small text-nowrap px-2"
            id="posts-tab"
            data-toggle="tab"
            href="#posts"
            role="tab"
            aria-controls="posts"
            aria-selected="false">
-          投稿一覧
+          <i class="fas fa-edit mr-1"></i>
+          <!-- スマホは「投稿」、SM以上は「投稿一覧」 -->
+          <span class="d-inline d-sm-none">投稿</span>
+          <span class="d-none d-sm-inline">投稿一覧</span>
         </a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link"
-           id="daily_reports-tab"
-           data-toggle="tab"
-           href="#daily_reports"
-           role="tab"
-           aria-controls="daily_reports"
-           aria-selected="false">
-          ライフログ管理
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link"
+
+      <!-- ライフログ管理 -->
+      <% unless guest_blocked? %>
+        <li class="nav-item flex-fill text-center">
+          <a class="nav-link small text-nowrap px-2"
+             id="daily_reports-tab"
+             data-toggle="tab"
+             href="#daily_reports"
+             role="tab"
+             aria-controls="daily_reports"
+             aria-selected="false">
+            <i class="fas fa-calendar-alt mr-1"></i>
+            <!-- モバイルは「ライフログ」、SM以上は「ライフログ管理」 -->
+            <span class="d-inline d-sm-none">ライフログ</span>
+            <span class="d-none d-sm-inline">ライフログ管理</span>
+          </a>
+        </li>
+      <% end %>
+
+      <!-- 通知一覧 -->
+      <li class="nav-item flex-fill text-center">
+        <a class="nav-link small text-nowrap px-2"
            id="notifications-tab"
            data-toggle="tab"
            href="#notifications"
            role="tab"
            aria-controls="notifications"
            aria-selected="false">
-          通知一覧
+          <i class="fas fa-bell mr-1"></i>
+          <span class="d-inline d-sm-none">通知</span>
+          <span class="d-none d-sm-inline">通知一覧</span>
         </a>
       </li>
-      <li class="nav-item">
-        <%= link_to "アカウント設定",
-                    edit_user_registration_path,
-                    class: "nav-link" %>
+
+      <!-- アカウント設定 -->
+      <li class="nav-item flex-fill text-center">
+        <%= link_to edit_user_registration_path,
+                    class: "nav-link small text-nowrap px-2" do %>
+          <i class="fas fa-cog mr-1"></i>
+          <span class="d-inline d-sm-none">設定</span>
+          <span class="d-none d-sm-inline">アカウント設定</span>
+        <% end %>
       </li>
     </ul>
   </div>
+
 
 
   <!-- タブパネル -->
