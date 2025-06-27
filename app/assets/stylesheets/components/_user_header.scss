@@ -2,22 +2,30 @@
 // .user-header {
 
   .navbar-brand {
-    .logo-img {
-      max-height: auto;  // ここを好きなピクセル数に変更
-      width: 90%;       // アスペクト比を保ったまま横幅を自動調整
+    .navbar-brand {
+      // 余計な width:90% は削除
+      .logo-img {
+        // ここで縦サイズだけを固定し、幅は自動計算させる
+        max-height: 60px;   // お好みの高さに調整
+        height: auto;
+        width: auto;        // 幅は height に合わせて自動
   
-      transition: transform 0.3s;
-      &:hover {
-        transform: scale(1.05);
+        cursor: pointer;
+        transition: transform 0.3s;
+        &:hover {
+          transform: scale(1.05);
+        }
+      }
+    }
+  
+    // スマホではもう少し小さく
+    @media (max-width: 576px) {
+      .navbar-brand .logo-img {
+        max-height: 40px;
       }
     }
   }
-
-  /* ナビゲーションメニュー全体 */
-  .nav-menu {
-    /* Bootstrap のクラスで十分基本は整っているが、ここで追加調整 */
-    margin-top: 10px;
-  }
+  
 
 
   /* もしログアウトリンクを強調するなら */
