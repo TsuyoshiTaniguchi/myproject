@@ -3,28 +3,26 @@
 // -----------------------------------------------------------------
 import { Chart } from "chart.js";
 
-let chartInstance = null;          // モジュール内で保持
+let chartInstance = null;  // モジュール内で保持
 
 function buildChart(canvas, rawDates, rawValues, goalValue, goalDays) {
-  // 0) 入力の goalValue (1～10) を 0～100 のスケールに正規化
+  // 0) goalValue (1～10) → 0～100 スケールに正規化
   const normalizedGoalValue = goalValue * 10;
 
-  // 1) 埋め込まれた実績値を 0..100 にクリップ
+  // 1) 実績値を 0..100 にクリップ
   const values = rawValues.map(v => Math.min(Math.max(v, 0), 100));
 
-  // 2) Y 軸最大値を 100 で固定
+  // 2) Y 軸最大値を 100 に固定
   const suggestedMax = 100;
 
-  // 3) 予測ラインをつくる (クリップ込み)
-  const labels  = [...rawDates];
+  // 3) 予測ラインを生成
+  const labels = [...rawDates];
   const predict = [];
   if (goalValue > 0 && goalDays > 0) {
     const last = values.at(-1) ?? 0;
-    // normalizedGoalValue を使って、予測値の増加分を算出
-    const inc  = (normalizedGoalValue - last) / goalDays;
+    const inc = (normalizedGoalValue - last) / goalDays;
     for (let i = 1; i <= goalDays; i++) {
       const next = +(last + inc * i).toFixed(1);
-      // 予測値も 0..100 にクリップ
       predict.push(Math.min(Math.max(next, 0), 100));
       const d = new Date(rawDates.at(-1));
       d.setDate(d.getDate() + i);
@@ -32,10 +30,17 @@ function buildChart(canvas, rawDates, rawValues, goalValue, goalDays) {
     }
   }
 
-  // 目標ライン (常に normalizedGoalValue を使用、0..100 にクリップ)
+  // 目標ラインを生成
   const goalLine = labels.map(() =>
     Math.min(Math.max(normalizedGoalValue, 0), 100)
   );
+
+  // 既存インスタンスを破棄してから描画する場合はここで destroy() するか
+  // if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+
+  // ※ 他チャートへの影響を防ぐために、canvas.id をチェックして
+  // performanceChart の場合のみ詳細オプションを適用します
+  const isPerfChart = canvas.id === "performanceChart";
 
   chartInstance = new Chart(canvas, {
     type: "line",
@@ -44,7 +49,9 @@ function buildChart(canvas, rawDates, rawValues, goalValue, goalDays) {
       datasets: [
         {
           label: "実績",
-          data: values.concat(Array(labels.length - values.length).fill(null)),
+          data: values.concat(
+            Array(labels.length - values.length).fill(null)
+          ),
           borderColor: "rgba(75,192,192,1)",
           backgroundColor: "rgba(75,192,192,0.15)",
           tension: 0.3,
@@ -52,7 +59,9 @@ function buildChart(canvas, rawDates, rawValues, goalValue, goalDays) {
         },
         {
           label: "予測ペース",
-          data: Array(values.length).fill(null).concat(predict),
+          data: Array(values.length)
+            .fill(null)
+            .concat(predict),
           borderColor: "rgba(255,159,64,0.8)",
           borderDash: [6, 6],
           tension: 0.3,
@@ -76,13 +85,30 @@ function buildChart(canvas, rawDates, rawValues, goalValue, goalDays) {
       scales: {
         y: {
           beginAtZero: true,
-          max: suggestedMax,  // 100 に固定
-          ticks: { stepSize: 10 }
+          max: suggestedMax,
+          ticks: { stepSize: 10 },
         },
       },
       plugins: {
-        legend: { position: "bottom" },
-        tooltip: { mode: "index", intersect: false },
+        legend: isPerfChart
+          ? {
+              position: "bottom",
+              align: "center",
+              fullWidth: false,
+              labels: {
+                usePointStyle: true,
+                boxWidth: 8,
+                padding: 12,
+                font: { size: 10 },
+                maxWidth: 80,
+                textAlign: "center",
+              },
+            }
+          : { position: "bottom" },
+        tooltip: {
+          mode: "index",
+          intersect: false,
+        },
       },
     },
   });
@@ -91,20 +117,20 @@ function buildChart(canvas, rawDates, rawValues, goalValue, goalDays) {
 // ----------------------- 初期化エクスポート -----------------------
 export const initPerformanceChart = () => {
   const container = document.getElementById("performanceChartContainer");
-  const direct    = document.getElementById("performanceChart");
+  const direct = document.getElementById("performanceChart");
 
-  if (chartInstance) return;  // Turbolinks 戻りの二重生成防止
+  if (chartInstance) return; // Turbolinks 戻りの二重生成防止
 
   // canvas の取得 or 生成
   let canvas;
   if (container) {
     container.innerHTML = "";
-    canvas       = document.createElement("canvas");
-    canvas.id    = "performanceChart";
-    canvas.style.width  = "100%";
+    canvas = document.createElement("canvas");
+    canvas.id = "performanceChart";
+    canvas.style.width = "100%";
     canvas.style.height = "100%";
     canvas.dataset.goalValue = container.dataset.goalValue;
-    canvas.dataset.goalDays  = container.dataset.goalDays;
+    canvas.dataset.goalDays = container.dataset.goalDays;
     container.appendChild(canvas);
   } else if (direct) {
     canvas = direct;
@@ -113,7 +139,7 @@ export const initPerformanceChart = () => {
   }
 
   const goalValue = +canvas.dataset.goalValue || 0;
-  const goalDays  = +canvas.dataset.goalDays  || 0;
+  const goalDays = +canvas.dataset.goalDays || 0;
 
   const parseAndDraw = (dates, values) => {
     if (dates.length && values.length) {
@@ -125,15 +151,15 @@ export const initPerformanceChart = () => {
 
   if (canvas.dataset.dates && canvas.dataset.values) {
     // 詳細ページ：埋め込みデータ
-    const dates  = JSON.parse(canvas.dataset.dates);
+    const dates = JSON.parse(canvas.dataset.dates);
     const values = JSON.parse(canvas.dataset.values);
     parseAndDraw(dates, values);
   } else {
     // 一覧ページ：API
     fetch("/daily_reports/performance_data.json")
-      .then(res => res.ok ? res.json() : Promise.reject(res.status))
-      .then(data => parseAndDraw(data.dates || [], data.performance || []))
-      .catch(err => console.error("Performance data error:", err));
+      .then((res) => (res.ok ? res.json() : Promise.reject(res.status)))
+      .then((data) => parseAndDraw(data.dates || [], data.performance || []))
+      .catch((err) => console.error("Performance data error:", err));
   }
 };
 

@@ -1,17 +1,18 @@
 // ------------------------------------------------------
 //  FullCalendar を Turbolinks 対応で安全に初期化
 // ------------------------------------------------------
-import { Calendar } from "@fullcalendar/core";
-import dayGridPlugin       from "@fullcalendar/daygrid";
-import interactionPlugin   from "@fullcalendar/interaction";
+import { Calendar }             from "@fullcalendar/core";
+import dayGridPlugin            from "@fullcalendar/daygrid";
+import interactionPlugin        from "@fullcalendar/interaction";
+import bootstrapPlugin          from "@fullcalendar/bootstrap";  // ← 追加
 
-let calendarInstance = null;          // モジュール内で保持
+let calendarInstance = null;  // モジュール内で保持
 
 export async function initCalendar() {
   const el = document.getElementById("calendar");
-  if (!el) return;                    // そもそもカレンダー領域が無いページはスキップ
+  if (!el) return;  // カレンダー領域がないページはスキップ
 
-  // 既に作成済みなら、サイズだけ合わせて終わり
+  // 既に生成済みならサイズだけ合わせて終了
   if (calendarInstance) {
     calendarInstance.updateSize();
     return;
@@ -24,19 +25,31 @@ export async function initCalendar() {
     const reports = await res.json();
 
     const events = reports.map(r => ({
-      id:    r.id,
-      title: r.title,
-      start: r.start,
-      url:   r.url,
+      id:              r.id,
+      title:           r.title,
+      start:           r.start,
+      url:             r.url,
       backgroundColor: "#66ccff",
       borderColor:     "#0088cc"
     }));
 
     // ---------- FullCalendar 生成 ----------
     calendarInstance = new Calendar(el, {
-      plugins:      [dayGridPlugin, interactionPlugin],
+      plugins:      [ dayGridPlugin, interactionPlugin, bootstrapPlugin ],
+      themeSystem:  "bootstrap",      // ← Bootstrap テーマを適用
       initialView:  "dayGridMonth",
-      height:       400,
+      headerToolbar: {
+        left:   "prev,next today",
+        center: "title",
+        right:  "dayGridMonth,dayGridWeek"
+      },
+      buttonText: {
+        today: "今日",
+        month: "月表示",
+        week:  "週表示"
+      },
+      // CSS で高さ上限をコントロールする場合は下記を削除／コメントアウトしてOK
+      height: 400,
       events,
       eventClick(info) {
         info.jsEvent.preventDefault();
@@ -46,7 +59,7 @@ export async function initCalendar() {
 
     calendarInstance.render();
 
-    // レンダリング直後は幅0pxのことがあるので軽く遅延リサイズ
+    // レンダリング直後は幅0pxになることがあるので軽く遅延リサイズ
     setTimeout(() => calendarInstance.updateSize(), 10);
   } catch (err) {
     console.error("カレンダーデータ取得に失敗:", err);
@@ -55,7 +68,7 @@ export async function initCalendar() {
 
 /* ----------------------------------------------------
    Turbolinks キャッシュに入る直前でインスタンス破棄
-   - 戻る/進む時に二重生成や表示崩れを防止
+   - 戻る/進む時の二重生成や表示崩れを防止
 ---------------------------------------------------- */
 document.addEventListener("turbolinks:before-cache", () => {
   if (calendarInstance) {

@@ -1,7 +1,45 @@
+// ── FullCalendar 本体＆Bootstrapテーマのインポート ──
+@import "~@fullcalendar/core/main.css";
+@import "~@fullcalendar/daygrid/main.css";
+@import "~@fullcalendar/bootstrap/main.css";
 
-/* カレンダー用コンテナに固定された高さの上限を設定 */
+// ── カレンダー固定高さ＋縦スクロール ──
 #calendar {
-  max-height: 600px; /* 必要に応じて調整 */
-  width: 100%;
-  overflow-y: auto;
+  max-height: 600px;   // 好きな上限に調整OK
+  width:      100%;
+  overflow-y: auto;    // 縦方向スクロールを有効に
+}
+
+.fc-theme-bootstrap {
+  /* 土曜日 */
+  .fc-day-sat {
+    background-color: #e8f0fe;  // 淡い青
+  }
+  /* 日曜日 */
+  .fc-day-sun {
+    background-color: #fdecea;  // 淡い赤
+  }
+}
+
+/* FullCalendar の曜日ヘッダー部分 */
+.fc-theme-bootstrap {
+  /* ヘッダー全体のセル */
+  .fc-col-header-cell {
+    background-color: #6ee7cf;   // 好きな背景色
+  }
+  /* ヘッダー内のテキスト */
+  .fc-col-header-cell-cushion {
+    color:            #fff;      // 文字色
+    font-weight:      bold;      
+    font-size:        0.9rem;    
+    text-transform:   uppercase;
+  }
+  /* 土曜だけ別色にしたいなら */
+  .fc-col-header-cell.fc-day-sat {
+    background-color: #88e5f3;
+  }
+  /* 日曜だけ別色にしたいなら */
+  .fc-col-header-cell.fc-day-sun {
+    background-color: hsl(0, 90%, 75%);
+  }
 }
