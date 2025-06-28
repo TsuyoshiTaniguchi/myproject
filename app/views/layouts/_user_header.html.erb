@@ -3,14 +3,15 @@
     <!-- ロゴ -->
     <a class="navbar-brand d-flex align-items-center" href="<%= root_path %>">
       <%= image_tag "main.png",
-            alt: "Brand Logo",
-            class: "logo-img img-fluid" %>
+                    alt: "Brand Logo",
+                    class: "logo-img img-fluid" %>
     </a>
-  
 
     <!-- ハンバーガーメニュー -->
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#userNavbar"
-            aria-controls="userNavbar" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button"
+            data-toggle="collapse" data-target="#userNavbar"
+            aria-controls="userNavbar" aria-expanded="false"
+            aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
@@ -19,42 +20,72 @@
       <ul class="navbar-nav ml-auto">
         <% if user_signed_in? %>
           <% unless current_user.guest? %>
+            <!-- 通知 -->
             <li class="nav-item">
               <%= render "public/shared/notifications" %>
             </li>
           <% end %>
-          <li class="nav-item d-flex align-items-center">
-            <span class="navbar-text welcome-message">
-              ようこそ、<%= current_user.name %>さん！
-            </span>
-          </li>
+
           <!-- マイページ -->
           <li class="nav-item">
-            <%= link_to "#{content_tag(:i, '', class: 'fas fa-user-circle')} マイページ".html_safe,
-                        users_mypage_path, class: "nav-link" %>
+            <%= link_to users_mypage_path,
+                        class: "nav-link small text-nowrap px-2" do %>
+              <i class="fas fa-user-circle mr-1"></i>
+              <span class="d-inline d-sm-none">マイ</span>
+              <span class="d-none d-sm-inline">マイページ</span>
+            <% end %>
+          </li>
+          <!-- ライフログ一覧 -->
+          <li class="nav-item">
+            <%= link_to daily_reports_path,
+                        class: "nav-link small text-nowrap px-2" do %>
+              <i class="fas fa-calendar-alt mr-1"></i>
+              <span class="d-inline d-sm-none">ログ</span>
+              <span class="d-none d-sm-inline">ライフログ</span>
+            <% end %>
           </li>
           <!-- 投稿一覧 -->
           <li class="nav-item">
-            <%= link_to "#{content_tag(:i, '', class: 'fas fa-edit')} 投稿一覧".html_safe,
-                        posts_path, class: "nav-link" %>
-          </li>
-          <!-- ユーザー一覧 -->
-          <li class="nav-item">
-            <%= link_to "#{content_tag(:i, '', class: 'fas fa-address-book')} ユーザー一覧".html_safe,
-                        users_path, class: "nav-link" %>
-          </li>
-          <!-- グループ一覧 -->
-          <li class="nav-item">
-            <%= link_to "#{content_tag(:i, '', class: 'fas fa-layer-group')} グループ一覧".html_safe,
-                        groups_path(current_user), class: "nav-link" %>
-          </li>
-          <!-- ログアウト -->
-          <li class="nav-item">
-            <%= link_to logout_path, method: :post, class: "nav-link logout" do %>
-              <i class="fas fa-sign-out-alt"></i>
+            <%= link_to posts_path,
+                        class: "nav-link small text-nowrap px-2" do %>
+              <i class="fas fa-edit mr-1"></i>
+              <span class="d-inline d-sm-none">投</span>
+              <span class="d-none d-sm-inline">投稿一覧</span>
             <% end %>
           </li>
+
+          <!-- ユーザー一覧 -->
+          <li class="nav-item">
+            <%= link_to users_path,
+                        class: "nav-link small text-nowrap px-2" do %>
+              <i class="fas fa-address-book mr-1"></i>
+              <span class="d-inline d-sm-none">ユー</span>
+              <span class="d-none d-sm-inline">ユーザー一覧</span>
+            <% end %>
+          </li>
+
+          <!-- グループ一覧 -->
+          <li class="nav-item">
+            <%= link_to groups_path(current_user),
+                        class: "nav-link small text-nowrap px-2" do %>
+              <i class="fas fa-layer-group mr-1"></i>
+              <span class="d-inline d-sm-none">グル</span>
+              <span class="d-none d-sm-inline">グループ一覧</span>
+            <% end %>
+          </li>
+
+          <!-- ログアウト -->
+          <li class="nav-item">
+            <%= link_to logout_path, method: :post,
+                        class: "nav-link small text-nowrap px-2" do %>
+              <i class="fas fa-sign-out-alt mr-1"></i>
+              <span class="d-inline d-sm-none">退</span>
+              <span class="d-none d-sm-inline">ログアウト</span>
+            <% end %>
+          </li>
+
         <% else %>
+          <!-- 未ログイン時メニュー -->
           <li class="nav-item">
             <%= link_to new_user_registration_path, class: "nav-link" do %>
               <i class="fas fa-user-plus"></i> 新規登録
