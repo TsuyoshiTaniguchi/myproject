@@ -17,7 +17,7 @@ import * as ActiveStorage from "@rails/activestorage";
 ActiveStorage.start();
 
 import "channels";
-
+ 
 // ===== jQuery / Popper / Bootstrap (4.6.2) =====
 import $ from "jquery";
 window.$       = $;

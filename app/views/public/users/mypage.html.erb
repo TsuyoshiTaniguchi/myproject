@@ -191,7 +191,11 @@
     </div>
 
     <!-- グラフ -->
-    <%= render 'public/daily_reports/performance_chart' %>
+    <%= render 'public/daily_reports/performance_chart',
+      history_reports:    @chart_reports,
+      future_goal_value:  @chart_reports.last.future_goal_value,
+      future_goal_days:   @chart_reports.last.future_goal_days %>
+
   </div>
 
 

@@ -1,6 +1,18 @@
+<!-- app/views/public/daily_reports/_performance_chart.html.erb -->
+
+<% reports       = local_assigns[:history_reports]   || @daily_reports %>
+<% goal_value    = local_assigns[:future_goal_value] || @daily_reports.last.future_goal_value.to_i %>
+<% goal_days     = local_assigns[:future_goal_days]  || @daily_reports.last.future_goal_days.to_i %>
+
 <div id="performanceChartContainer"
-     data-goal-value="<%= @daily_reports.last&.future_goal_value.to_i %>"
-     data-goal-days="<%= @daily_reports.last&.future_goal_days.to_i %>"
-     style="position: relative; width:400px; height:300px; margin:0 auto;">
-  <!-- JS がキャンバスを生成します -->
+     data-goal-value="<%= goal_value %>"
+     data-goal-days="<%= goal_days %>"
+     data-dates='<%= reports
+                    .pluck(:date)
+                    .map{|d| d.strftime("%Y-%m-%d")}
+                    .to_json %>'
+     data-values='<%= reports
+                     .map(&:achievement_rate)
+                     .to_json %>'
+     style="height:300px; width:100%;">
 </div>

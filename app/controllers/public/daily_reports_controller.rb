@@ -115,18 +115,19 @@ class Public::DailyReportsController < ApplicationController
 
   # GET /daily_reports/performance_data.json
   def performance_data
-    reports = current_user.daily_reports.order(:date)
+    # ① 日付昇順でレポートを取得
+    reports = current_user.daily_reports.order(date: :asc)
+  
     render json: {
-      dates:       reports.map { |r| r.date.strftime('%Y-%m-%d') },
-      performance: reports.map do |r|
-        if r.task_achievement.present? && r.self_evaluation.present?
-          ((r.task_achievement + r.self_evaluation) / 2.0).round(1)
-        else
-          nil
-        end
-      end
+      # ② dates は "YYYY-MM-DD" の文字列配列
+      dates: reports.map { |r| r.date.strftime('%Y-%m-%d') },
+  
+      # ③ performance はモデルの achievement_rate をそのまま使う
+      #    nil を許容したくない場合は `|| 0` を付ければ未入力は 0 で返る
+      performance: reports.map { |r| r.achievement_rate || 0 }
     }
   end
+  
 
   # GET /daily_reports/future_growth_data.json
   def future_growth_data

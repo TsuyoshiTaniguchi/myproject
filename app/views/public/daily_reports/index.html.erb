@@ -42,16 +42,18 @@
       <div class="card-header">
         <h3 class="mb-0">
           パフォーマンスの推移
-          <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-bs-placement="right"
+          <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="right"
              title="グラフ上には、今日の実績（タスク達成度×自己評価の平均値）と、設定した目標値に向かう予測推移が表示されます。"></i>
         </h3>
       </div>
-      <div class="card-body">
-        <!-- 一覧ページ用グラフのラッパー -->
-        <div id="performanceChartContainer"
-             data-goal-value="<%= @daily_reports.last&.future_goal_value.to_i %>"
-             data-goal-days="<%= @daily_reports.last&.future_goal_days.to_i %>"
-             style="position: relative; width:100%; max-width:800px; height:300px; margin:0 auto;">
+        <div class="card-body">
+              <!-- 一覧ページ用グラフのラッパー -->
+              <div id="performanceChartContainer"
+            data-api-url="<%= performance_data_daily_reports_path(format: :json) %>"
+            data-goal-value="<%= @daily_reports.last&.future_goal_value.to_i %>"
+            data-goal-days="<%= @daily_reports.last&.future_goal_days.to_i %>"
+            data-enable-predict="false"
+            style="...">
         </div>
         <p class="small text-muted mt-2">
           ※ グラフには、日々の記録に基づく実績と、目標に向けた推移が示されています。

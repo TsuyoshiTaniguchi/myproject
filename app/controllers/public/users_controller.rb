@@ -18,20 +18,30 @@ class Public::UsersController < ApplicationController
       redirect_to new_user_session_path, alert: "ログインしてください。"
       return
     end
-
+  
     @user = current_user
+  
+    # フォロー中ユーザーID（既存機能）
     following_ids = @user.following.pluck(:id)
-    @daily_reports = DailyReport.where(user_id: current_user.id)
-    @daily_reports = @user.daily_reports.order(date: :desc).page(params[:page]).per(10)
-
-    # 投稿取得後、明示的に array に変換してフィルタリング
+  
+    # グラフ用：日付昇順で全レコードを取得（降順とは別に）
+    @chart_reports = @user.daily_reports.order(date: :asc)
+  
+    # 一覧用：降順＋ページネーション
+    @daily_reports = @user.daily_reports
+                          .order(date: :desc)
+                          .page(params[:page])
+                          .per(10)
+  
+    # 投稿取得後、明示的に array に変換してフィルタリング（既存機能）
     posts = Post.where(user_id: following_ids)
                 .where.not(user_id: @user.id)
                 .order(created_at: :desc)
                 .limit(10)
                 .to_a
-
     @posts = filter_posts(posts)
+  
+    # グループ参加情報（既存機能）
     @joined_groups = @user.joined_groups
   end
 
