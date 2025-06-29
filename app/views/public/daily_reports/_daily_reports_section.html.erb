@@ -6,7 +6,8 @@
       <thead class="thead-light text-center">
         <tr>
           <th style="width:120px;">日付</th>
-          <th>内容</th>
+          <!-- スマホでは非表示、SM以上でテーブルセルとして表示 -->
+          <th class="d-none d-sm-table-cell">内容</th>
           <th style="width:100px;">公開状態</th>
           <th style="width:140px;">操作</th>
         </tr>
@@ -21,11 +22,17 @@
                             compact_daily_report_path(report),
                             class: "text-dark" %>
               <% else %>
-                <span class="text-muted"><%= report.date.strftime("%-m/%-d（%a）") %></span>
+                <span class="text-muted">
+                  <%= report.date.strftime("%-m/%-d（%a）") %>
+                </span>
               <% end %>
             </td>
-            <!-- 内容 -->
-            <td><%= truncate(report.content, length: 50) %></td>
+
+            <!-- 内容（スマホでは非表示） -->
+            <td class="d-none d-sm-table-cell">
+              <%= truncate(report.content, length: 50) %>
+            </td>
+
             <!-- 公開状態 -->
             <td class="text-center">
               <% if report.public_report? %>
@@ -34,6 +41,7 @@
                 <span class="badge badge-secondary">非公開</span>
               <% end %>
             </td>
+
             <!-- 操作 -->
             <td class="text-center">
               <% if current_user == user %>

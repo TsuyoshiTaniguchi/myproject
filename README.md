@@ -52,6 +52,6 @@
   なお今後、実在するデータを利用する際には、事前に著作権保持者と契約を結んだ上で利用します。  
 
 
-- Demo: demo@example.com / demo1234  
+- Demo: demo@example.com / demo1234
 - 管理者: admin@example.com / admin123
 - ゲスト: 「ゲストログイン」ボタン

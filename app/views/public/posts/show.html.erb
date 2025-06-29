@@ -65,7 +65,7 @@
 <% if @post.comments.any? %>
   <% @post.comments.each do |comment| %>
     <div class="card p-3 mb-2 shadow-sm">
-      <strong><%= comment.user.name %></strong> - <%= time_ago_in_words(comment.created_at) %>前
+      <strong><%= comment.user.name %></strong> - <%= time_ago_in_words(comment.created_at) %>
       <p><%= sanitize(comment.content) %></p>
 
       <div class="d-flex mt-2">
