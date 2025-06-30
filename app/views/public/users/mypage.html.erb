@@ -191,10 +191,16 @@
     </div>
 
     <!-- グラフ -->
-    <%= render 'public/daily_reports/performance_chart',
-      history_reports:    @chart_reports,
-      future_goal_value:  @chart_reports.last.future_goal_value,
-      future_goal_days:   @chart_reports.last.future_goal_days %>
+      <% if @chart_reports.present? %>
+      <% last_rep = @chart_reports.last %>
+      <%= render 'public/daily_reports/performance_chart',
+            history_reports:   @chart_reports,
+            future_goal_value: (last_rep&.future_goal_value || 0),
+            future_goal_days:  (last_rep&.future_goal_days  || 0) %>
+    <% else %>
+      <p>まだ日報データがありません。</p>
+  <% end %>
+  
 
   </div>
 

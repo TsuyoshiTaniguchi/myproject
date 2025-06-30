@@ -1,15 +1,21 @@
 <!-- app/views/public/daily_reports/_performance_chart.html.erb -->
 
-<% reports       = local_assigns[:history_reports]   || @daily_reports %>
-<% goal_value    = local_assigns[:future_goal_value] || @daily_reports.last.future_goal_value.to_i %>
-<% goal_days     = local_assigns[:future_goal_days]  || @daily_reports.last.future_goal_days.to_i %>
+<% 
+  # 履歴データ（ローカル変数 or @daily_reports or 空配列）
+  reports = local_assigns[:history_reports] || @daily_reports || [] 
+  # 最終レポート（nilの場合もあり得る）
+  last_report = reports.last 
+  # Safe Navigation と || でデフォルト値（0）を指定
+  goal_value = (local_assigns[:future_goal_value] || last_report&.future_goal_value || 0).to_i 
+  goal_days  = (local_assigns[:future_goal_days]  || last_report&.future_goal_days  || 0).to_i 
+%>
 
 <div id="performanceChartContainer"
      data-goal-value="<%= goal_value %>"
      data-goal-days="<%= goal_days %>"
      data-dates='<%= reports
                     .pluck(:date)
-                    .map{|d| d.strftime("%Y-%m-%d")}
+                    .map { |d| d.strftime("%Y-%m-%d") }
                     .to_json %>'
      data-values='<%= reports
                      .map(&:achievement_rate)
