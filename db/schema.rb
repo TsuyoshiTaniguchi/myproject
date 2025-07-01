@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_06_18_015630) do
+ActiveRecord::Schema.define(version: 2025_07_01_032017) do
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -103,6 +103,7 @@ ActiveRecord::Schema.define(version: 2025_06_18_015630) do
     t.text "learning"
     t.integer "future_goal_value"
     t.integer "future_goal_days"
+    t.decimal "sentiment_score", precision: 4, scale: 3
     t.index ["user_id"], name: "index_daily_reports_on_user_id"
   end
 

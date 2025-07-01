@@ -29,7 +29,7 @@
 ## 設計書
 
 1. ER図  
-   - https://（ER図を置いている場所のURL）修正後予定
+   - https://drive.google.com/file/d/1vCRcNE0IRI9wxRKJGqvYj6GDz4rmShTJ/view?usp=sharing
 
 2. テーブル定義書  
    - https://docs.google.com/spreadsheets/d/15XdUDhfRApl89b-L5vjqCl0gyz-d65TM2Ktbca5r7G0/edit?gid=1044500859

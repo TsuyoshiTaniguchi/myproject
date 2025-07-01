@@ -121,7 +121,33 @@
           <p class="card-text lead" style="line-height: 1.6;">
             <%= simple_format(@daily_report.content) %>
           </p>
-        </div>
+          <% if @daily_report.sentiment_score.present? %>
+          <% score = @daily_report.sentiment_score.to_f %>
+          <% 
+            if    score >  0.3 then color = '#2ecc71'; emoji = '😊'
+            elsif score < -0.3 then color = '#e74c3c'; emoji = '😟'
+            else                   color = '#95a5a6'; emoji = '😐'
+            end
+          %>
+        
+          <!-- 数字＋絵文字＋MIN/MAX表示 -->
+          <div class="mb-3 d-flex align-items-center">
+            <strong class="mr-2">感情スコア</strong>
+            <small class="text-muted"><%= score.round(2) %></small>
+            <span class="ml-2"><%= emoji %></span>
+        
+            <!-- ここだけ追加 -->
+            <small class="text-muted ml-auto">
+              MIN（−1.0） | &nbsp;&nbsp;MAX（+1.0）
+            </small>
+          </div>
+        
+          <!-- 以下メーター本体などはそのまま -->
+          <div class="position-relative sentiment-meter" style="height:6px; background:#ececec; border-radius:3px;">
+            <div class="sentiment-fill" style="width:<%= ((score + 1)/2.0*100).round %>%; background-color:<%= color %>;"></div>
+            <div class="sentiment-marker" style="left:<%= ((score + 1)/2.0*100).round %>%; border-top:6px solid <%= color %>;"></div>
+          </div>
+        <% end %>
 
         <hr>
 

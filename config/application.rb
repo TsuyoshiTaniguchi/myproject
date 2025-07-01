@@ -11,6 +11,8 @@ module WaiToWai
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.1
 
+    config.paths.add 'lib', eager_load: true
+
     config.i18n.default_locale = :ja
 
     # 画像ディレクトリをアセットパイプラインに追加

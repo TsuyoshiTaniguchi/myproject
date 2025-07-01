@@ -59,6 +59,19 @@ class DailyReport < ApplicationRecord
     },
     allow_blank: true
 
+  # 追加：–1.0〜1.0 の範囲にある数値だけを許可、nilも可
+  validates :sentiment_score,
+    numericality: {
+      greater_than_or_equal_to: -1.0,
+      less_than_or_equal_to:  1.0
+    },
+    allow_nil: true
+
+
+  # 追加：content が変更されたときに自動で感情分析メソッドを呼ぶ
+  before_validation :assign_sentiment_score, if: -> { content_changed? && content.present? }
+
+
 
   # app/models/daily_report.rb
   scope :accessible_for, ->(current_user, user_id) {
@@ -140,5 +153,16 @@ class DailyReport < ApplicationRecord
       rate.clamp(0, 100)
     end
   end
+
+  private
+
+  def assign_sentiment_score
+    self.sentiment_score = Language.analyze_sentiment(content)
+  rescue StandardError => e
+    # APIエラー時はスコアを空にし、ログにエラーメッセージを残す
+    Rails.logger.error "[Sentiment] #{e.message}"
+    self.sentiment_score = nil
+  end
+
 
 end
