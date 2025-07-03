@@ -80,11 +80,10 @@ https://docs.google.com/presentation/d/1UBanqJcmKk6So1ydlfHLzoN1r9CBrI0ircgZlhoD
 4. **UIフロー図**
 
 ### ユーザーフロー
-![ユーザーフロー](images/user.png)
-
+![ユーザーフロー](app/assets/images/user.png)
 
 ### 管理者フロー
-![管理者フロー](images/admin.png)
+![管理者フロー](app/assets/images/admin.png)
 
 
 ---
