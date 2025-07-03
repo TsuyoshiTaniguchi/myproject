@@ -49,9 +49,9 @@
 | 投稿・コンテンツ管理 | 投稿作成・編集・削除、投稿検索（キーワード／タグ／カテゴリ）         | 非同期／ページネーション対応                                        |
 | ソーシャル機能        | いいね機能（非同期）、コメント機能、フォロー機能                 | リアルタイム更新                                                    |
 | グループ管理         | グループ（ジャンル）作成、承認制・参加ルール選択、グループ管理    | 公開設定やメンバー役割の制御                                        |
-| 通知・メール         | 通知機能                                                       | Web通知＋未読バッジ、バッチメール（未読通知3件以上）               |
+| 通知        | 通知機能                                                       | Web通知＋未読バッジ（未読通知3件以上）               |
 | 検索・ソート         | ソート機能                                                     | 投稿やグループ一覧の並び替え                                        |
-| 外部API連携         | 地図機能（Google Maps API）、文章解析（Google Natural Language API） | 位置情報マーカー表示／テキスト感情分析                             |
+| 外部API連携         | 地図機能（Google Maps API）、文章解析（Google Natural Language API） | 位置情報／テキスト感情分析                             |
 | 日報機能            | カレンダー・地図・パフォーマンス推移グラフ・タスク管理・自己レビュー | 日々の日報や日記に応じて反映                                         |
 | 通報                | 通報機能                                                       | 不適切なユーザー、グループ、投稿やコメントの報告                   |
 | プライバシー設定      | 日報公開／非公開機能                                             | 個人・チーム単位で閲覧権限を制御                                   |
@@ -114,13 +114,12 @@ https://docs.google.com/presentation/d/1UBanqJcmKk6So1ydlfHLzoN1r9CBrI0ircgZlhoD
 
 - フリーアイコン: Material Icons, FontAwesome  
 - 画像素材: Unsplash, Pixabay  
-- 著作権: 架空データを使用。実データ利用時は要契約  
+- 著作権: 架空データを使用
 
 ---
 
 ### アクセス情報
 
 - Demo: demo@example.com / demo1234  
-- 管理者: admin@example.com / admin123
-  https://waitowai.com/admin/sign_in
+- 管理者: admin@example.com / admin123 / https://waitowai.com/admin/sign_in
 - ゲスト: TOPページの「ゲストログイン」ボタン  
