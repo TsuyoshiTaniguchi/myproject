@@ -36,7 +36,7 @@
 - 投稿・検索：キーワード・タグ・カテゴリ検索  
 - ソーシャル：いいね（非同期）／コメント／フォロー  
 - グループ管理：ジャンル別コミュニティ作成・承認制／ルール設定  
-- 日報機能：カレンダー表示・・パフォーマンス推移グラフ・投稿内容に対しAI感情スコア表示
+- 日報機能：カレンダー表示・パフォーマンス推移グラフ・投稿内容に対しAI感情スコア表示  
 - 外部API連携：Google Maps API／Google Natural Language API  
 
 <details>
@@ -49,22 +49,22 @@
 | 投稿・コンテンツ管理 | 投稿作成・編集・削除、投稿検索（キーワード／タグ／カテゴリ）         | 非同期／ページネーション対応                                        |
 | ソーシャル機能        | いいね機能（非同期）、コメント機能、フォロー機能                 | リアルタイム更新                                                    |
 | グループ管理         | グループ（ジャンル）作成、承認制・参加ルール選択、グループ管理    | 公開設定やメンバー役割の制御                                        |
-| 通知・メール         | 通知機能                                                       | Web通知＋未読バッジ、バッチメール（未読3件以上／イベント前日リマインド） |
+| 通知・メール         | 通知機能                                                       | Web通知＋未読バッジ、バッチメール（未読通知3件以上）               |
 | 検索・ソート         | ソート機能                                                     | 投稿やグループ一覧の並び替え                                        |
 | 外部API連携         | 地図機能（Google Maps API）、文章解析（Google Natural Language API） | 位置情報マーカー表示／テキスト感情分析                             |
-| 可視化機能          | グラフ機能                                                     | 投稿数やフォロワー推移などをチャート表示                             |
-| レビュー・報告       | レビュー機能、通報機能                                           | コンテンツ評価／不適切投稿の報告                                    |
+| 日報機能            | カレンダー・地図・パフォーマンス推移グラフ・タスク管理・自己レビュー | 日々の日報や日記に応じて反映                                         |
+| 通報                | 通報機能                                                       | 不適切なユーザー、グループ、投稿やコメントの報告                   |
 | プライバシー設定      | 日報公開／非公開機能                                             | 個人・チーム単位で閲覧権限を制御                                   |
 | 管理者機能          | コメント／投稿／グループ／ユーザー管理                           | 編集・削除権限の操作                                                |
 | 管理者向け統計       | コメント数・投稿数・グループ数・ユーザー数の算出                   | ダッシュボード用データ                                              |
 
 </details>
 
-※詳細機能画像イメージはスライドをご覧ください
+※詳細機能画像イメージはスライドをご覧ください  
 https://docs.google.com/presentation/d/1UBanqJcmKk6So1ydlfHLzoN1r9CBrI0ircgZlhoDU9Q/edit?usp=sharing
 
-
 ---
+
 
 ## 設計書
 
@@ -96,6 +96,18 @@ https://docs.google.com/presentation/d/1UBanqJcmKk6So1ydlfHLzoN1r9CBrI0ircgZlhoD
 - ライブラリ: jQuery  
 - IDE: Visual Studio Code  
 
+## 本番環境構成
+
+- インフラ  
+  - AWS EC2 (Amazon Linux 2 / 2023)
+- データベース  
+  - MariaDB 5.5.68（mysql2 gem 経由で接続）
+- Web/App サーバ  
+  - Nginx 1.26.3  
+  - Puma 3.12.6 (Unixソケット: tmp/sockets/puma.sock)
+- CI/CD & デプロイ  
+  - CircleCI → Docker Compose → Capistrano による自動デプロイ
+
 ---
 
 ## 使用素材
@@ -109,5 +121,6 @@ https://docs.google.com/presentation/d/1UBanqJcmKk6So1ydlfHLzoN1r9CBrI0ircgZlhoD
 ### アクセス情報
 
 - Demo: demo@example.com / demo1234  
-- 管理者: admin@example.com / admin123  
-- ゲスト: 「ゲストログイン」ボタン  
+- 管理者: admin@example.com / admin123
+  https://waitowai.com/admin/sign_in
+- ゲスト: TOPページの「ゲストログイン」ボタン  
