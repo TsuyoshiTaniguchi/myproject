@@ -1,0 +1,19 @@
+(() => {
+  const id = "<%= @daily_report.id %>";
+
+  // タスク一覧更新
+  document.getElementById(`tasks_list_${id}`).innerHTML =
+    `<%= j render(
+         partial: "public/daily_reports/tasks",
+         locals:  { daily_report: @daily_report },
+         formats: [:html]
+       ) %>`;
+
+  //  public/shared → public/daily_reports に！
+  document.getElementById(`status_list_${id}`).innerHTML =
+    `<%= j render(
+         partial: "public/daily_reports/status",
+         locals:  { daily_report: @daily_report },
+         formats: [:html]
+       ) %>`;
+})();

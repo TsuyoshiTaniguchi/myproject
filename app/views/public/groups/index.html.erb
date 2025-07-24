@@ -1,0 +1,92 @@
+
+<% if user_signed_in? && !current_user.guest_user? %>
+  <%= link_to "➕ 新しいグループ作成", new_group_path, class: "btn btn-success btn-sm" %>
+<% end %>
+
+<!-- 検索フォーム：グループ名・説明のキーワード検索＋公開範囲フィルタ -->
+<%= form_with url: groups_path, method: :get, local: true, html: { class: "d-flex align-items-center mb-3" } do |f| %>
+  <%= f.text_field :query,
+                   value: params[:query],
+                   placeholder: "グループ名や説明を検索...",
+                   class: "form-control flex-grow-1 mr-2",
+                   style: "max-width:400px;" %>
+  
+  <div class="input-group flex-fill mr-2">
+    <%= select_tag :privacy,
+          options_for_select([["すべて", ""], ["公開", "public_visibility"], ["メンバーのみ", "restricted_visibility"]],
+                             params[:privacy]),
+          class: "form-control" %>
+  </div>
+  
+  <%= f.submit "検索", class: "btn btn-primary" %>
+<% end %>
+
+<!-- タブ切替 -->
+<% active_search  = params[:query].present? %>
+<% active_popular = !params[:query].present? %>
+<ul class="nav nav-pills nav-justified mt-3">
+  <li class="nav-item">
+    <a class="nav-link font-weight-bold <%= 'active' if active_search %>"
+       data-toggle="tab" href="#search_results">🔍 検索結果</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link font-weight-bold <%= 'active' if active_popular %>"
+       data-toggle="tab" href="#popular_groups">⭐ 人気グループ</a>
+  </li>
+  <% if user_signed_in? && !current_user.guest_user? %>
+    <li class="nav-item">
+      <a class="nav-link font-weight-bold"
+         data-toggle="tab" href="#joined_groups">👥 参加中</a>
+    </li>
+  <% end %>
+</ul>
+
+<div class="tab-content mt-4">
+  <!-- 🔍 検索結果タブ -->
+  <div class="tab-pane fade <%= 'show active' if active_search %>" id="search_results">
+    <% if params[:query].present? %>
+      <div class="alert alert-info font-weight-bold">
+        <h2>「<%= h(params[:query]) %>」の検索結果</h2>
+      </div>
+      <% if @groups.any? %>
+        <div class="row">
+          <% @groups.each do |group| %>
+            <%= render "public/shared/group_card", group: group %>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="alert alert-warning text-center">
+          該当するグループが見つかりませんでした。
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+
+  <!-- ⭐ 人気グループタブ -->
+  <div class="tab-pane fade <%= 'show active' if active_popular %>" id="popular_groups">
+    <% if @popular_groups.any? %>
+      <div class="row">
+        <% @popular_groups.each do |group| %>
+          <%= render "public/shared/group_card", group: group %>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-muted text-center">人気のグループはありません。</p>
+    <% end %>
+  </div>
+
+  <% if user_signed_in? && !current_user.guest_user? %>
+    <!-- 👥 参加中グループタブ -->
+    <div class="tab-pane fade" id="joined_groups">
+      <% if @joined_groups.any? %>
+        <div class="row">
+          <% @joined_groups.each do |group| %>
+            <%= render "public/shared/group_card", group: group %>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-muted text-center">参加中のグループはありません。</p>
+      <% end %>
+    </div>
+  <% end %>
+</div>

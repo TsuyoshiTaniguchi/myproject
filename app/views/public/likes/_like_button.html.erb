@@ -1,0 +1,22 @@
+<!-- app/views/public/likes/_like_button.html.erb -->
+<div id="post-likes-<%= post.id %>"
+     data-post-id="<%= post.id %>">
+  <% if post.liked_by?(current_user) %>
+    <% like = post.likes.find_by(user: current_user) %>
+    <button class="js-like-btn btn btn-primary btn-sm"
+            data-url="<%= post_like_path(post, like) %>"
+            data-method="delete"
+            type="button">
+      <i class="fas fa-thumbs-up"></i>
+      <span class="js-like-count"><%= post.likes.count %></span>
+    </button>
+  <% else %>
+    <button class="js-like-btn btn btn-outline-secondary btn-sm"
+            data-url="<%= post_likes_path(post) %>"
+            data-method="post"
+            type="button">
+      <i class="far fa-thumbs-up"></i>
+      <span class="js-like-count"><%= post.likes.count %></span>
+    </button>
+  <% end %>
+</div>

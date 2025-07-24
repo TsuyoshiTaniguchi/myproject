@@ -1,0 +1,149 @@
+<% status_id = "status_list_#{daily_report.id}" %>
+<div id="<%= status_id %>">
+  <h3 class="mb-4">進行状況・達成度</h3>
+  
+  <div class="row">
+    <!-- 目標達成率カード -->
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">目標達成率</h5>
+        </div>
+        <div class="card-body">
+          <% if @daily_report.future_goal_value.present? %>
+            <p>目標スコア: <strong><%= @daily_report.future_goal_value %></strong>/10</p>
+            <% if (score = @daily_report.task_score) %>
+              <p>タスク達成度スコア: <strong><%= score %></strong>/10</p>
+              <p>達成率: <strong><%= @daily_report.achievement_rate %>%</strong></p>
+              <div class="progress">
+                <div class="progress-bar progress-bar-striped bg-success"
+                     role="progressbar"
+                     style="width: <%= @daily_report.achievement_rate %>%"
+                     aria-valuenow="<%= @daily_report.achievement_rate %>"
+                     aria-valuemin="0"
+                     aria-valuemax="100"></div>
+              </div>
+            <% else %>
+              <p class="text-muted">タスクが登録されていないため、スコアを算出できません</p>
+            <% end %>
+          <% else %>
+            <p class="text-muted">将来の目標値が設定されていません</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- タスク管理カード -->
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">タスク管理</h5>
+        </div>
+        <div class="card-body">
+          <% if @daily_report.total_tasks_count.positive? %>
+            <p>
+              [完了したタスク数／合計タスク数]　
+              <strong>
+                <%= @daily_report.completed_tasks_count %>／
+                <%= @daily_report.total_tasks_count %>
+              </strong>
+            </p>
+            <ul class="list-group list-group-flush">
+              <% @daily_report.tasks.each do |task| %>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <% if task.completed? %>
+                    <span class="text-success">✅</span>
+                    <strong class="ml-2"><%= task.title %></strong>
+                  <% else %>
+                    <span class="text-secondary">⏳</span>
+                    <span class="ml-2"><%= task.title %></span>
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <p class="text-muted">タスクが登録されていません</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- 将来の目標 & パフォーマンススコア -->
+  <div class="row mb-4">
+    <div class="col-md-6 mb-3">
+      <div class="card text-center border-primary h-100">
+        <div class="card-body py-4">　
+          <h5 class="text-muted mb-2">将来の目標</h5>
+          <i class="fas fa-bullseye fa-3x text-primary mb-3"></i>
+          <% if @daily_report.future_goal_value.present? && @daily_report.future_goal_days.present? %>
+            <h3 class="font-weight-bold mb-1"><%= @daily_report.future_goal_value %>/10</h3>
+            <p class="text-muted mb-0">in <%= @daily_report.future_goal_days %>日</p>
+          <% else %>
+            <h3 class="text-muted mb-1">―</h3>
+            <p class="text-muted mb-0">未設定</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  
+    <div class="col-md-6 mb-3">
+      <div class="card text-center border-info h-100">
+        <div class="card-body py-4">　
+          <h5 class="text-muted mb-2">パフォーマンススコア</h5>
+          <i class="fas fa-chart-line fa-3x text-info mb-3"></i>
+          <% if @daily_report.performance_score.present? %>
+            <h3 class="font-weight-bold mb-1"><%= @daily_report.performance_score %>/10.0</h3>
+            <p class="text-muted mb-0">達成度＋自己評価平均</p>
+          <% else %>
+            <h3 class="text-muted mb-1">―</h3>
+            <p class="text-muted mb-0">未登録</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 過去比較 & 自己評価 -->
+  <div class="card mb-4">
+    <div class="card-header bg-light">
+      <h5 class="mb-0">過去比較 &amp; 自己評価</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <!-- 過去成果比較 -->
+        <div class="col-md-6 border-right mb-3 mb-md-0">
+          <h6>過去の成果との比較</h6>
+          <% if (prev = @daily_report.previous_report) %>
+            <p>前回のタスク達成度: <strong><%= prev.task_score || '―' %></strong>/10</p>
+            <p>前回の達成率: <strong><%= prev.achievement_rate ? "#{prev.achievement_rate}%" : '―' %></strong></p>
+            <%= link_to "過去の日報を見る",
+                        daily_report_path(prev),
+                        class: "btn btn-outline-secondary btn-sm mt-2" %>
+          <% else %>
+            <p class="text-muted">比較できるデータがありません。</p>
+          <% end %>
+        </div>
+
+        <!-- 自己評価 -->
+        <div class="col-md-6">
+          <h6>自己評価</h6>
+          <% se = @daily_report.self_evaluation %>
+          <p>今日の自己評価: <strong><%= se.presence || "―" %></strong>/5</p>
+          <%= form_with model: @daily_report,
+                        local: true,
+                        html: { class: "d-flex align-items-center flex-nowrap mb-0" } do |f| %>
+            <%= hidden_field_tag :return_to, request.fullpath %>
+            <div class="form-group mb-0 mr-2">
+              <%= f.select :self_evaluation,
+                           (1..5).to_a,
+                           { prompt: "選択" },
+                           class: "form-control form-control-sm" %>
+            </div>
+            <%= f.submit "変更", class: "btn btn-sm btn-primary mb-0" %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

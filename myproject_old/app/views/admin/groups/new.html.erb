@@ -1,0 +1,84 @@
+<div class="container my-4">
+  <div class="row">
+    <div class="col-md-8 offset-md-2">
+      <h1 class="mb-3">新規グループ作成</h1>
+      <p class="mb-4">ここでは、新しい公式グループを作成できます。必要な情報を入力してください。</p>
+
+      <%= form_with model: @group, url: admin_groups_path, method: :post, local: true, html: { multipart: true } do |f| %>
+
+        <% if @group.errors.any? %>
+          <div class="alert alert-danger">
+            <h4 class="alert-heading">入力エラーがあります：</h4>
+            <ul class="mb-0">
+              <% @group.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <!-- グループ基本情報 -->
+        <h2 class="h4 mt-4">グループ情報</h2>
+        <div class="form-group">
+          <%= f.label :name, "グループ名" %>
+          <%= f.text_field :name, class: "form-control", required: true %>
+          <% if @group.errors[:name].any? %>
+            <small class="form-text text-danger"><%= @group.errors[:name].first %></small>
+          <% end %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :description, "グループの説明" %>
+          <%= f.text_area :description, class: "form-control", rows: 3 %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :group_image, "グループの画像" %>
+          <%= f.file_field :group_image, class: "form-control-file" %>
+        </div>
+
+        <!-- グループのカテゴリ -->
+        <h2 class="h4 mt-4">グループの種類</h2>
+        <div class="form-group">
+          <%= f.label :category, "グループのカテゴリ" %>
+          <%= f.select :category, [["公式グループ", "official_label"], ["ユーザー作成グループ", "user_created_label"]], {}, class: "form-control" %>
+        </div>
+
+        <!--  公開範囲と参加ルール -->
+        <h2 class="h4 mt-4">参加ルール</h2>
+        <div class="form-group">
+          <%= f.label :join_policy, "参加ルール" %>
+          <%= f.select :join_policy,
+               [
+                ["誰でも参加可能", "open"],
+                ["管理者のみ参加を許可", "admin_only"],
+                ["承認制", "invite_only"]
+               ],
+               { prompt: "選択してください" },
+               class: "form-control" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :privacy, "投稿の公開範囲" %>
+          <%= f.select :privacy,
+               [
+                ["公開", "public_visibility"],
+                ["管理者のみ", "private_visibility"],
+                ["メンバーのみ", "restricted_visibility"]
+               ],
+               { prompt: "選択してください" },
+               class: "form-control" %>
+        </div>
+
+        <div class="mt-4">
+          <%= f.submit "グループを作成", class: "btn btn-success" %>
+        </div>
+
+      <% end %>
+
+      <div class="mt-3">
+        <%= link_to "グループ管理ページへ戻る", admin_groups_path, class: "btn btn-secondary" %>
+      </div>
+    </div>
+  </div>
+</div>

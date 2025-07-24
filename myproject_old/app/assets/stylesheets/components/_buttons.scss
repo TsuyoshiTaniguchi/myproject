@@ -1,0 +1,44 @@
+/* _buttons.scss */
+.btn {
+  margin: 5px;
+}
+
+/* いいねボタン */
+.like-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.like-btn.active i {
+  color: #007bff;
+}
+
+.like-btn:hover i {
+  color: #0056b3;
+}
+
+.like-count {
+  font-weight: bold;
+}
+
+.button-wrapper {
+  min-height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+/* グラフ説明、、折りたたみ時は↓向き、展開時は↑向き */
+.btn-link.collapsed i {
+  transform: rotate(0deg);
+  transition: transform .3s;
+}
+.btn-link:not(.collapsed) i {
+  transform: rotate(180deg);
+}

@@ -1,0 +1,16 @@
+<% if current_admin.present? %>
+  <% admin_user = User.find_by(email: 'admin@example.com') %>
+<% end %>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <ul class="navbar-nav ms-auto">
+    <% if current_admin.present? && admin_user.present? %>
+      <li class="nav-item">
+        <%= link_to admin_notifications_path, class: "nav-link" do %>
+          🔔 通知（<%= Notification.where(user: admin_user, read: false).count %>）
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+</nav>
+

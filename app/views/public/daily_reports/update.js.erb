@@ -1,0 +1,4 @@
+// app/views/public/daily_reports/update.js.erb
+$("#report-<%= @daily_report.id %>-visibility").html(
+  "<%= j render('visibility_toggle', report: @daily_report) %>"
+);

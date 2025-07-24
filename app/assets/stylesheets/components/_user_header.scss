@@ -1,0 +1,92 @@
+/* app/assets/stylesheets/components/_user_header.scss */
+// .user-header {
+
+  .navbar-brand {
+    .navbar-brand {
+      // 余計な width:90% は削除
+      .logo-img {
+        // ここで縦サイズだけを固定し、幅は自動計算させる
+        max-height: 60px;   // お好みの高さに調整
+        height: auto;
+        width: auto;        // 幅は height に合わせて自動
+  
+        cursor: pointer;
+        transition: transform 0.3s;
+        &:hover {
+          transform: scale(1.05);
+        }
+      }
+    }
+  
+    // スマホではもう少し小さく
+    @media (max-width: 576px) {
+      .navbar-brand .logo-img {
+        max-height: 40px;
+      }
+    }
+  }
+  
+
+
+  /* もしログアウトリンクを強調するなら */
+  .logout {
+    color: red !important;
+  }
+  
+  .welcome-message {
+    color: #333;
+    font-weight: bold;
+    margin-right: 10px;
+  }
+
+
+  /* ハンバーガーメニューのアイコンのカスタマイズ（必要に応じて） */
+  .navbar-toggler {
+    border: none;
+
+    &:focus {
+      outline: none;
+      box-shadow: none;
+    }
+
+    .navbar-toggler-icon {
+      background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+    }
+  }
+
+.user-header {
+  background: linear-gradient(to right, #1ABC9C, #2ECC71); // ターコイズブルーからエメラルドグリーンへのグラデーション
+  color: #fff;
+  padding: 0.75rem 0; // 上下のパディングを調整
+
+  .navbar-brand,
+  .navbar-nav .nav-link,
+  .welcome-message {
+    color: #fff !important; // すべてのテキストは白色
+  }
+
+  .navbar-nav .nav-link:hover {
+    color: rgba(255, 255, 255, 0.8); // ホバー時に少し明るさを変化
+  }
+
+  .logout {
+    background-color: rgba(255, 255, 255, 0.2); // 軽い透明感のある背景
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    color: #fff !important;
+    transition: background-color 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+  }
+
+  .logo-img {
+    max-height: 60px;
+    cursor: pointer;
+  }
+}

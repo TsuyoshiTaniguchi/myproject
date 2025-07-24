@@ -1,0 +1,81 @@
+<!-- app/views/admin/posts/show.html.erb -->
+<h1 class="mb-4">
+  <i class="bi bi-card-text me-2"></i>投稿詳細（管理者画面）
+</h1>
+
+<div class="card post-card shadow-sm">
+  <div class="card-header bg-white">
+    <h2 class="card-title mb-0"><%= @post.title %></h2>
+  </div>
+  <div class="card-body">
+
+    <!-- 画像表示 -->
+    <% if @post.images.attached? %>
+      <div class="post-images mb-3">
+        <% @post.images.each do |image| %>
+          <div class="mb-2">
+            <%= image_tag image.variant(resize: "500x500"), class: "img-fluid rounded" %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- 投稿内容 -->
+    <p class="card-text"><%= sanitize(@post.content) %></p>
+
+    <!-- カテゴリー表示（あれば） -->
+    <% if @post.category.present? %>
+      <p class="card-text">
+        <strong>カテゴリー:</strong> <%= @post.category %>
+      </p>
+    <% end %>
+
+    <!-- タグ情報 -->
+    <% if @post.tag_list.present? %>
+      <p class="card-text">
+        <strong>タグ:</strong>
+        <%= @post.tag_list.join(', ') %>
+      </p>
+    <% end %>
+
+    <!-- 投稿詳細情報 -->
+    <div class="d-flex flex-wrap justify-content-between">
+      <small class="text-muted">
+        投稿者: <%= @post.user&.name.presence || "匿名ユーザー" %>
+      </small>
+      <small class="text-muted">
+        投稿日: <%= l(@post.created_at, format: :short) %>
+      </small>
+    </div>
+  </div>
+  <div class="card-footer bg-white">
+    <% @post.reload %> <!-- 最新データを取得 -->
+    <% if @post.reported? %>
+      <div class="alert alert-danger mb-3" role="alert">
+        ⚠️ この投稿は通報されています
+      </div>
+    <% else %>
+      <div class="alert alert-success mb-3" role="alert">
+        ✅ 正常な投稿
+      </div>
+    <% end %>
+
+    <!-- 操作ボタン -->
+    <div class="d-flex flex-wrap gap-2">
+      <%= link_to "編集", edit_admin_post_path(@post), class: "btn btn-warning btn-sm flex-fill" %>
+      <%= link_to "削除", admin_post_path(@post),
+                  method: :delete,
+                  data: { confirm: "⚠️ 本当に削除しますか？ この操作は取り消せません！" },
+                  class: "btn btn-danger btn-sm flex-fill" %>
+      <% if @post.reported? %>
+        <%= button_to "通報解除", unreport_admin_post_path(@post),
+                      method: :patch,
+                      class: "btn btn-secondary btn-sm flex-fill" %>
+      <% end %>
+    </div>
+
+    <div class="mt-3">
+      <%= link_to "投稿一覧に戻る", admin_posts_path, class: "btn btn-secondary" %>
+    </div>
+  </div>
+</div>

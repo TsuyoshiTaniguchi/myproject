@@ -1,0 +1,50 @@
+
+<!-- 検索フォーム -->
+<div class="mb-4">
+  <form action="<%= search_users_path %>" method="get">
+    <div class="input-group align-items-center">
+      <input type="text" name="query" class="form-control" placeholder="ユーザー名で検索" value="<%= params[:query] %>">
+      <div class="input-group-append">
+        <button type="submit" class="btn btn-primary">検索</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<% if @query.present? %>
+  <h2 class="mb-3">「<%= @query %>」の検索結果</h2>
+<% end %>
+
+<% if @users.any? %>
+  <!-- Masonry Grid 用のラッパー -->
+  <div class="masonry-grid d-flex justify-content-center flex-wrap">
+    <% @users.each do |user| %>
+      <div class="masonry-item">
+        <div class="card shadow-sm border-0">
+          <div class="card-img-overlay p-0 position-relative">
+            <% if user.profile_image.attached? %>
+              <%= image_tag user.profile_image.variant(resize_to_fill: [300, 300]), 
+                            class: "img-fluid", 
+                            alt: "#{user.name}のプロフィール画像" %>
+            <% else %>
+              <%= image_tag "no_image.jpg", class: "img-fluid", alt: "プロフィール画像なし" %>
+            <% end %>
+            <div class="overlay d-flex flex-column justify-content-center align-items-center text-center">
+              <h5 class="text-white font-weight-bold mb-2"><%= user.name %></h5>
+              <p class="small text-white">登録日: <%= user.created_at.strftime("%Y/%m/%d") %></p>
+              <%= link_to "プロフィールを見る", user_path(user), class: "btn btn-outline-light btn-sm" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="alert alert-info">
+    該当するユーザーが見つかりませんでした。
+  </div>
+<% end %>
+
+<div class="mt-4 text-center">
+  <%= link_to "ユーザー一覧へ戻る", users_path, class: "btn btn-outline-secondary" %>
+</div>

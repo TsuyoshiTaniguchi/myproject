@@ -1,0 +1,14 @@
+<% @group.members.each do |member| %>
+  <div class="member-list-item d-flex align-items-center justify-content-between mb-3 p-2 border rounded">
+    <!-- メンバー名 -->
+    <span class="font-weight-bold"><%= member.name %></span>
+    
+    <% unless member == current_user %>
+      <!-- 操作ボタン -->
+      <div>
+        <%= link_to "🚫 ブロック", block_user_path(member), method: :patch, class: "btn btn-warning btn-sm mr-2" %>
+        <%= link_to "⚠️ 通報", report_user_path(member), method: :patch, class: "btn btn-danger btn-sm" %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

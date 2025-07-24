@@ -1,0 +1,177 @@
+<!-- 前後ナビ＋タイトル -->
+<div class="d-flex justify-content-between align-items-center mt-4 mb-4">
+  <% if @prev %>
+    <%= link_to "← 前日", compact_daily_report_path(@prev), class: "btn btn-outline-secondary btn-sm" %>
+  <% else %>
+    <div style="width: 70px;"></div>
+  <% end %>
+
+  <h4 class="m-0 text-center flex-grow-1">
+    <%= @daily_report.date.strftime("%-m月%-d日（%a）") %>
+  </h4>
+
+  <% if @next %>
+    <%= link_to "翌日 →", compact_daily_report_path(@next), class: "btn btn-outline-secondary btn-sm" %>
+  <% else %>
+    <div style="width: 70px;"></div>
+  <% end %>
+</div>
+
+<!-- 日報基本情報カード -->
+<div class="card mb-4 shadow-sm border-primary" style="border-left-width: .25rem;">
+  <div class="card-header bg-white border-0 py-3">
+    <div class="d-flex align-items-center">
+      <div class="text-primary mr-3">
+        <i class="far fa-calendar-alt fa-2x"></i>
+      </div>
+      <div>
+        <h5 class="mb-0"><%= @daily_report.date.strftime("%Y年%-m月%-d日") %></h5>
+        <small class="text-muted"><%= @daily_report.date.strftime("%A") %></small>
+      </div>
+      <div class="ml-auto">
+        <span class="badge badge-secondary badge-pill py-2 px-3">
+          <i class="fas fa-map-marker-alt mr-1"></i>
+          <%= @daily_report.location.presence || "―" %>
+        </span>
+      </div>
+    </div>
+  </div>
+  <div class="card-body py-4">
+    <!-- 活動内容 -->
+    <p class="card-text lead" style="line-height: 1.6;">
+      <%= simple_format(@daily_report.content) %>
+    </p>
+
+    <% if @daily_report.sentiment_score.present? %>
+    <% score = @daily_report.sentiment_score.to_f %>
+    <% 
+      if    score >  0.3 then color = '#2ecc71'; emoji = '😊'
+      elsif score < -0.3 then color = '#e74c3c'; emoji = '😟'
+      else                   color = '#95a5a6'; emoji = '😐'
+      end
+    %>
+  
+    <!-- 数字＋絵文字＋MIN/MAX表示 -->
+    <div class="mb-3 d-flex align-items-center">
+      <strong class="mr-2">感情スコア</strong>
+      <small class="text-muted"><%= score.round(2) %></small>
+      <span class="ml-2"><%= emoji %></span>
+  
+      <!-- ここだけ追加 -->
+      <small class="text-muted ml-auto">
+        MIN（−1.0） | &nbsp;&nbsp;MAX（+1.0）
+      </small>
+    </div>
+  
+    <!-- 以下メーター本体などはそのまま -->
+    <div class="position-relative sentiment-meter" style="height:6px; background:#ececec; border-radius:3px;">
+      <div class="sentiment-fill" style="width:<%= ((score + 1)/2.0*100).round %>%; background-color:<%= color %>;"></div>
+      <div class="sentiment-marker" style="left:<%= ((score + 1)/2.0*100).round %>%; border-top:6px solid <%= color %>;"></div>
+    </div>
+  <% end %>
+
+    <hr class="my-4">
+    <!-- 投稿情報 -->
+    <div class="d-flex flex-column flex-md-row justify-content-between text-muted small">
+      <div class="d-flex align-items-center mb-2 mb-md-0">
+        <i class="far fa-clock mr-1"></i>
+        <span>投稿時間: <%= @daily_report.created_at.strftime("%Y-%m-%d %H:%M") %></span>
+      </div>
+      <div class="d-flex align-items-center">
+        <i class="fas fa-user mr-1"></i>
+        <span>
+          投稿者:
+          <%= link_to @daily_report.user.name,
+                      user_path(@daily_report.user),
+                      class: "text-reset font-weight-bold" %>
+        </span>
+      </div>
+    </div>
+
+    <!-- 学びと改善点 -->
+    <% if @daily_report.learning.present? %>
+      <div class="mt-5 pt-4 border-top">
+        <h5 class="font-weight-bold text-success mb-3">
+          <i class="fas fa-lightbulb mr-1"></i> 学びと改善点
+        </h5>
+        <p class="card-text lead" style="line-height: 1.6;">
+          <%= simple_format(@daily_report.learning) %>
+        </p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- タスク一覧・自己評価・関連記事 -->
+<div class="row mb-5">
+  <!-- タスク一覧 -->
+  <div class="col-lg-6 mb-4">
+    <div class="card h-100">
+      <div class="card-header bg-light font-weight-bold">タスク一覧</div>
+      <ul class="list-group list-group-flush">
+        <% if @daily_report.tasks.any? %>
+          <% @daily_report.tasks.each do |task| %>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>
+                <i class="<%= task.completed? ? 'fas fa-check-square text-success' : 'far fa-square text-muted' %> mr-2"></i>
+                <%= task.title %>
+              </span>
+              <% if task.respond_to?(:due_date) && task.due_date %>
+                <small class="text-muted"><%= task.due_date.strftime("%-m/%-d") %></small>
+              <% end %>
+            </li>
+          <% end %>
+        <% else %>
+          <li class="list-group-item text-center text-muted">タスクはありません。</li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 自己評価 -->
+  <div class="col-lg-6 mb-4">
+    <div class="card h-100">
+      <div class="card-header bg-light font-weight-bold">自己評価</div>
+      <div class="card-body d-flex flex-column justify-content-center align-items-center">
+        <div class="mb-3">
+          <% (1..5).each do |i| %>
+            <i class="<%= i <= (@daily_report.self_evaluation || 0) ?
+                        'fas fa-star text-warning' :
+                        'far fa-star text-secondary' %> fa-2x mx-1"></i>
+          <% end %>
+        </div>
+        <div>
+          <span class="h5 mb-0"><%= @daily_report.self_evaluation || '―' %></span>
+          <span class="text-muted">/ 5</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 関連投稿 -->
+  <% if @daily_report.respond_to?(:posts) && @daily_report.posts.any? %>
+    <div class="col-12 mb-4">
+      <div class="card">
+        <div class="card-header font-weight-bold">関連記事</div>
+        <ul class="list-group list-group-flush">
+          <% @daily_report.posts.each do |post| %>
+            <li class="list-group-item">
+              <%= link_to post.title, daily_report_post_path(@daily_report, post),
+                          class: "text-dark" %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<!-- ボタン群 -->
+<div class="d-flex justify-content-between mb-5">
+  <%= link_to "プロフィールへ戻る", user_path(@daily_report.user),
+              class: "btn btn-outline-primary" %>
+  <% if current_user == @daily_report.user %>
+    <%= link_to "ライフログ一覧へ", daily_reports_path,
+                class: "btn btn-secondary" %>
+  <% end %>
+</div>

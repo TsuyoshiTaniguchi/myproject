@@ -1,0 +1,121 @@
+Table          カラム名                カラム説明                  PK        FK       データ型  NOT_NULL  AUTO_INCREMENT  INDEX  DEFAULT
+users          id                      ユーザーID                  ○         integer  ○         ○         ○                      
+users          email                   メールアドレス              string    ○        ○                                          
+users          encrypted_password      パスワードハッシュ          string    ○                                                   
+users          reset_password_token    パスワード再発行用トークン  string    ○        ○                                          
+users          reset_password_sent_at  再発行メール送信日時        datetime                                                      
+users          remember_created_at     ログイン記憶日時            datetime                                                      
+users          name                    氏名                        string                                                        
+users          status                  ステータス                  integer                                                       
+users          personal_statement      自己PR                      text                                                          
+users          location                住所                        string                                                        
+users          is_active               有効フラグ                  boolean   ○        TRUE                                       
+users          role                    権限                        string    ○        user                                       
+users          portfolio_url           ポートフォリオURL           string                                                        
+users          portfolio_file          ポートフォリオ画像          string                                                        
+users          reported                通報フラグ                  boolean   FALSE                                               
+users          github_username         GitHubユーザー名            string                                                        
+users          growth_story            成長ストーリー              text                                                          
+users          daily_reports_public    日報公開フラグ              boolean   FALSE                                               
+users          confirmation_token      確認トークン                string                                                        
+users          confirmed_at            確認日時                    datetime                                                      
+users          confirmation_sent_at    確認メール送信日時          datetime                                                      
+users          unconfirmed_email       確認前メールアドレス        string                                                        
+users          created_at              作成日時                    datetime  ○        now                                        
+users          updated_at              更新日時                    datetime  ○        now                                        
+posts          id                      投稿ID                      ○         integer  ○         ○         ○                      
+posts          title                   タイトル                    string    ○                                                   
+posts          content                 本文                        text                                                          
+posts          user_id                 投稿者ユーザーID            integer   ○        ○                                          
+posts          group_id                グループID                  integer   ○        ○                                          
+posts          status                  ステータス                  integer   ○                                                   
+posts          code_snippet            コードスニペット            text                                                          
+posts          reported                通報フラグ                  boolean   ○        FALSE                                      
+posts          category                カテゴリ                    string                                                        
+posts          created_at              作成日時                    datetime  ○        ○         now                              
+posts          updated_at              更新日時                    datetime  ○        ○         now                              
+comments       id                      コメントID                  ○         integer  ○         ○         ○                      
+comments       content                 コメント本文                string    ○                                                   
+comments       user_id                 投稿者ユーザーID            integer   ○        ○                                          
+comments       post_id                 対象投稿ID                  integer   ○        ○                                          
+comments       reported                通報フラグ                  boolean   ○        FALSE                                      
+comments       created_at              作成日時                    datetime  ○        ○         now                              
+comments       updated_at              更新日時                    datetime  ○        ○         now                              
+connections    id                      フォローID                  ○         integer  ○         ○         ○                      
+connections    follower_id             フォロワーID                integer   ○        ○                                          
+connections    followed_id             フォーイング先ユーザーID    integer   ○        ○                                          
+connections    created_at              作成日時                    datetime  ○        ○         now                              
+connections    updated_at              更新日時                    datetime  ○        ○         now                              
+daily_reports  id                      日報ID                      ○         integer  ○         ○         ○                      
+daily_reports  user_id                 作成者ユーザーID            integer   ○        ○                                          
+daily_reports  date                    日付                        date      ○                                                   
+daily_reports  location                場所                        string                                                        
+daily_reports  content                 内容                        text                                                          
+daily_reports  latitude                緯度                        decimal                                                       
+daily_reports  longitude               経度                        decimal                                                       
+daily_reports  visibility              公開範囲                    integer   ○        1                                          
+daily_reports  task_achievement        タスク達成率                integer                                                       
+daily_reports  self_evaluation         自己評価                    integer                                                       
+daily_reports  learning                学び                        text                                                          
+daily_reports  future_goal_value       将来目標値                  integer                                                       
+daily_reports  future_goal_days        将来目標日数                integer                                                       
+daily_reports  created_at              作成日時                    datetime  ○        ○         now                              
+daily_reports  updated_at              更新日時                    datetime  ○        ○         now                              
+tasks          id                      タスクID                    ○         integer  ○         ○         ○                      
+tasks          title                   タスク名                    string                                                        
+tasks          completed               完了フラグ                  boolean                                                       
+tasks          daily_report_id         所属日報ID                  integer   ○        ○                                          
+tasks          created_at              作成日時                    datetime  ○        ○         now                              
+tasks          updated_at              更新日時                    datetime  ○        ○         now                              
+groups         id                      グループID                  ○         integer  ○         ○         ○                      
+groups         name                    名称                        string                                                        
+groups         description             説明                        text                                                          
+groups         category                カテゴリ                    string                                                        
+groups         privacy                 公開設定                    string    ○        public                                     
+groups         join_policy             参加方針                    string    ○        open                                       
+groups         location                場所                        string                                                        
+groups         owner_id                オーナーID                  integer   ○        ○                                          
+groups         reported                通報フラグ                  boolean   ○        FALSE                                      
+groups         created_at              作成日時                    datetime  ○        ○         now                              
+groups         updated_at              更新日時                    datetime  ○        ○         now                              
+likes          id                      いいねID                    ○         integer  ○         ○         ○                      
+likes          user_id                 実行ユーザーID              integer   ○        ○                                          
+likes          likeable_id             対象ID                      integer   ○        ○                                          
+likes          likeable_type           対象モデル名                string    ○        ○                                          
+likes          created_at              作成日時                    datetime  ○        ○         now                              
+likes          updated_at              更新日時                    datetime  ○        ○         now                              
+memberships    id                      membershipID                ○         integer  ○         ○         ○                      
+memberships    user_id                 ユーザーID                  integer   ○        ○                                          
+memberships    group_id                グループID                  integer   ○        ○                                          
+memberships    role                    役割                        string                                                        
+memberships    created_at              作成日時                    datetime  ○        ○         now                              
+memberships    updated_at              更新日時                    datetime  ○        ○         now                              
+notifications  id                      通知ID                      ○         integer  ○         ○         ○                      
+notifications  user_id                 通知先ユーザーID            integer   ○        ○                                          
+notifications  recipient_id            実際の受取人ID              integer                                                       
+notifications  notification_type       通知種別                    integer   ○                                                   
+notifications  source_id               発生元ID                    integer                                                       
+notifications  source_type             発生元モデル名              string                                                        
+notifications  read                    既読フラグ                  boolean   ○        FALSE                                      
+notifications  read_at                 既読日時                    datetime                                                      
+notifications  created_at              作成日時                    datetime  ○        ○         now                              
+notifications  updated_at              更新日時                    datetime  ○        ○         now                              
+taggings       id                      タグ付けID                  ○         integer  ○         ○         ○                      
+taggings       tag_id                  タグID                      integer   ○        ○                                          
+taggings       taggable_type           対象モデル名                string                                                        
+taggings       taggable_id             対象モデルID                integer   ○        ○                                          
+taggings       tagger_type             タガー種別                  string                                                        
+taggings       tagger_id               タガーID                    integer                                                       
+taggings       context                 コンテキスト                string                                                        
+taggings       tenant                  テナント区分                string                                                        
+taggings       created_at              作成日時                    datetime  ○        ○         now                              
+tags           id                      タグID                      ○         integer  ○         ○         ○                      
+tags           name                    タグ名                      string    ○        ○                                          
+tags           taggings_count          タグ付け数                  integer   ○                                                   
+tags           created_at              作成日時                    datetime  ○        ○         now                              
+tags           updated_at              更新日時                    datetime  ○        ○         now                              
+user_groups    id                      ユーザーグループID          ○         integer  ○         ○         ○                      
+user_groups    user_id                 ユーザーID                  integer   ○        ○                                          
+user_groups    group_id                グループID                  integer   ○        ○                                          
+user_groups    created_at              作成日時                    datetime  ○        ○         now                              
+user_groups    updated_at              更新日時                    datetime  ○        ○         now                              

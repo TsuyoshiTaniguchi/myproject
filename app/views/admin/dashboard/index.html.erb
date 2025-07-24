@@ -1,0 +1,97 @@
+<div class="container-fluid py-4">
+  <!-- ヘッダー（通知機能はヘッダー内には含めず、ここでは管理者認証のみ行う） -->
+  <% if current_admin.present? %>
+    <% admin_user = User.find_by(email: 'admin@example.com') %>
+  <% end %>
+
+  <!-- ページタイトル -->
+  <h1 class="mb-4 text-center">管理者ダッシュボード</h1>
+
+  <!-- サマリーカード -->
+  <div class="row">
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card text-center bg-primary text-white shadow h-100">
+        <div class="card-body">
+          <h4 class="card-title">登録ユーザー数</h4>
+          <p class="display-4 mb-0"><%= User.count %></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card text-center bg-success text-white shadow h-100">
+        <div class="card-body">
+          <h4 class="card-title">投稿総数</h4>
+          <p class="display-4 mb-0"><%= Post.count %></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card text-center bg-info text-white shadow h-100">
+        <div class="card-body">
+          <h4 class="card-title">グループ数</h4>
+          <p class="display-4 mb-0"><%= Group.count %></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card text-center bg-warning text-white shadow h-100">
+        <div class="card-body">
+          <h4 class="card-title">コメント総数</h4>
+          <p class="display-4 mb-0"><%= Comment.count %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="admin-alerts alert alert-warning">
+    <h3 class="mb-3">⚠️ 重要なお知らせ & 通知</h3>
+    
+    <% if current_admin.present? %>
+      <% admin_user = User.find_by(email: 'admin@example.com') %>
+      <% if admin_user.present? %>
+        <div class="mb-3">
+          <i class="fas fa-bell"></i>
+          <%= link_to admin_notifications_path, class: "text-dark font-weight-bold" do %>
+            通知（<%= Notification.where(user: admin_user, read: false).count %>件未読）
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+    
+    <hr>
+    
+    <% if Notification.where(notification_type: "admin_alert").exists? %>
+      <% Notification.where(notification_type: "admin_alert").each do |notification| %>
+        <p>
+          <i class="fas fa-exclamation-circle"></i>
+          <strong><%= notification.created_at.strftime("%Y/%m/%d") %></strong>
+          - <%= notification.formatted_content %>
+        </p>
+      <% end %>
+    <% else %>
+      <p class="mb-0">現在、重要なお知らせはありません。</p>
+    <% end %>
+  </section>
+
+  <!-- ソート・フィルタボタン -->
+  <div class="row mb-4">
+    <div class="col">
+      <div class="btn-group btn-group-sm d-flex flex-wrap" role="group">
+        <%= link_to "通報されたユーザーのみ表示", admin_users_path(filter: "reported"), class: "btn btn-outline-danger mb-2 mr-2" %>
+        <%= link_to "通報されたグループのみ表示", admin_groups_path(reported_only: true), class: "btn btn-outline-danger mb-2 mr-2" %>
+        <%= link_to "通報された投稿のみ表示", admin_posts_path(reported_only: "true"), class: "btn btn-outline-danger mb-2 mr-2" %>
+        <%= link_to "通報済みのコメントのみ表示", search_admin_comments_path(reported_only: true), class: "btn btn-outline-danger mb-2 mr-2" %>
+      </div>
+    </div>
+  </div>
+
+  <!-- 管理メニュー -->
+  <section class="mb-5">
+    <div class="d-flex flex-wrap justify-content-center gap-3">
+      <%= link_to "ユーザー管理", admin_users_path, class: "btn btn-outline-secondary btn-lg" %>
+      <%= link_to "グループ管理", admin_groups_path, class: "btn btn-outline-secondary btn-lg" %>
+      <%= link_to "投稿管理", admin_posts_path, class: "btn btn-outline-secondary btn-lg" %>
+      <%= link_to "コメント管理", admin_comments_path, class: "btn btn-outline-secondary btn-lg" %>
+    </div>
+  </section>
+</div>

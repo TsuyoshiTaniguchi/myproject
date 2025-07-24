@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Admin Dashboard</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <!-- アプリ固有 SCSS（Sprockets 側） -->
+    <%= stylesheet_link_tag 'application',
+          media: 'all',
+          'data-turbolinks-track': 'reload' %>
+
+    <!-- Bootstrap 4.6.2 CSS -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+
+    <!-- Webpacker バンドル（gmapsBoot を定義した application.js） -->
+    <%= javascript_pack_tag 'application',
+          'data-turbolinks-track': 'reload' %>
+
+    <!-- Font Awesome Kit -->
+    <script src="https://kit.fontawesome.com/e1acaa1ac8.js"
+            crossorigin="anonymous"></script>
+
+    <!-- Google Maps API : head 内に１本だけ・改行なし・loading=async -->
+    <script async defer data-turbolinks-eval="false"
+      src="https://maps.googleapis.com/maps/api/js?key=<%= ENV['GOOGLE_MAPS_API_KEY'] %>&libraries=marker&loading=async&callback=gmapsBoot"></script>
+  </head>
+
+  <body class="d-flex flex-column vh-100 admin-body" >
+    
+    <!-- ヘッダー部分：共通ヘッダーに管理者専用クラスを追加 -->
+    <header class="admin-header-fixed">
+      <%= render 'layouts/admin_header' %>
+    </header>
+    
+    <!-- 管理者用通知部分：固定領域に配置 -->
+    <div class="notification-area" >
+      <%= render "admin/shared/notifications" %>
+    </div>
+    
+    <!-- メインコンテンツ：レスポンシブコンテナを追加 -->
+    <main class="flex-grow-1 container my-3">
+      <% if flash[:notice].present? %>
+        <div class="alert alert-success"><%= flash[:notice] %></div>
+      <% end %>
+      <% if flash[:alert].present? %>
+        <div class="alert alert-danger"><%= flash[:alert] %></div>
+      <% end %>
+      <%= yield %>
+    </main>
+    
+    <!-- フッター部分 -->
+    <%= render "layouts/footer" %>
+    
+  </body>
+</html>

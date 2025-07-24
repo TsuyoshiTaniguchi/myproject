@@ -1,0 +1,41 @@
+<%# app/views/layouts/_notifications.html.erb %>
+<li class="nav-item">
+  <div class="dropdown">
+    <button class="btn notification-toggle dropdown-toggle"
+            type="button"
+            id="unreadNotifications"
+            data-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="false"
+            data-turbo="false">
+      <i class="fas fa-bell"></i> 未読通知
+      <span class="badge badge-danger">
+        <%= current_user.notifications.unread.count %>
+      </span>
+    </button>
+
+    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="unreadNotifications" data-turbo="false">
+      <% items = current_user.notifications.unread
+                   .reject { |n| %w[Like Comment].include?(n.notification_type) && n.source.user_id == current_user.id }
+                   .uniq { |n| [n.source_type, n.source_id, n.created_at.to_date] } %>
+
+      <% if items.any? %>
+        <% items.first(5).each do |n| %>
+          <%= link_to n.link_text.html_safe,
+                      n.link_url,
+                      method: n.link_method,
+                      class: "dropdown-item",
+                      data: { turbo: false } %>
+        <% end %>
+
+        <div class="dropdown-divider"></div>
+        <%= link_to "すべての通知を見る",
+                    notifications_path,
+                    class: "dropdown-item text-center",
+                    data: { turbo: false } %>
+      <% else %>
+        <span class="dropdown-item disabled">未読の通知はありません</span>
+      <% end %>
+    </div>
+  </div>
+</li>

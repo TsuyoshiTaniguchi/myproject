@@ -1,0 +1,8 @@
+// app/assets/stylesheets/components/overrides.scss
+
+// Masonry グリッド内の画像を300×300に統一
+.masonry-grid .masonry-item img {
+  width: 300px;
+  height: 300px;
+  object-fit: cover;
+}

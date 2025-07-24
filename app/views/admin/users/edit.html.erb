@@ -1,0 +1,140 @@
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <h1 class="mb-4 text-center font-weight-bold">ユーザー情報編集</h1>
+
+      <%= form_with model: @user,
+                    url: admin_user_path(@user),
+                    method: :patch,
+                    local: true,
+                    html: { multipart: true } do |f| %>
+
+        <!-- 基本情報 -->
+        <div class="mb-3">
+          <%= f.label :name, "名前", class: "form-label" %>
+          <%= f.text_field :name, class: "form-control", placeholder: "名前を入力" %>
+        </div>
+
+        <div class="mb-3">
+          <%= f.label :email, "メールアドレス", class: "form-label" %>
+          <%= f.email_field :email, class: "form-control", placeholder: "example@example.com" %>
+        </div>
+        
+        <div class="mb-3">
+          <%= f.label :status, "ステータス", class: "form-label" %>
+          <%= f.select :status, User.statuses.keys.map { |key| [I18n.t("enums.user.status.#{key}"), key] },
+                {}, class: "form-control" %>
+        </div>
+        
+        <!-- 自己PR概要 -->
+        <div class="mb-4 p-3 border rounded" style="background-color: #f9f9f9;">
+          <h4>自己PR概要</h4>
+          <p class="small text-muted">
+            ※ あなたの自信や魅力をひとことで伝えてみましょう。シンプルにあなたらしさを表現してください。
+          </p>
+          <%= f.label :personal_statement, "自己PR概要", class: "form-label" %>
+          <%= f.text_area :personal_statement, class: "form-control", rows: 4, placeholder: "例）温かい人柄とアイデアが自慢です…" %>
+        </div>
+
+        <!-- 成長ストーリー -->
+        <div class="mb-4 p-3 border rounded" style="background-color: #fdfdfd;">
+          <h4>成長ストーリー（詳細）</h4>
+          <p class="small text-muted">
+            ※ これまでの経験や学び、夢・目標を詳しくお聞かせください。
+          </p>
+          <%= f.label :growth_story, "成長ストーリー", class: "form-label" %>
+          <%= f.text_area :growth_story, class: "form-control", rows: 6, placeholder: "例）学生時代の挑戦から、現在の目標に至るまで…" %>
+        </div>
+        
+        <!-- ライフログ公開 -->
+        <div class="form-check mb-3">
+          <%= f.check_box :daily_reports_public, class: "form-check-input" %>
+          <%= f.label :daily_reports_public, "ライフログ＜日報＞を公開する", class: "form-check-label" %>
+        </div>
+        
+        <!-- ポートフォリオ関連 -->
+        <div class="mb-3">
+          <%= f.label :portfolio_url, "ポートフォリオURLを選択または入力", class: "form-label" %>
+          <select class="form-control mb-2" id="portfolio_platform">
+            <option value="">サービスを選択</option>
+            <option value="github">GitHub</option>
+            <option value="behance">Behance</option>
+            <option value="dribbble">Dribbble</option>
+            <option value="custom">その他（手入力）</option>
+          </select>
+        </div>
+        
+        <div class="mb-3" id="portfolio_username_field" style="display: none;">
+          <%= f.label :portfolio_username, "ユーザー名を入力", class: "form-label" %>
+          <%= f.text_field :portfolio_username, class: "form-control", placeholder: "ユーザー名を入力" %>
+        </div>
+        
+        <div class="mb-3" id="portfolio_url_field">
+          <%= f.label :portfolio_url, "ポートフォリオURL", class: "form-label" %>
+          <%= f.text_field :portfolio_url, class: "form-control", placeholder: "https://example.com" %>
+        </div>
+        
+        <script>
+          document.addEventListener("DOMContentLoaded", function() {
+            var portfolioPlatform = document.getElementById("portfolio_platform");
+            var usernameField = document.getElementById("portfolio_username_field");
+            var urlField = document.getElementById("portfolio_url_field");
+            var urlInput = document.querySelector("[name='user[portfolio_url]']");
+            var portfolioUsernameInput = document.querySelector("[name='user[portfolio_username]']");
+            
+            portfolioPlatform.addEventListener("change", function() {
+              var selectedService = this.value;
+              if (selectedService === "custom" || selectedService === "") {
+                usernameField.style.display = "none";
+                urlField.style.display = "block";
+                urlInput.value = "";
+              } else if (selectedService === "github" || selectedService === "behance" || selectedService === "dribbble") {
+                usernameField.style.display = "block";
+                urlField.style.display = "none";
+                urlInput.value = "";
+              }
+            });
+            
+            if (portfolioUsernameInput) {
+              portfolioUsernameInput.addEventListener("input", function() {
+                var selectedService = portfolioPlatform.value;
+                if (selectedService === "github") {
+                  urlInput.value = "https://github.com/" + this.value;
+                } else if (selectedService === "behance") {
+                  urlInput.value = "https://www.behance.net/" + this.value;
+                } else if (selectedService === "dribbble") {
+                  urlInput.value = "https://dribbble.com/" + this.value;
+                }
+              });
+            }
+          });
+        </script>
+        
+        <div class="mb-3">
+          <%= f.label :portfolio_files, "ポートフォリオのファイルをアップロード", class: "form-label" %>
+          <%= f.file_field :portfolio_files, multiple: true, class: "form-control" %>
+        </div>
+        
+        <!-- プロフィール画像プレビュー -->
+        <div class="mb-3 text-center">
+          <% if @user.profile_image.attached? %>
+            <%= image_tag @user.profile_image.variant(resize: "200x200"), class: "rounded-circle mb-3 border" %>
+          <% else %>
+            <%= image_tag "no_image.jpg", class: "rounded-circle mb-3 border", width: 200, height: 200 %>
+          <% end %>
+        </div>
+        
+        <div class="mb-3">
+          <%= f.label :profile_image, "プロフィール画像を変更", class: "form-label" %>
+          <%= f.file_field :profile_image, accept: "image/*", class: "form-control" %>
+        </div>
+        
+        <!-- 更新ボタンとキャンセル -->
+        <div class="text-center mt-4">
+          <%= f.submit "更新する", class: "btn btn-primary px-4" %>
+          <%= link_to "キャンセル", admin_user_path(@user), class: "btn btn-secondary ml-2" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

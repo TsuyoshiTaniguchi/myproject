@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  notification_type: MyString
+  source_id: 1
+  source_type: MyString
+  read_at: 2025-05-20 11:31:14
+
+two:
+  user: two
+  notification_type: MyString
+  source_id: 1
+  source_type: MyString
+  read_at: 2025-05-20 11:31:14

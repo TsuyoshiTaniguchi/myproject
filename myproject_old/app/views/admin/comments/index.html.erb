@@ -1,0 +1,93 @@
+<h1 class="mb-4">
+  <i class="bi bi-chat-square-text me-2"></i>コメント管理
+</h1>
+
+<div class="mb-3">
+  <!-- ソート・フィルタボタン -->
+  <div class="d-flex flex-wrap gap-2 mb-2">
+    <%= link_to "新しい順",           admin_comments_path(sort: "newest"),        class: "btn btn-outline-primary btn-sm" %>
+    <%= link_to "古い順",             admin_comments_path(sort: "oldest"),        class: "btn btn-outline-primary btn-sm" %>
+    <%= link_to "通報済みのコメントのみ表示", search_admin_comments_path(reported_only: true),
+                class: "btn btn-outline-danger btn-sm" %>
+    <%= link_to "すべてのコメントを表示",     search_admin_comments_path,
+                class: "btn btn-secondary btn-sm" %>
+  </div>
+
+  <!-- 検索フォーム -->
+  <%= form_with url: search_admin_comments_path, method: :get, local: true,
+                html: { class: "input-group align-items-center mb-3", style: "max-width:400px;" } do |form| %>
+    <%= form.text_field :query, class: "form-control", placeholder: "コメントのキーワードで検索" %>
+    <div class="input-group-append">
+      <%= form.submit "検索", class: "btn btn-primary" %>
+    </div>
+  <% end %>
+</div>
+
+<!-- ====== レスポンシブ対応テーブル ====== -->
+<div class="table-responsive">
+  <table class="table table-hover table-sm text-center align-middle admin-comments">
+    <thead class="table-dark">
+      <tr>
+        <th>投稿タイトル</th>
+        <th class="d-none d-sm-table-cell">コメント者</th>
+        <th class="d-none d-md-table-cell">内容</th>
+        <th class="d-none d-lg-table-cell">投稿日</th>
+        <th class="d-none d-lg-table-cell">通報状況</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @comments.each do |comment| %>
+        <tr class="<%= 'table-warning' if comment.reported? %>">
+          <!-- 投稿タイトル：常に表示 -->
+          <td class="text-wrap" style="white-space: normal; max-width:200px;">
+            <%= link_to comment.post.title,
+                        admin_post_path(comment.post),
+                        class: "d-block text-truncate",
+                        style: "max-width:180px;",
+                        title: comment.post.title %>
+          </td>
+
+          <!-- コメント者：sm以上で表示 -->
+          <td class="d-none d-sm-table-cell">
+            <%= comment.user&.name.presence || "匿名ユーザー" %>
+          </td>
+
+          <!-- 内容：md以上で表示 -->
+          <td class="d-none d-md-table-cell text-wrap" style="white-space: normal; max-width:250px;">
+            <%= truncate(comment.content, length: 60) %>
+          </td>
+
+          <!-- 投稿日：lg以上で表示 -->
+          <td class="d-none d-lg-table-cell">
+            <%= l(comment.created_at, format: :short) %>
+          </td>
+
+          <!-- 通報状況：lg以上で表示 -->
+          <td class="d-none d-lg-table-cell">
+            <% if comment.reported? %>
+              <span class="badge bg-danger">
+                <i class="bi bi-flag-fill me-1"></i>通報済み
+              </span>
+            <% else %>
+              <span class="badge bg-success">正常</span>
+            <% end %>
+          </td>
+
+          <!-- 操作：常に表示 -->
+          <td>
+            <div class="btn-group btn-group-sm" role="group">
+              <%= link_to "詳細", admin_comment_path(comment), class: "btn btn-info" %>
+              <%= link_to "削除",  admin_comment_path(comment),
+                          method: :delete,
+                          data: { confirm: "⚠️ 本当に削除しますか？" },
+                          class: "btn btn-danger" %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<%= link_to "ダッシュボードへ戻る", admin_dashboard_path, class: "btn btn-secondary mt-3" %>
