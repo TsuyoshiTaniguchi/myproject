@@ -1,0 +1,32 @@
+
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: myapp_development
+      MYSQL_USER: root
+      MYSQL_PASSWORD: example
+    volumes:
+      - db-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+  app:
+    build: .
+    command: bundle exec rails s -b 0.0.0.0
+    volumes:
+      - .:/app
+    working_dir: /app
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_NAME: myapp_development
+      DB_USERNAME: root
+      DB_PASSWORD: example
+    ports:
+      - "3000:3000"
+
+volumes:
+  db-data:
